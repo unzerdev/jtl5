@@ -1,0 +1,13 @@
+{
+    "name": "s360/s360_unzer_shop5",
+    "description": "Unzer Plugin für JTL Shop 5",
+    "authors": [
+        {
+            "name": "Pascal Kleindienst",
+            "email": "pascal.kleindienst@solution360.de"
+        }
+    ],
+    "require": {
+        "unzerdev/php-sdk": "^1.1"
+    }
+}

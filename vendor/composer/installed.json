@@ -1,0 +1,43 @@
+[
+    {
+        "name": "unzerdev/php-sdk",
+        "version": "1.1.1.0",
+        "version_normalized": "1.1.1.0",
+        "source": {
+            "type": "git",
+            "url": "git@github.com:unzerdev/php-sdk.git",
+            "reference": "309f63b9b61959eb6a5936aec50f06c106b08611"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/unzerdev/php-sdk/zipball/309f63b9b61959eb6a5936aec50f06c106b08611",
+            "reference": "309f63b9b61959eb6a5936aec50f06c106b08611",
+            "shasum": ""
+        },
+        "require": {
+            "ext-json": "*",
+            "php": "~7.1.0|~7.2.0|~7.3.0|~7.4.0"
+        },
+        "require-dev": {
+            "friendsofphp/php-cs-fixer": "^2.0",
+            "phpunit/phpunit": ">6.5 <9.0"
+        },
+        "suggest": {
+            "ext-curl": "*"
+        },
+        "time": "2020-12-15T14:00:21+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "UnzerSDK\\": "src",
+                "UnzerSDK\\examples\\": "examples"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "Apache-2.0"
+        ],
+        "description": "This is the php sdk to connect to the Unzer rest api."
+    }
+]

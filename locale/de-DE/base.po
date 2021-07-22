@@ -1,0 +1,401 @@
+msgid "Bestellungen"
+msgstr "Bestellungen"
+
+msgid "Einstellungen"
+msgstr "Einstellungen"
+
+msgid "Unzer Kreditkarte"
+msgstr "Unzer Kreditkarte"
+
+msgid "Unzer SEPA-Lastschrift"
+msgstr "Unzer Lastschrift"
+
+msgid "Unzer Lastschrift"
+msgstr "Unzer Lastschrift"
+
+msgid "Unzer SEPA-Lastschrift (guaranteed)"
+msgstr "Unzer Lastschrift (secured)"
+
+msgid "Unzer Lastschrift (secured)"
+msgstr "Unzer Lastschrift (secured)"
+
+msgid "Unzer Rechnung"
+msgstr "Unzer Rechnung"
+
+msgid "Unzer Rechnung (guaranteed)"
+msgstr "Unzer Rechnung (secured)"
+
+msgid "Unzer Fakturierung von Rechnungen"
+msgstr "Unzer Fakturierung von Rechnungen"
+
+msgid "Unzer Rechnungskauf"
+msgstr "Unzer Rechnungskauf"
+
+msgid "Unzer PayPal"
+msgstr "Unzer PayPal"
+
+msgid "Unzer SOFORT"
+msgstr "Unzer SOFORT"
+
+msgid "Unzer Giropay"
+msgstr "Unzer Giropay"
+
+msgid "Unzer Przelewy24"
+msgstr "Unzer Przelewy24"
+
+msgid "Unzer iDEAL"
+msgstr "Unzer iDEAL"
+
+msgid "Unzer Prepayment"
+msgstr "Unzer Vorkasse"
+
+msgid "Unzer EPS"
+msgstr "Unzer EPS"
+
+msgid "Unzer FlexiPay Direct"
+msgstr "Unzer FlexiPay Direct"
+
+msgid "Unzer Direktüberweisung"
+msgstr "Unzer Direktüberweisung"
+
+msgid "Unzer Alipay"
+msgstr "Unzer Alipay"
+
+msgid "Unzer WeChat Pay"
+msgstr "Unzer WeChat Pay"
+
+msgid "Unzer FlexiPay Installment (Hire Purchase)"
+msgstr "Unzer FlexiPay Instalment (Hire Purchase)"
+
+msgid "Unzer Instalment"
+msgstr "Unzer Ratenkauf"
+
+msgid "hpError"
+msgstr "Fehler"
+
+msgid "hpInfo"
+msgstr "Info"
+
+msgid "hpWarning"
+msgstr "Warnung"
+
+msgid "hpSuccess"
+msgstr "Erfolg"
+
+msgid "hpEmptySearchResult"
+msgstr "<b>Suche erfolglos:</b> Keine Bestellung für \"%searchTerm%\" gefunden."
+
+msgid "hpOrderStatusNotice"
+msgstr "Der Bezahl-Status in der Tabelle enthält nur einen zwischengespeicherten Stand. Um den aktuellen Bezahl-Status zu erfahren, rufen Sie die Detail-Seite der Bestellung auf."
+
+msgid "hpOrderOverview"
+msgstr "Bestellübersicht"
+
+msgid "hpOrderSearchPlaceholder"
+msgstr "Bestellnummer oder Payment ID"
+
+msgid "hpSearch"
+msgstr "Suchen"
+
+msgid "hpOrderNumber"
+msgstr "Bestellnummer"
+
+msgid "hpJtlStatus"
+msgstr "JTL Status"
+
+msgid "hpUnzerId"
+msgstr "Unzer ID <em><small>(Payment Id)</small></em>"
+
+msgid "hpPaymentStatus"
+msgstr "Bezahl-Status"
+
+msgid "hpPaymentMethod"
+msgstr "Bezahlmethode"
+
+msgid "hpAmount"
+msgstr "Betrag"
+
+msgid "hpOrderDate"
+msgstr "Bestelldatum"
+
+msgid "hpOrderDetailsTitle"
+msgstr "Details zur Bestellung <em>%orderId%</em>"
+
+msgid "hpCloseWindow"
+msgstr "Fenster schließen"
+
+msgid "hpStateCanceled"
+msgstr "Storniert"
+
+msgid "hpStateOpen"
+msgstr "Offen"
+
+msgid "hpStateInProgress"
+msgstr "In Bearbeitung"
+
+msgid "hpStatePaid"
+msgstr "Bezahlt"
+
+msgid "hpStateShipped"
+msgstr "Versandt"
+
+msgid "hpStatePartlyShipped"
+msgstr "Teilversandt"
+
+msgid "hpStatePending"
+msgstr "Ausstehend"
+
+msgid "hpStateFailure"
+msgstr "Fehlerhaft"
+
+msgid "hpStateSuccessful"
+msgstr "Erfolgreich"
+
+msgid "hpStateCompleted"
+msgstr "Abgeschlossen"
+
+msgid "hpStatePartly"
+msgstr "Teilweise bezahlt/abgeschlossen"
+
+msgid "hpStatePaymentReview"
+msgstr "Zahlungsüberprüfung"
+
+msgid "hpStateChargeback"
+msgstr "Rückbuchung"
+
+msgid "hpPaymentmethodCard"
+msgstr "Kreditkarte"
+
+msgid "hpPaymentmethodSEPA"
+msgstr "Lastschrift"
+
+msgid "hpPaymentmethodSEPAGuaranteed"
+msgstr "Lastschrift (secured)"
+
+msgid "hpPaymentmethodInvoice"
+msgstr "Rechnung"
+
+msgid "hpPaymentmethodInvoiceGuaranteed"
+msgstr "Rechnung (secured)"
+
+msgid "hpPaymentmethodInvoiceFactoring"
+msgstr "Rechnungskauf"
+
+msgid "hpPaymentmethodPayPal"
+msgstr "PayPal"
+
+msgid "hpPaymentmethodSOFORT"
+msgstr "SOFORT"
+
+msgid "hpPaymentmethodGiropay"
+msgstr "Giropay"
+
+msgid "hpPaymentmethodPrepayment"
+msgstr "Vorkasse"
+
+msgid "hpPaymentmethodEPS"
+msgstr "EPS"
+
+msgid "hpPaymentmethodFlexiPayDirect"
+msgstr "Direktüberweisung"
+
+msgid "hpPaymentmethodAlipay"
+msgstr "Alipay"
+
+msgid "hpPaymentmethodWeChatPay"
+msgstr "WeChat Pay"
+
+msgid "hpPaymentmethodiDEAL"
+msgstr "iDEAL"
+
+msgid "hpPaymentmethodHirePurchaseDirectDebit"
+msgstr "Ratenkauf"
+
+msgid "hpOpenInPortal"
+msgstr "Bestellung im Insight-Portal anzeigen"
+
+msgid "hpDelivieryAddress"
+msgstr "Lieferadresse"
+
+msgid "hpBillingAddress"
+msgstr "Rechnungsadresse"
+
+msgid "hpEmailAddressLabel"
+msgstr "E-Mail Adresse:"
+
+msgid "hpTelephoneLabel"
+msgstr "Telefon: "
+
+msgid "hpStatusInformation"
+msgstr "Statusinformationen"
+
+msgid "hpInvoiceNumber"
+msgstr "Rechnungsnummer"
+
+msgid "hpPaymentId"
+msgstr "Zahlungs-ID"
+
+msgid "hpTransactions"
+msgstr "Transkationen"
+
+msgid "hpID"
+msgstr "ID"
+
+msgid "hpShortID"
+msgstr "Kurz-ID"
+
+msgid "hpReference"
+msgstr "Referenz"
+
+msgid "hpStatus"
+msgstr "Status"
+
+msgid "hpEmptyResult"
+msgstr "- keine -"
+
+msgid "hpDispatchNotifications"
+msgstr "Versandmeldungen"
+
+msgid "hpCancellations"
+msgstr "Stornierungen"
+
+msgid "hpSettingsAPIAccessData"
+msgstr "API Zugangsdaten"
+
+msgid "hpSettingsPrivateKeyLabel"
+msgstr "Privater Schlüssel (Private Key)"
+
+msgid "hpSettingsPrivateKeyPlaceholder"
+msgstr "s-priv-xxxxxxxxxx"
+
+msgid "hpSettingsPrivateKeyHelp"
+msgstr "Eingabe des von Unzer zur Verfügung gestellten Private Key."
+
+msgid "hpSettingsPublicKeyLabel"
+msgstr "Öffentlicher Schlüssel (Public Key)"
+
+msgid "hpSettingsPublicKeyPlaceholder"
+msgstr "s-pub-xxxxxxxxxx"
+
+msgid "hpSettingsPublicKeyHelp"
+msgstr "Eingabe des von Unzer zur Verfügung gestellten Public Key."
+
+msgid "hpSettingsMerchantIdLabel"
+msgstr "Händler ID für das Insight Portal <small>(Optional)</small>"
+
+msgid "hpSettingsMerchantIdHelp"
+msgstr "Die Händler ID (Merchant ID) des Insight Portal wird benötigt, um in den Bestelldetails einen Link zur jeweiligen Transaktion im Insight Portal bereitzustellen."
+
+msgid "hpSettingsStyles"
+msgstr "Styles"
+
+msgid "hpSettingsFontSize"
+msgstr "Schriftgröße"
+
+msgid "hpSettingsFontColor"
+msgstr "Schriftfarbe"
+
+msgid "hpSettingsFontFamily"
+msgstr "Schriftart"
+
+msgid "hpSettingsFontSizePlaceholder"
+msgstr "z.B. 16px oder 1.125rem"
+
+msgid "hpSettingsFontColorPlaceholder"
+msgstr "z.B. red oder #ff0000"
+
+msgid "hpSettingsFontFamilyPlaceholder"
+msgstr "z.B. Arial, Helvetica, sans-serif"
+
+msgid "hpSettingsExpert"
+msgstr "Experten-Einstellungen"
+
+msgid "hpSettingsSelectorSubmitButton"
+msgstr "Selektor für den Submit-Button im Zahlungszwischenschritt"
+
+msgid "hpSettingsSelectorSubmitButtonHelp"
+msgstr "Der Selektor für den Submit-Button im Zahlungszwischenschritt."
+
+msgid "hpSettingsPqSelectorChangePaymentMethod"
+msgstr "PQ-Selector für \"Zahlungsart ändern\" Button im Zwischenschritt"
+
+msgid "hpSettingsPqSelectorChangePaymentMethodHelp"
+msgstr "Der PHP-Query-Selektor für das Einhängen des \"Zahlungsart ändern\"-Buttons auf der Zahlungszwischenschritt-Seite."
+
+msgid "hpSettingsPqMethodChangePaymentMethod"
+msgstr "PQ-Einfügemethode für \"Zahlungsart ändern\" Button im Zwischenschritt"
+
+msgid "hpSettingsPqMethodChangePaymentMethodHelp"
+msgstr "Die PHP-Query-Einfügemethode für das Einhängen des \"Zahlungsart ändern\"-Buttons auf der Zahlungszwischenschritt-Seite."
+
+msgid "hpSettingsPqSelectorPaymentInformation"
+msgstr "PQ-Selector für die Zahlungsinformationen auf der Bestellabschluss-Seite"
+
+msgid "hpSettingsPqSelectorPaymentInformationHelp"
+msgstr "Der PHP-Query-Selektor für das Einhängen der Zahlungsinformationen auf der Bestellabschluss-Seite"
+
+msgid "hpSettingsPqMethodPaymentInformation"
+msgstr "PQ-Einfügemethode für die Zahlungsinformationen auf der Bestellabschluss-Seite"
+
+msgid "hpSettingsPqMethodPaymentInformationHelp"
+msgstr "Die PHP-Query-Einfügemethode für das Einhängen der Zahlungsinformationen auf der Bestellabschluss-Seite"
+
+msgid "hpSettingsPqSelectorErrors"
+msgstr "PQ-Selector für Fehlermeldungen"
+
+msgid "hpSettingsPqSelectorErrorsHelp"
+msgstr "Der PHP-Query-Selektor für das Einhängen von Plugin-Fehlermeldungen auf der Versandart/Zahlungsart-Auswahl."
+
+msgid "hpSettingsPqMethodErrors"
+msgstr "PQ-Einfügemethode für Fehlermeldungen"
+
+msgid "hpSettingsPqMethodErrorsHelp"
+msgstr "Die PHP-Query-Einfügemethode für das Einhängen von Plugin-Fehlermeldungen auf der Versandart/Zahlungsart-Auswahl."
+
+msgid "hpSettingsPqSelectorReviewStep"
+msgstr "PQ-Selector für Zahlungsart-Extras auf der \"Bestellung überprüfen\"-Seite"
+
+msgid "hpSettingsPqSelectorReviewStepHelp"
+msgstr "Der PHP-Query-Selektor für das Einhängen von Zahlungsart-Extras auf der \"Bestellung überprüfen\"-Seite"
+
+msgid "hpSettingsPqMethodReviewStep"
+msgstr "PQ-Einfügemethode für \"Bestellung überprüfen\"-Seite"
+
+msgid "hpSettingsPqMethodReviewStepHelp"
+msgstr "Die PHP-Query-Einfügemethode für das Einhängen von Zahlungsart-Extras auf der \"Bestellung überprüfen\"-Seite"
+
+msgid "hpSettingsSave"
+msgstr "Speichern"
+
+msgid "hpSettingsRegisterWebhooks"
+msgstr "Webhooks neu registrieren"
+
+msgid "hpSettingsAppend"
+msgstr "Anhängen (append)"
+
+msgid "hpSettingsPrepend"
+msgstr "Vorhängen (prepend)"
+
+msgid "hpSettingsBefore"
+msgstr "Vorstellen (before)"
+
+msgid "hpSettingsAfter"
+msgstr "Anstellen (after)"
+
+msgid "hpSettingsReplace"
+msgstr "Ersetzen (replace)"
+
+msgid "hpNotificationHeader"
+msgstr "Unzer Zahlungsart"
+
+msgid "hpInvalidPublicKeyNotification"
+msgstr "Ungültiger öffentlicher Schlüssel! Bitte achten Sie darauf, dass Sie Ihren öffentlichen und Ihren privaten Schlüssel nicht verwechseln!"
+
+msgid "hpInvalidPrivateKeyNotification"
+msgstr "Ungültiger privater Schlüssel!"
+
+msgid "hpPaymentMethodDuringCheckoutNotification"
+msgstr "Die Zahlungsart \"%s\" ist vor Abschluss der Bestellung nicht verwendbar."
+
+msgid "hpPaymentMethodNotConfiguredNotification"
+msgstr "Die Zahlungsart \"%s\" ist nicht konfiguriert!"

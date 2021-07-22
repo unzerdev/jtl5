@@ -1,0 +1,677 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jtlshopplugin>
+    <Name>Solution 360 Unzer Payments</Name>
+    <Description><![CDATA[Unzer Plugin für JTL Shop 5]]></Description>
+    <Author>Solution 360 GmbH</Author>
+    <URL>http://www.solution360.de</URL>
+    <XMLVersion>100</XMLVersion>
+    <MinShopVersion>5.0.0</MinShopVersion>
+    <Version>1.0.0</Version>
+    <PluginID>s360_unzer_shop5</PluginID>
+    <CreateDate>2020-10-27</CreateDate>
+    <ExsID>eef84f33-97ff-4519-8e0f-6760ae06c51f</ExsID>
+
+    <Install>
+        <Adminmenu>
+            <Customlink sort="10">
+                <Name><![CDATA[Bestellungen]]></Name>
+            </Customlink>
+            <Customlink sort="20">
+                <Name><![CDATA[Einstellungen]]></Name>
+            </Customlink>
+        </Adminmenu>
+
+        <FrontendLink>
+            <Link>
+                <Filename>webhook.php</Filename>
+                <Name>Unzer Webhook-Verarbeitung</Name>
+                <Template>webhook.tpl</Template>
+                <VisibleAfterLogin>N</VisibleAfterLogin>
+                <PrintButton>N</PrintButton>
+                <NoFollow>Y</NoFollow>
+                <SSL>2</SSL>
+                <LinkLanguage iso="GER">
+                    <Seo><![CDATA[unzer-webhook]]></Seo>
+                    <Name><![CDATA[Unzer Webhook-Verarbeitung]]></Name>
+                    <Title><![CDATA[Bitte warten]]></Title>
+                    <MetaTitle><![CDATA[Bitte warten]]></MetaTitle>
+                    <MetaKeywords><![CDATA[Bitte warten]]></MetaKeywords>
+                    <MetaDescription><![CDATA[Bitte warten]]></MetaDescription>
+                </LinkLanguage>
+                <LinkLanguage iso="ENG">
+                    <Seo><![CDATA[unzer-webhook]]></Seo>
+                    <Name><![CDATA[Unzer Webhook Handling]]></Name>
+                    <Title><![CDATA[Please wait]]></Title>
+                    <MetaTitle><![CDATA[Please wait]]></MetaTitle>
+                    <MetaKeywords><![CDATA[Please wait]]></MetaKeywords>
+                    <MetaDescription><![CDATA[Please wait]]></MetaDescription>
+                </LinkLanguage>
+            </Link>
+            <Link>
+                <Filename>sync-workflow.php</Filename>
+                <Name>Unzer WaWi Workflow-Verarbeitung</Name>
+                <Template>dummy.tpl</Template>
+                <VisibleAfterLogin>N</VisibleAfterLogin>
+                <PrintButton>N</PrintButton>
+                <NoFollow>Y</NoFollow>
+                <SSL>2</SSL>
+                <LinkLanguage iso="GER">
+                    <Seo><![CDATA[unzer-sync-workflow]]></Seo>
+                    <Name><![CDATA[Unzer WaWi Workflow-Verarbeitung]]></Name>
+                    <Title><![CDATA[Bitte warten]]></Title>
+                    <MetaTitle><![CDATA[Bitte warten]]></MetaTitle>
+                    <MetaKeywords><![CDATA[Bitte warten]]></MetaKeywords>
+                    <MetaDescription><![CDATA[Bitte warten]]></MetaDescription>
+                </LinkLanguage>
+                <LinkLanguage iso="ENG">
+                    <Seo><![CDATA[unzer-sync-workflow]]></Seo>
+                    <Name><![CDATA[Unzer WaWi Workflow Handling]]></Name>
+                    <Title><![CDATA[Please wait]]></Title>
+                    <MetaTitle><![CDATA[Please wait]]></MetaTitle>
+                    <MetaKeywords><![CDATA[Please wait]]></MetaKeywords>
+                    <MetaDescription><![CDATA[Please wait]]></MetaDescription>
+                </LinkLanguage>
+            </Link>
+        </FrontendLink>
+
+        <Locales>
+            <Variable>
+                <Name>s360_hp_invalid_form_token</Name>
+                <Description>
+                    <![CDATA[Ungültiges Sicherheitstoken]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Ungültiges Sicherheitstoken. Bitte versuchen Sie es noch einmal.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Invalid Security-Token. Please try again.]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_payment_process_runtime_exception</Name>
+                <Description>
+                    <![CDATA[Fehler während der Verarbeitung des Bestellvorgangs mit der Heidelpay API]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Es trat ein Fehler während der Verarbeitung der Bestellung auf. Bitte versuchen Sie es noch einmal oder kontaktieren Sie den Shop-Betreiber.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[An error occurred while processing the order. Please try again or contact the shop owner.]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_payment_process_exception</Name>
+                <Description>
+                    <![CDATA[Fehler während der Verarbeitung des Bestellvorgangs]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Es trat ein Fehler während der Verarbeitung der Bestellung auf. Bitte versuchen Sie es noch einmal oder kontaktieren Sie den Shop-Betreiber.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[An error occurred while processing the order. Please try again or contact the shop owner.]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_sepa_mandate</Name>
+                <Description>
+                    <![CDATA[SEPA Lastschrift-Mandat (Bankeinzug)]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[<h3>SEPA Lastschrift-Mandat (Bankeinzug)</h3>
+<p>Ich ermächtige %MERCHANT_NAME%, Zahlungen von meinem Konto mittels SEPA Lastschrift einzuziehen. Zugleich weise ich mein Kreditinstitut an, die von %MERCHANT_NAME% auf mein Konto gezogenen SEPA Lastschriften einzulösen.</p>
+<p>Hinweis: Ich kann innerhalb von acht Wochen, beginnend mit dem Belastungsdatum, die Erstattung des belasteten Betrags verlangen. Es gelten dabei die mit meinem Kreditinstitut vereinbarten Bedingungen.</p>
+<p>Für den Fall der Nichteinlösung der Lastschriften oder des Widerspruchs gegen die Lastschriften weise ich meine Bank unwiderruflich an, %MERCHANT_NAME% oder Dritten auf Anforderung meinen Namen, Adresse und Geburtsdatum vollständig mitzuteilen.</p>]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[<h3>SEPA Direct Debit Mandate</h3>
+<p>By signing this mandate form, you authorise %MERCHANT_NAME% to send instructions to your bank to debit your account and your bank to debit your account in accordance with the instructions from %MERCHANT_NAME%.</p>
+<p>Note: As part of your rights, you are entitled to a refund from your bank under the terms and conditions of your agreement with your bank. A refund must be claimed within 8 weeks starting from the date on which your account was debited. Your rights regarding this SEPA mandate are explained in a statement that you can obtain from your bank.</p>
+<p>In case of refusal or rejection of direct debit payment I instruct my bank irrevocably to inform %MERCHANT_NAME% or any third party upon request about my name, address and date of birth.</p>]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_redirecting</Name>
+                <Description>
+                    <![CDATA[Automatische Weiterleitung]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Bitte warten. Sie werden automatisch weitergeleitet ...]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Please wait. You will be automatically redirected ...]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_confirm_instalment_title</Name>
+                <Description>
+                    <![CDATA[Titel: Bestätigung des Ratenzahlplans]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Ratenzahlungsplan bestätigen]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Confirm instalment plan]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_confirm_download_instalment_plan</Name>
+                <Description>
+                    <![CDATA[Beschreibung: Bestätigung des Ratenzahlplans]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Laden Sie die Ratenzahlungsplan herunter und bestätigen Sie Ihre Bestellung.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Download the instalment plant information and confirm your order.]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_total_purchase_amount</Name>
+                <Description>
+                    <![CDATA[Ratenzahlung: Gesamtkaufbetrag]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Gesamtkaufbetrag]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Total Purchase Amount]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_total_interest_amount</Name>
+                <Description>
+                    <![CDATA[Ratenzahlung: Gesamter Zinsbetrag]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Gesamter Zinsbetrag]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Total Interest Amount]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_total_amount</Name>
+                <Description>
+                    <![CDATA[Ratenzahlung: Gesamtbetrag]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Gesamtbetrag]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Total Amount]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_download_your_plan</Name>
+                <Description>
+                    <![CDATA[Ratenzahlungsplan herunterladen]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Bitte laden Sie Ihren Ratenzahlungsplan <a href="%s" target="_blank">hier</a> herunter]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Please download your rate plan <a href="%s" target="_blank">here</a>]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_close_modal</Name>
+                <Description>
+                    <![CDATA[Modal schließen]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Schließen]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Close]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_confirmation_checksum</Name>
+                <Description>
+                    <![CDATA[Fehlertext bei Bestellbestätigung, Warenkorb-Checksum hat sich geändert]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Ihr Warenkorb hat sich verändert. Bitte versuchen Sie es erneut.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Your basket has changed. Please try again.]]>
+                </VariableLocalized>
+            </Variable>
+        </Locales>
+
+        <PaymentMethod>
+            <Method>
+                <Name><![CDATA[Unzer Kreditkarte]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>CREDIT_CARD</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayCreditCard.php</ClassFile>
+                <ClassName>HeidelpayCreditCard</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/credit_card_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Kreditkarte]]></Name>
+                    <ChargeName><![CDATA[Kreditkarte]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Credit Card]]></Name>
+                    <ChargeName><![CDATA[Credit Card]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Lastschrift]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>DIRECT_DEBIT</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpaySEPADirectDebit.php</ClassFile>
+                <ClassName>HeidelpaySEPADirectDebit</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/sepa_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Lastschrift]]></Name>
+                    <ChargeName><![CDATA[Unzer Lastschrift]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Direct Debit]]></Name>
+                    <ChargeName><![CDATA[Unzer Direct Debit]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Lastschrift (secured)]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>DIRECT_DEBIT</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpaySEPADirectDebitGuaranteed.php</ClassFile>
+                <ClassName>HeidelpaySEPADirectDebitGuaranteed</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/sepa_guaranteed_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Lastschrift]]></Name>
+                    <ChargeName><![CDATA[Unzer Lastschrift]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Direct Debit]]></Name>
+                    <ChargeName><![CDATA[Unzer Direct Debit]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Rechnung]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>INVOICE</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayInvoice.php</ClassFile>
+                <ClassName>HeidelpayInvoice</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/invoice_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Rechnung]]></Name>
+                    <ChargeName><![CDATA[Unzer Rechnung]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Invoice]]></Name>
+                    <ChargeName><![CDATA[Unzer Invoice]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Rechnung (secured)]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>INVOICE</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayInvoiceGuaranteed.php</ClassFile>
+                <ClassName>HeidelpayInvoiceGuaranteed</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/invoice_guaranteed_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Rechnung]]></Name>
+                    <ChargeName><![CDATA[Unzer Rechnung]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Invoice]]></Name>
+                    <ChargeName><![CDATA[Unzer Invoice]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Rechnungskauf]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>INVOICE</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayInvoiceFactoring.php</ClassFile>
+                <ClassName>HeidelpayInvoiceFactoring</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/invoice_factoring_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Rechnungskauf]]></Name>
+                    <ChargeName><![CDATA[Unzer Rechnungskauf]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Invoice]]></Name>
+                    <ChargeName><![CDATA[Unzer Invoice]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer PayPal]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>PAYPAL</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayPayPal.php</ClassFile>
+                <ClassName>HeidelpayPayPal</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/paypal_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[PayPal]]></Name>
+                    <ChargeName><![CDATA[PayPal]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[PayPal]]></Name>
+                    <ChargeName><![CDATA[PayPal]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer SOFORT]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpaySofort.php</ClassFile>
+                <ClassName>HeidelpaySofort</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/sofort_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[SOFORT]]></Name>
+                    <ChargeName><![CDATA[SOFORT]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[SOFORT]]></Name>
+                    <ChargeName><![CDATA[SOFORT]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Giropay]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayGiropay.php</ClassFile>
+                <ClassName>HeidelpayGiropay</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/giropay_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Giropay]]></Name>
+                    <ChargeName><![CDATA[Giropay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Giropay]]></Name>
+                    <ChargeName><![CDATA[Giropay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Przelewy24]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayPrzelewy24.php</ClassFile>
+                <ClassName>HeidelpayPrzelewy24</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/przelewy24_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Przelewy24]]></Name>
+                    <ChargeName><![CDATA[Przelewy24]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Przelewy24]]></Name>
+                    <ChargeName><![CDATA[Przelewy24]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer iDEAL]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayiDEAL.php</ClassFile>
+                <ClassName>HeidelpayiDEAL</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/ideal_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[iDEAL]]></Name>
+                    <ChargeName><![CDATA[iDEAL]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[iDEAL]]></Name>
+                    <ChargeName><![CDATA[iDEAL]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Vorkasse]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayPrepayment.php</ClassFile>
+                <ClassName>HeidelpayPrepayment</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/prepayment_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Vorkasse]]></Name>
+                    <ChargeName><![CDATA[Unzer Vorkasse]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Prepayment]]></Name>
+                    <ChargeName><![CDATA[Unzer Prepayment]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer EPS]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayEPS.php</ClassFile>
+                <ClassName>HeidelpayEPS</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/eps_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[EPS]]></Name>
+                    <ChargeName><![CDATA[EPS]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[EPS]]></Name>
+                    <ChargeName><![CDATA[EPS]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Direktüberweisung]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayFlexiPayDirect.php</ClassFile>
+                <ClassName>HeidelpayFlexiPayDirect</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/flexipay_direct_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Direktüberweisung]]></Name>
+                    <ChargeName><![CDATA[Unzer Direktüberweisung]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Bank Transfer]]></Name>
+                    <ChargeName><![CDATA[Unzer Bank Transfer]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Alipay]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayAlipay.php</ClassFile>
+                <ClassName>HeidelpayAlipay</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/alipay_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Alipay]]></Name>
+                    <ChargeName><![CDATA[Alipay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Alipay]]></Name>
+                    <ChargeName><![CDATA[Alipay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer WeChat Pay]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayWeChatPay.php</ClassFile>
+                <ClassName>HeidelpayWeChatPay</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/wechat_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[WeChat Pay]]></Name>
+                    <ChargeName><![CDATA[WeChat Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[WeChat Pay]]></Name>
+                    <ChargeName><![CDATA[WeChat Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Ratenkauf]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>HeidelpayHirePurchaseDirectDebit.php</ClassFile>
+                <ClassName>HeidelpayHirePurchaseDirectDebit</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/hire_purchase_direct_debit_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Ratenkauf]]></Name>
+                    <ChargeName><![CDATA[Unzer Ratenkauf]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Instalment]]></Name>
+                    <ChargeName><![CDATA[Unzer Instalment]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <Setting type="text" initialValue="" sort="10" conf="Y">
+                    <Name><![CDATA[Effektiver Zinssatz (in %)]]></Name>
+                    <Description>
+                        <![CDATA[Gibt den effektiven Zinssatz der monatlichen Ratenzahlungen an. Der Bereich ist an Ihre Händlerkonfiguration gebunden. Beispiel: 5.99]]>
+                    </Description>
+                    <ValueName>effectiveInterest</ValueName>
+                </Setting>
+            </Method>
+        </PaymentMethod>
+    </Install>
+</jtlshopplugin>

@@ -61,7 +61,7 @@ try {
     $unzer = new Unzer(UNZER_PAPI_PRIVATE_KEY);
     $unzer->setDebugMode(true)->setDebugHandler(new ExampleDebugHandler());
 
-    $recurring = $unzer->activateRecurringPayment($paymentTypeId, RETURN_CONTROLLER_URL);
+    $recurring = $unzer->activateRecurringPayment($paymentTypeId, MY_RETURN_CONTROLLER_URL);
 
     // You'll need to remember the paymentId for later in the ReturnController (in case of 3ds)
     $_SESSION['PaymentTypeId'] = $paymentTypeId;

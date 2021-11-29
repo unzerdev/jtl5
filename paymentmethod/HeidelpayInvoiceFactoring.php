@@ -98,7 +98,7 @@ class HeidelpayInvoiceFactoring extends HeidelpayInvoice implements CancelableIn
             return true && parent::validateAdditional();
         }
 
-        return false;
+        return parent::validateAdditional();
     }
 
     /**

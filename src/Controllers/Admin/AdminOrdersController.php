@@ -149,16 +149,16 @@ class AdminOrdersController extends AdminController implements AjaxResponse
         foreach ($payment->getCharges() as $chg) {
             /** @var Charge $chg */
             $payment->getCharge($chg->getId());
+
+            foreach ($chg->getCancellations() as $cancel) {
+                /** @var Cancellation $cancel */
+                $this->adapter->getApi()->fetchRefundById($payment, $chg->getId(), $cancel->getId());
+            }
         }
 
         foreach ($payment->getShipments() as $shipment) {
             /** @var Shipment $shipment */
             $payment->getShipment($shipment->getId());
-        }
-
-        foreach ($payment->getCancellations() as $cancel) {
-            /** @var Cancellation $cancel */
-            $payment->getCancellation($cancel->getId());
         }
 
         // Update order mapping

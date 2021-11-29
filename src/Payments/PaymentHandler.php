@@ -281,9 +281,9 @@ class PaymentHandler
 
         // upsert order hash
         Shop::Container()->getDB()->executeQueryPrepared(
-            'INSERT INTO tbestellid (kBestellung, dDatum, cUID)
+            'INSERT INTO tbestellid (kBestellung, dDatum, cId)
              VALUES (:order, :datum, :id)
-             ON DUPLICATE KEY UPDATE kBestellung = :order, dDatum = :datum, cUID = :id',
+             ON DUPLICATE KEY UPDATE kBestellung = :order, dDatum = :datum, cId = :id',
             [
                 'order' => $order->kBestellung,
                 'datum' => $order->dErstellt,

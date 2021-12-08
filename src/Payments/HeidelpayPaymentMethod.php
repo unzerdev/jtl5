@@ -143,7 +143,7 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
                 \sprintf($message, __($this->caption)),
                 'zahlungsarten.php?kZahlungsart=' . $this->kZahlungsart . '&token=' . $token
             );
-            $notification->setPluginId($this->plugin->getID());
+            $notification->setPluginId((string) $this->plugin->getID());
             Notification::getInstance()->addNotify($notification);
         }
     }
@@ -380,6 +380,11 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
 
             // Preorder = 1 => Order was not finalized before and therefore no order mapping was saved. Do this now!
             if (isset($args['state']) && $args['state'] == self::STATE_DURING_CHECKOUT) {
+                // update cBestellNummer because we already have generated it but have no way of telling JTL to use
+                // it in the notify.php so a new one gets generated resulting in mismatched order ids ...
+                $order->cBestellNr = $transaction->getOrderId();
+                $order->updateInDB();
+
                 $this->handler->saveOrderMapping($transaction->getPayment(), $order);
             }
 

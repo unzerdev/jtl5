@@ -30,6 +30,7 @@ use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Constants\IdStrings;
 use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\Resources\PaymentTypes\Applepay;
 use UnzerSDK\Unzer;
 use UnzerSDK\Interfaces\ResourceServiceInterface;
 use UnzerSDK\Resources\AbstractUnzerResource;
@@ -342,7 +343,7 @@ class ResourceService implements ResourceServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function activateRecurringPayment($paymentType, $returnUrl): Recurring
+    public function activateRecurringPayment($paymentType, $returnUrl, string $recurrenceType = null): Recurring
     {
         $paymentTypeObject = $paymentType;
         if (is_string($paymentType)) {
@@ -353,6 +354,9 @@ class ResourceService implements ResourceServiceInterface
         if (in_array(CanRecur::class, class_uses($paymentTypeObject), true)) {
             $recurring = new Recurring($paymentTypeObject->getId(), $returnUrl);
             $recurring->setParentResource($this->unzer);
+            if ($recurrenceType !== null) {
+                $recurring->setRecurrenceType($recurrenceType, $paymentTypeObject);
+            }
             $this->createResource($recurring);
             return $recurring;
         }
@@ -514,6 +518,9 @@ class ResourceService implements ResourceServiceInterface
         switch ($resourceType) {
             case IdStrings::ALIPAY:
                 $paymentType = new Alipay();
+                break;
+            case IdStrings::APPLEPAY:
+                $paymentType = new Applepay(null, null, null, null);
                 break;
             case IdStrings::BANCONTACT:
                 $paymentType = new Bancontact();

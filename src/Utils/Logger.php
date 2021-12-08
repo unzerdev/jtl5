@@ -23,7 +23,7 @@ class Logger
      */
     public static function debug(string $message, array $context = []): void
     {
-        Shop::Container()->getLogService()->addDebug(self::LOG_PREFIX . $message, $context);
+        Shop::Container()->getLogService()->debug(self::LOG_PREFIX . $message, $context);
     }
 
     /**
@@ -35,7 +35,7 @@ class Logger
      */
     public static function notice(string $message, array $context = []): void
     {
-        Shop::Container()->getLogService()->addNotice(self::LOG_PREFIX . $message, $context);
+        Shop::Container()->getLogService()->notice(self::LOG_PREFIX . $message, $context);
     }
 
     /**
@@ -47,6 +47,6 @@ class Logger
      */
     public static function error(string $message, array $context = []): void
     {
-        Shop::Container()->getLogService()->addError(self::LOG_PREFIX . $message, $context);
+        Shop::Container()->getLogService()->error(self::LOG_PREFIX . $message, $context);
     }
 }

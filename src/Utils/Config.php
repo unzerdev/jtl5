@@ -239,7 +239,7 @@ class Config
             $message,
             $link->getFullAdminTabUrl(JtlLinkHelper::ADMIN_TAB_SETTINGS)
         );
-        $notification->setPluginId($plugin->getID());
+        $notification->setPluginId((string) $plugin->getID());
         Notification::getInstance()->addNotify($notification);
     }
 }

@@ -192,7 +192,7 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
             }
         }
 
-        return false;
+        return parent::validateAdditional();
     }
 
     /**

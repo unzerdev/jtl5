@@ -115,7 +115,7 @@ class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implemen
             return true && parent::validateAdditional();
         }
 
-        return false;
+        return parent::validateAdditional();
     }
 
     /**

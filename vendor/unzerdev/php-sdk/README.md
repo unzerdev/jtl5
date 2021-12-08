@@ -3,6 +3,7 @@
 [![PHP 7.2](https://img.shields.io/badge/php-7.2-blue.svg)](http://www.php.net)
 [![PHP 7.3](https://img.shields.io/badge/php-7.3-blue.svg)](http://www.php.net)
 [![PHP 7.4](https://img.shields.io/badge/php-7.4-blue.svg)](http://www.php.net)
+[![PHP 8.0](https://img.shields.io/badge/php-8.0-blue.svg)](http://www.php.net)
 
 ![Logo](https://dev.unzer.com/wp-content/uploads/2020/09/Unzer__PrimaryLogo_Raspberry_RGB.png)
 
@@ -11,10 +12,10 @@ This SDK provides for an easy way to connect to the Unzer Rest API.
 
 Please refer to the following documentation for installation instructions and usage information.
 
-*   [API Documentation](https://docs.unzer.com/docs/introduction)
-*   [PHP SDK Documentation](https://docs.unzer.com/docs/php-sdk)
-*   [How to use the examples](https://docs.unzer.com/docs/example-implementations)
-*   [Debugging](https://docs.unzer.com/docs/logging-and-debugging)
+*   [API Documentation](https://docs.unzer.com/overview)
+*   [PHP SDK Documentation](https://docs.unzer.com/integrate/php-sdk)
+*   [How to use the examples](https://docs.unzer.com/integrate/php-sdk/example-implementations)
+*   [Debugging](https://docs.unzer.com/integrate/php-sdk/logging-and-debugging)
 
 ## Supported payment types
 *   Alipay

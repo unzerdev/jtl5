@@ -99,7 +99,7 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
             return true && parent::validateAdditional();
         }
 
-        return false;
+        return parent::validateAdditional();
     }
 
 

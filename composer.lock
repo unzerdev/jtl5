@@ -4,29 +4,29 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2fd5ce71769cd1905f45836c511f65cc",
+    "content-hash": "1bb1d0bc104cc6f166d9deba276ff8ba",
     "packages": [
         {
             "name": "unzerdev/php-sdk",
-            "version": "1.1.1.0",
+            "version": "1.1.4.0",
             "source": {
                 "type": "git",
-                "url": "git@github.com:unzerdev/php-sdk.git",
-                "reference": "309f63b9b61959eb6a5936aec50f06c106b08611"
+                "url": "https://github.com/unzerdev/php-sdk.git",
+                "reference": "e18bf5e598f1f6160d373904b4a4b79758033fd5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/unzerdev/php-sdk/zipball/309f63b9b61959eb6a5936aec50f06c106b08611",
-                "reference": "309f63b9b61959eb6a5936aec50f06c106b08611",
+                "url": "https://api.github.com/repos/unzerdev/php-sdk/zipball/e18bf5e598f1f6160d373904b4a4b79758033fd5",
+                "reference": "e18bf5e598f1f6160d373904b4a4b79758033fd5",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": "~7.1.0|~7.2.0|~7.3.0|~7.4.0"
+                "php": "~7.1.0|~7.2.0|~7.3.0|~7.4.0|~8.0.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^2.0",
-                "phpunit/phpunit": ">6.5 <9.0"
+                "phpunit/phpunit": ">6.5 <10.0"
             },
             "suggest": {
                 "ext-curl": "*"
@@ -43,7 +43,11 @@
                 "Apache-2.0"
             ],
             "description": "This is the php sdk to connect to the Unzer rest api.",
-            "time": "2020-12-15T14:00:21+00:00"
+            "support": {
+                "email": "support@unzer.com",
+                "source": "https://github.com/unzerdev/php-sdk/tree/1.1.4.0"
+            },
+            "time": "2021-08-31T09:58:12+00:00"
         }
     ],
     "packages-dev": [],
@@ -53,5 +57,6 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "2.1.0"
 }

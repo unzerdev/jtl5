@@ -11,6 +11,7 @@ use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use JTL\Cart\Cart;
+use JTL\Checkout\Bestellung;
 use JTL\Helpers\Text;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
@@ -188,11 +189,16 @@ class HeidelpayApiAdapter
      *
      * @SuppressWarnings(PHPMD.ExitExpression)
      * @param AbstractTransactionType $transaction
+     * @param Bestellung $order
      * @param array $postData
      * @return void
      */
-    public function redirectTransaction(AbstractTransactionType $transaction, array $postData = []): void
-    {
+    public function redirectTransaction(
+        AbstractTransactionType $transaction,
+        Bestellung $order,
+        array $postData = []
+    ): void {
+        $this->session->set(SessionHelper::KEY_ORDER_ID, $order->cBestellNr);
         $this->session->set(SessionHelper::KEY_PAYMENT_ID, $transaction->getPaymentId());
         $this->session->set(SessionHelper::KEY_SHORT_ID, $transaction->getShortId());
         $this->session->set(SessionHelper::KEY_CONFIRM_POST_ARRAY, $postData);

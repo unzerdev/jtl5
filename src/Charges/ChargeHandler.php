@@ -54,7 +54,8 @@ class ChargeHandler
             $paymentMethod->addIncomingPayment($order, (object) [
                 'fBetrag'  => $charge->getAmount(),
                 'cISO'     => $charge->getCurrency(),
-                'cHinweis' => $charge->getUniqueId() ?? $charge->getPaymentId() ?? $charge->getId()
+                'cHinweis' => $charge->getShortId() ?? $charge->getUniqueId()
+                                ?? $charge->getPaymentId() ?? $charge->getId()
             ]);
 
             // Save Charge in mapping table

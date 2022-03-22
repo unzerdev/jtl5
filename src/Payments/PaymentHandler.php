@@ -49,7 +49,7 @@ class PaymentHandler
     /**
      * @var SessionHelper
      */
-    protected $sessionHelper;
+    protected $session;
 
     /**
      * @var HeidelpayApiAdapter
@@ -135,7 +135,8 @@ class PaymentHandler
         if (!$transaction->isError() && $this->isRedirectPayment($this->paymentMethod)
             && $transaction->getRedirectUrl() !== null
         ) {
-            $this->adapter->redirectTransaction($transaction, $_POST);
+            $this->adapter->redirectTransaction($transaction, $order, $_POST);
+            return;
         }
 
         // No-Redirect and no error -> success, so we create the order
@@ -148,7 +149,9 @@ class PaymentHandler
             }
 
             // Preorder=1, order not finalized yet -> finalize and save the order
-            $finalizedOrder = finalisiereBestellung($transaction->getPayment()->getOrderId() ?? '');
+            $finalizedOrder = finalisiereBestellung(
+                $this->session->get(SessionHelper::KEY_ORDER_ID) ?? ''
+            );
             $this->saveOrderMapping($transaction->getPayment(), $finalizedOrder);
             $this->acceptPayment($finalizedOrder, $this->paymentMethod->hash, $transaction);
 
@@ -316,7 +319,7 @@ class PaymentHandler
         }
 
         if ($this->basketChanged($payment)) {
-            $this->plugin->getSession->addErrorAlert(
+            $this->session->addErrorAlert(
                 'Aborting Checkout. Basket mismatch.',
                 $this->trans(Config::LANG_PAYMENT_PROCESS_EXCEPTION),
                 'transactionAborted',

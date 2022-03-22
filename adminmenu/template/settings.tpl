@@ -30,7 +30,7 @@
                                 <label for="hpSettings-publicKey">{__('hpSettingsPublicKeyLabel')}</label>
                             </div>
                             <div class="hp-admin-option__input col-xs-9 col-9">
-                                <input type="text" class="form-control" name="publicKey" id="hpSettings-publicKey" placeholder="{_('hpSettingsPublicKeyPlaceholder')}" value="{if isset($hpSettings.config.publicKey)}{$hpSettings.config.publicKey}{/if}" />
+                                <input type="text" class="form-control" name="publicKey" id="hpSettings-publicKey" placeholder="{__('hpSettingsPublicKeyPlaceholder')}" value="{if isset($hpSettings.config.publicKey)}{$hpSettings.config.publicKey}{/if}" />
                                 <small class="form-text help-block text-muted">{__('hpSettingsPublicKeyHelp')}</small>
                             </div>
                         </div>

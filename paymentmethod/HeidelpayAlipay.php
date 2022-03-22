@@ -8,6 +8,7 @@ use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 
 /**
@@ -26,6 +27,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 class HeidelpayAlipay extends HeidelpayPaymentMethod implements RedirectPaymentInterface
 {
     use HasMetadata;
+    use HasCustomer;
 
     /**
      * @inheritDoc
@@ -33,12 +35,19 @@ class HeidelpayAlipay extends HeidelpayPaymentMethod implements RedirectPaymentI
      */
     protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
     {
+        // Create / Update existing customer resource if needed
+        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+
+        if ($customer->getId()) {
+            $customer = $this->adapter->getApi()->updateCustomer($customer);
+        }
+
         return $this->adapter->getApi()->charge(
             $this->getTotalPriceCustomerCurrency($order),
             $order->Waehrung->cISO,
             $payment->getId(),
             $this->getReturnURL($order),
-            null,
+            $customer,
             $order->cBestellNr ?? null,
             $this->createMetadata()
         );

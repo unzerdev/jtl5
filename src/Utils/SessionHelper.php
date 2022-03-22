@@ -19,6 +19,7 @@ class SessionHelper
 {
     use JtlLoggerTrait;
 
+    public const KEY_ORDER_ID = 'orderId';
     public const KEY_RESOURCE_ID = 'resourceId';
     public const KEY_CART_CHECKSUM = 'cartChecksum';
     public const KEY_CHECKOUT_SESSION = 'checkoutSession';

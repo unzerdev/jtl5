@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
@@ -36,7 +37,9 @@ use Plugin\s360_unzer_shop5\src\Utils\Config;
  *
  * @see https://docs.heidelpay.com/docs/card-payment
  */
-class HeidelpayCreditCard extends HeidelpayPaymentMethod implements RedirectPaymentInterface, HandleStepAdditionalInterface
+class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
+    RedirectPaymentInterface,
+    HandleStepAdditionalInterface
 {
     use HasMetadata;
     use HasCustomer;
@@ -70,6 +73,10 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements RedirectPaym
             $oPaymentInfo->cGueltigkeit = Text::convertUTF8($type->getExpiryDate() ?? '');
             $oPaymentInfo->cCVV         = Text::convertUTF8($type->getCvc() ?? '');
             $oPaymentInfo->cKartenTyp   = Text::convertUTF8($type->getBrand() ?? '');
+            $oPaymentInfo->cBankName    = '';
+            $oPaymentInfo->cKartenNr    = '';
+            $oPaymentInfo->cCVV         = '';
+
 
             isset($oPaymentInfo->kZahlungsInfo) ? $oPaymentInfo->updateInDB() : $oPaymentInfo->insertInDB();
 
@@ -84,7 +91,7 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements RedirectPaym
         } catch (Exception $exc) {
             $this->errorLog(
                 'An exception was thrown while trying to get the order attributes '
-                . Text::convertUTF8($exc->getMessage()),
+                    . Text::convertUTF8($exc->getMessage()),
                 static::class
             );
         }
@@ -126,13 +133,17 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements RedirectPaym
             $customer = $this->adapter->getApi()->updateCustomer($customer);
         }
 
-        return $this->adapter->getApi()->charge(
+        $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->cISO,
+            $order->Waehrung->getCode(),
+            $this->getReturnURL($order)
+        );
+        $charge->setOrderId($order->cBestellNr ?? null);
+
+        return $this->adapter->getApi()->performCharge(
+            $charge,
             $payment->getId(),
-            $this->getReturnURL($order),
             $customer,
-            $order->cBestellNr ?? null,
             $this->createMetadata()
         );
     }

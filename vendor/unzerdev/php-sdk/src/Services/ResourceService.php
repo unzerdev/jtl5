@@ -18,8 +18,6 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Services
  */
 namespace UnzerSDK\Services;
@@ -30,7 +28,9 @@ use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Constants\IdStrings;
 use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\Resources\Config;
 use UnzerSDK\Resources\PaymentTypes\Applepay;
+use UnzerSDK\Resources\PaymentTypes\Klarna;
 use UnzerSDK\Unzer;
 use UnzerSDK\Interfaces\ResourceServiceInterface;
 use UnzerSDK\Resources\AbstractUnzerResource;
@@ -49,6 +49,7 @@ use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\Ideal;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\Resources\PaymentTypes\PIS;
 use UnzerSDK\Resources\PaymentTypes\Prepayment;
@@ -112,6 +113,7 @@ class ResourceService implements ResourceServiceInterface
      *
      * @param AbstractUnzerResource $resource
      * @param string                $httpMethod
+     * @param string                $apiVersion
      *
      * @return stdClass
      *
@@ -120,11 +122,12 @@ class ResourceService implements ResourceServiceInterface
      */
     public function send(
         AbstractUnzerResource $resource,
-        $httpMethod = HttpAdapterInterface::REQUEST_GET
+        $httpMethod = HttpAdapterInterface::REQUEST_GET,
+        string $apiVersion = Unzer::API_VERSION
     ): stdClass {
         $appendId     = $httpMethod !== HttpAdapterInterface::REQUEST_POST;
         $uri          = $resource->getUri($appendId, $httpMethod);
-        $responseJson = $resource->getUnzerObject()->getHttpService()->send($uri, $resource, $httpMethod);
+        $responseJson = $resource->getUnzerObject()->getHttpService()->send($uri, $resource, $httpMethod, $apiVersion);
         return json_decode($responseJson, false);
     }
 
@@ -180,6 +183,15 @@ class ResourceService implements ResourceServiceInterface
             case $resourceType === IdStrings::CANCEL:
                 $paymentId  = IdService::getResourceIdFromUrl($url, IdStrings::PAYMENT);
                 $chargeId   = IdService::getResourceIdOrNullFromUrl($url, IdStrings::CHARGE);
+                if (IdService::isPaymentCancellation($url)) {
+                    $isRefund = preg_match('/charge/', $url) === 1;
+                    if ($isRefund) {
+                        $resource = $unzer->fetchPaymentRefund($paymentId, $resourceId);
+                        break;
+                    }
+                    $resource = $unzer->fetchPaymentReversal($paymentId, $resourceId);
+                    break;
+                }
                 if ($chargeId !== null) {
                     $resource = $unzer->fetchRefundById($paymentId, $chargeId, $resourceId);
                     break;
@@ -228,7 +240,7 @@ class ResourceService implements ResourceServiceInterface
     public function createResource(AbstractUnzerResource $resource): AbstractUnzerResource
     {
         $method = HttpAdapterInterface::REQUEST_POST;
-        $response = $this->send($resource, $method);
+        $response = $this->send($resource, $method, $resource->getApiVersion());
 
         $isError = isset($response->isError) && $response->isError;
         if ($isError) {
@@ -257,7 +269,7 @@ class ResourceService implements ResourceServiceInterface
     public function updateResource(AbstractUnzerResource $resource): AbstractUnzerResource
     {
         $method = HttpAdapterInterface::REQUEST_PUT;
-        $response = $this->send($resource, $method);
+        $response = $this->send($resource, $method, $resource->getApiVersion());
 
         $isError = isset($response->isError) && $response->isError;
         if ($isError) {
@@ -278,7 +290,7 @@ class ResourceService implements ResourceServiceInterface
      */
     public function deleteResource(AbstractUnzerResource &$resource): ?AbstractUnzerResource
     {
-        $response = $this->send($resource, HttpAdapterInterface::REQUEST_DELETE);
+        $response = $this->send($resource, HttpAdapterInterface::REQUEST_DELETE, $resource->getApiVersion());
 
         $isError = isset($response->isError) && $response->isError;
         if ($isError) {
@@ -294,7 +306,8 @@ class ResourceService implements ResourceServiceInterface
     /**
      * Updates the given local resource object (id must be set)
      *
-     * @param AbstractUnzerResource $resource The local resource object to update.
+     * @param AbstractUnzerResource $resource   The local resource object to update.
+     * @param string                $apiVersion
      *
      * @return AbstractUnzerResource The updated resource object.
      *
@@ -302,10 +315,10 @@ class ResourceService implements ResourceServiceInterface
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      * @throws Exception
      */
-    public function fetchResource(AbstractUnzerResource $resource): AbstractUnzerResource
+    public function fetchResource(AbstractUnzerResource $resource, string $apiVersion = Unzer::API_VERSION): AbstractUnzerResource
     {
         $method = HttpAdapterInterface::REQUEST_GET;
-        $response = $this->send($resource, $method);
+        $response = $this->send($resource, $method, $apiVersion);
         $resource->setFetchedAt(new DateTime('now'));
         $resource->handleResponse($response, $method);
         return $resource;
@@ -481,7 +494,14 @@ class ResourceService implements ResourceServiceInterface
         }
         $basketObj->setParentResource($this->unzer);
 
-        $this->fetchResource($basketObj);
+        try {
+            $this->fetchResource($basketObj, 'v2');
+        } catch (UnzerApiException $exception) {
+            if ($exception->getCode() !== ApiResponseCodes::API_ERROR_BASKET_NOT_FOUND) {
+                throw $exception;
+            }
+            $this->fetchResource($basketObj);
+        }
         return $basketObj;
     }
 
@@ -549,8 +569,14 @@ class ResourceService implements ResourceServiceInterface
             case IdStrings::INVOICE_SECURED:
                 $paymentType = new InvoiceSecured();
                 break;
+            case IdStrings::KLARNA:
+                $paymentType = new Klarna();
+                break;
             case IdStrings::PAYPAL:
                 $paymentType = new Paypal();
+                break;
+            case IdStrings::PAYLATER_INVOICE:
+                $paymentType = new PaylaterInvoice();
                 break;
             case IdStrings::PIS:
                 $paymentType = new PIS();
@@ -768,6 +794,36 @@ class ResourceService implements ResourceServiceInterface
         return $cancel;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchPaymentRefund($payment, $cancellationId): Cancellation
+    {
+        $charge = new Charge();
+        $charge->setParentResource($payment);
+        $cancel = (new Cancellation())
+            ->setId($cancellationId)
+            ->setPayment($payment)
+            ->setParentResource($charge);
+        return $this->fetchResource($cancel);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchPaymentReversal($payment, $cancellationId): Cancellation
+    {
+        $authorization = new Authorization();
+        $authorization->setParentResource($payment);
+        $cancel = (new Cancellation())
+            ->setId($cancellationId)
+            ->setPayment($payment)
+            ->setParentResource($authorization);
+        return $this->fetchResource($cancel);
+    }
+
+
+
     //</editor-fold>
 
     //<editor-fold desc="Shipment resource">
@@ -779,6 +835,25 @@ class ResourceService implements ResourceServiceInterface
     {
         $paymentObject = $this->fetchPayment($payment);
         return $paymentObject->getShipment($shipmentId);
+    }
+
+    //</editor-fold>
+
+    //<editor-fold desc="Config resource">
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param Config|null $config
+     */
+    public function fetchConfig(BasePaymentType $paymentType, ?Config $config = null): Config
+    {
+        $paymentType->setParentResource($this->unzer);
+
+        $configObject = $config ?? new Config();
+        $configObject->setParentResource($paymentType);
+
+        return $this->fetchResource($configObject);
     }
 
     //</editor-fold>

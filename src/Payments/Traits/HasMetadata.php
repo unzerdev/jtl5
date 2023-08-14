@@ -26,7 +26,7 @@ trait HasMetadata
 
         return (new Metadata())
             ->setShopType('JTL')
-            ->setShopVersion(Shop::getApplicationVersion())
+            ->setShopVersion(\APPLICATION_VERSION)
             ->addMetadata('Language', sprintf('PHP %s', phpversion()))
             ->addMetadata('Plugin', sprintf('%s v%s', Config::PLUGIN_ID, $plugin->getMeta()->getVersion()));
     }

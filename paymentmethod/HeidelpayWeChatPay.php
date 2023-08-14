@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
@@ -39,13 +40,17 @@ class HeidelpayWeChatPay extends HeidelpayPaymentMethod implements RedirectPayme
             $customer = $this->adapter->getApi()->updateCustomer($customer);
         }
 
-        return $this->adapter->getApi()->charge(
+        $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->cISO,
+            $order->Waehrung->getCode(),
+            $this->getReturnURL($order)
+        );
+        $charge->setOrderId($order->cBestellNr ?? null);
+
+        return $this->adapter->getApi()->performCharge(
+            $charge,
             $payment->getId(),
-            $this->getReturnURL($order),
             $customer,
-            $order->cBestellNr ?? null,
             $this->createMetadata()
         );
     }

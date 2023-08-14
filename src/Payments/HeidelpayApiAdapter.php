@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
@@ -8,11 +10,13 @@ use UnzerSDK\Resources\Payment;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use JTL\Cart\Cart;
 use JTL\Checkout\Bestellung;
 use JTL\Helpers\Text;
+use JTL\Shop;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
@@ -33,6 +37,9 @@ class HeidelpayApiAdapter
     public const SUPPORTS_SHIPMENT = [
         InvoiceSecured::class,
         InstallmentSecured::class // Note: shipment docu says no, hdd says yes
+    ];
+    public const SHOULD_CHARGE_BEFORE_SHIPPING = [
+        PaylaterInvoice::class
     ];
 
     /**
@@ -77,7 +84,7 @@ class HeidelpayApiAdapter
     {
         $this->api = new Unzer(
             $this->config->get(Config::PRIVATE_KEY),
-            $this->mapToLocale($this->session->getFrontendSession()->getLanguage()->cISOSprache ?? 'eng')
+            $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
         );
 
         return $this->getApi();
@@ -185,6 +192,17 @@ class HeidelpayApiAdapter
     }
 
     /**
+     * Checks if a payment method should do a full charge before the shipment call.
+     *
+     * @param BasePaymentType $paymentType
+     * @return bool
+     */
+    public function shouldChargeBeforeShipping(BasePaymentType $paymentType): bool
+    {
+        return in_array(get_class($paymentType), self::SHOULD_CHARGE_BEFORE_SHIPPING);
+    }
+
+    /**
      * Redirect transaction to external payment provider.
      *
      * @SuppressWarnings(PHPMD.ExitExpression)
@@ -223,6 +241,26 @@ class HeidelpayApiAdapter
         switch ($iso) {
             case 'ger':
                 return 'de-DE';
+            case 'dut':
+                return 'nl-NL';
+            case 'fin':
+                return 'fi';
+            case 'dan':
+                return 'da';
+            case 'fre':
+                return 'fr-FR';
+            case 'ita':
+                return 'it-IT';
+            case 'spa':
+                return 'es-ES';
+            case 'por':
+                return 'pt-PT';
+            case 'slo':
+                return 'sk-SK';
+            case 'cze':
+                return 'cs-CZ';
+            case 'pol':
+                return 'pl-PL';
             default:
                 return 'en-GB';
         }

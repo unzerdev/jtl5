@@ -54,7 +54,7 @@ class AdminSettingsController extends AdminController
             $this->registerWebhooks($adapter);
         }
 
-        $settings = $this->smarty->get_template_vars('hpSettings');
+        $settings = $this->smarty->getTemplateVars('hpSettings');
         $settings['config'] = $this->config->all();
 
         try {
@@ -104,6 +104,7 @@ class AdminSettingsController extends AdminController
         $this->config->set(Config::PQ_METHOD_ERRORS, Request::postVar('pqMethodErrors'));
         $this->config->set(Config::PQ_SELECTOR_REVIEW_STEP, Request::postVar('pqSelectorReviewStep'));
         $this->config->set(Config::PQ_METHOD_REVIEW_STEP, Request::postVar('pqMethodReviewStep'));
+        $this->config->set(Config::ADD_INCOMING_PAYMENTS, Request::postVar('addIncomingPayments', false));
 
         // Validate
         $valid = true;

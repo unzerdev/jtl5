@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
@@ -23,9 +24,14 @@ use HeidelpayWeChatPay;
 use InvalidArgumentException;
 use JTL\Plugin\Payment\Method;
 use JTL\Shop;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePay;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerBancontact;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInvoice;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use UnzerSDK\Constants\IdStrings;
 use UnzerSDK\Resources\PaymentTypes\Alipay;
+use UnzerSDK\Resources\PaymentTypes\Applepay;
+use UnzerSDK\Resources\PaymentTypes\Bancontact;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Card;
 use UnzerSDK\Resources\PaymentTypes\EPS;
@@ -34,6 +40,7 @@ use UnzerSDK\Resources\PaymentTypes\Ideal;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\Resources\PaymentTypes\PIS;
 use UnzerSDK\Resources\PaymentTypes\Prepayment;
@@ -78,10 +85,14 @@ class PaymentMethodModuleFactory
         HeidelpaySofort::class                    => 'unzersofort',
         HeidelpaySEPADirectDebit::class           => ['unzersepalastschrift', 'unzerlastschrift'],
         HeidelpaySEPADirectDebitGuaranteed::class => ['unzersepalastschrift(guaranteed)', 'unzerlastschrift(secured)'],
-        HeidelpayWeChatPay::class                 => 'unzerwechatpay'
+        HeidelpayWeChatPay::class                 => 'unzerwechatpay',
+        UnzerApplePay::class                      => 'unzerapplepay',
+        UnzerPaylaterInvoice::class               => 'unzerrechnung(jetztkaufen,späterbezahlen)',
+        UnzerBancontact::class                    => 'unzerbancontact'
     ];
 
     private const FACTORIES = [
+        Applepay::class                  => 'createApplePayModule',
         Alipay::class                    => 'createAlipayModule',
         Card::class                      => 'createCardModule',
         EPS::class                       => 'createEPSModule',
@@ -92,6 +103,7 @@ class PaymentMethodModuleFactory
         // InvoiceFactoring::class          => 'createInvoiceFactoringModule',
         // InvoiceGuaranteed::class         => 'createInvoiceGuaranteedModule',
         InvoiceSecured::class            => 'createInvoiceSecuredModule',
+        PaylaterInvoice::class           => 'createPaylaterInvoiceModule',
         Paypal::class                    => 'createPaypalModule',
         PIS::class                       => 'createFlexiPayDirectModule',
         Prepayment::class                => 'createPrepaymentModule',
@@ -99,7 +111,8 @@ class PaymentMethodModuleFactory
         SepaDirectDebit::class           => 'createSepaDirectDebitModule',
         SepaDirectDebitSecured::class    => 'createSepaDirectDebitGuaranteedModule',
         Sofort::class                    => 'createSofortModule',
-        Wechatpay::class                 => 'createWechatpayModule'
+        Wechatpay::class                 => 'createWechatpayModule',
+        Bancontact::class                => 'createBancontactModule',
     ];
 
     public function __construct()
@@ -151,6 +164,26 @@ class PaymentMethodModuleFactory
                 return $method;
             }
         }
+    }
+
+    /**
+     * Create Bancontact Payment Module.
+     *
+     * @return HeidelpayPaymentMethod|UnzerBancontact
+     */
+    public function createBancontactModule(): HeidelpayPaymentMethod
+    {
+        return $this->create(UnzerBancontact::class);
+    }
+
+    /**
+     * Create ApplePay Payment Module.
+     *
+     * @return HeidelpayPaymentMethod|UnzerApplePay
+     */
+    public function createApplePayModule(): HeidelpayPaymentMethod
+    {
+        return $this->create(UnzerApplePay::class);
     }
 
     /**
@@ -265,6 +298,15 @@ class PaymentMethodModuleFactory
         return $this->create($module);
     }
 
+    /**
+     * Create Paylater Invoice Payment Module.
+     *
+     * @return HeidelpayPaymentMethod|UnzerPaylaterInvoice
+     */
+    public function createPaylaterInvoiceModule(): HeidelpayPaymentMethod
+    {
+        return $this->create(UnzerPaylaterInvoice::class);
+    }
 
     /**
      * Create Paypayl Payment Module.

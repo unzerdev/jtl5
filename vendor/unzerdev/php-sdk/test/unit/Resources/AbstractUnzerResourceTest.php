@@ -20,8 +20,6 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
 namespace UnzerSDK\test\unit\Resources;
@@ -83,6 +81,8 @@ class AbstractUnzerResourceTest extends BasePaymentTest
 
         $customer->setFetchedAt(new DateTime('2018-12-03'));
         $this->assertEquals(new DateTime('2018-12-03'), $customer->getFetchedAt());
+
+        $this->assertEquals(Unzer::API_VERSION, $customer->getApiVersion());
     }
 
     /**
@@ -188,7 +188,7 @@ class AbstractUnzerResourceTest extends BasePaymentTest
 
     /**
      * Verify that installment plans use the correct path for fetching. Special case, fetching Instalmentplans contains
-     * hinstallment-secured as parent resource that should appear in resource path.
+     * Installment-secured as parent resource that should appear in resource path.
      *
      * @test
      */

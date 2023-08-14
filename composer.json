@@ -8,6 +8,7 @@
         }
     ],
     "require": {
-        "unzerdev/php-sdk": "~1.1.0"
+        "unzerdev/php-sdk": "~1.2.0",
+        "phpseclib/phpseclib": "~3.0"
     }
 }

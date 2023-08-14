@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
@@ -38,7 +39,10 @@ use UnzerSDK\Resources\TransactionTypes\Cancellation;
  *
  * @see https://docs.heidelpay.com/docs/sepa-direct-debit-payment
  */
-class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implements RedirectPaymentInterface, HandleStepAdditionalInterface, CancelableInterface
+class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implements
+    RedirectPaymentInterface,
+    HandleStepAdditionalInterface,
+    CancelableInterface
 {
     use HasBasket;
     use HasCustomer;
@@ -61,7 +65,13 @@ class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implemen
         AbstractTransactionType $transaction,
         Bestellung $order
     ): Cancellation {
-        return $transaction->cancel(null, CancelReasonCodes::REASON_CODE_CANCEL);
+        $reference = str_replace(
+            ['%ORDER_ID%', '%SHOPNAME%'],
+            [$order->cBestellNr, Shop::getSettingValue(CONF_GLOBAL, 'global_shopname')],
+            $this->trans(Config::LANG_CANCEL_PAYMENT_REFERENCE)
+        );
+
+        return $transaction->cancel(null, CancelReasonCodes::REASON_CODE_CANCEL, $reference);
     }
 
     /**
@@ -162,13 +172,17 @@ class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implemen
         );
         $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
 
-        return $this->adapter->getApi()->charge(
+        $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->cISO,
+            $order->Waehrung->getCode(),
+            $this->getReturnURL($order)
+        );
+        $charge->setOrderId($order->cBestellNr ?? null);
+
+        return $this->adapter->getApi()->performCharge(
+            $charge,
             $payment->getId(),
-            $this->getReturnURL($order),
             $customer,
-            $order->cBestellNr ?? null,
             $this->createMetadata(),
             $basket
         );

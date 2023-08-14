@@ -10,6 +10,7 @@ use JTL\Customer\Customer as ShopCustomer;
 use JTL\Helpers\Text;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
+use UnzerSDK\Constants\ShippingTypes;
 use UnzerSDK\Resources\EmbeddedResources\CompanyInfo;
 
 /**
@@ -38,16 +39,26 @@ trait HasCustomer
             $customer = $adapter->getApi()->fetchCustomer($session->get(SessionHelper::KEY_CUSTOMER_ID));
 
             if (!empty($frontSession->getCustomer()->cFirma) && empty($customer->getCompany())) {
-                $customer->setCompany(Text::convertUTF8($frontSession->getCustomer()->cFirma));
+                $customer->setCompany(Text::convertUTF8(html_entity_decode($frontSession->getCustomer()->cFirma)));
             }
 
             // Update names as they might have changed (but not on B2B so that we do not overwrite the B2B Form changes)
             if (!$isB2B) {
-                $customer->setFirstname(Text::convertUTF8($frontSession->getCustomer()->cVorname));
-                $customer->setLastname(Text::convertUTF8($frontSession->getCustomer()->cNachname));
+                $customer->setFirstname(Text::convertUTF8(html_entity_decode($frontSession->getCustomer()->cVorname)));
+                $customer->setLastname(Text::convertUTF8(html_entity_decode($frontSession->getCustomer()->cNachname)));
+
+                if ($customer->getShippingAddress()->getShippingType() === ShippingTypes::DIFFERENT_ADDRESS) {
+                    $customer->setFirstname(
+                        Text::convertUTF8(html_entity_decode($frontSession->getDeliveryAddress()->cVorname))
+                    );
+                    $customer->setLastname(
+                        Text::convertUTF8(html_entity_decode($frontSession->getDeliveryAddress()->cNachname))
+                    );
+                }
 
                 // Remove Company Infomartion as we do not want to be treated as a B2B User
                 $customer->setCompany(null);
+                // $customer->setCompanyInfo(new CompanyInfo());
             }
 
             return $customer;
@@ -73,11 +84,17 @@ trait HasCustomer
     protected function createHeidelpayCustomer(ShopCustomer $customer): Customer
     {
         $customerObj = CustomerFactory::createCustomer(
-            Text::convertUTF8($customer->cVorname),
-            Text::convertUTF8($customer->cNachname)
+            Text::convertUTF8(html_entity_decode($customer->cVorname)),
+            Text::convertUTF8(html_entity_decode($customer->cNachname))
         );
 
         $customerObj->setEmail($customer->cMail);
+
+        if (!empty($customer->cFirma)) {
+            $customerObj->setCompany(
+                html_entity_decode(utf8_encode($customer->cFirma), ENT_COMPAT, 'UTF-8')
+            );
+        }
 
         // Set external customer so we do not have to map it ourself.
         $customerObj->setCustomerId($customer->kKunde);
@@ -94,11 +111,11 @@ trait HasCustomer
     protected function createHeidelpayAddress($address): Address
     {
         return (new Address())
-            ->setName(Text::convertUTF8($address->cVorname . ' ' . $address->cNachname))
-            ->setStreet(Text::convertUTF8($address->cStrasse . ' ' . $address->cHausnummer))
-            ->setZip(Text::convertUTF8($address->cPLZ))
-            ->setCity(Text::convertUTF8($address->cOrt))
-            ->setCountry(Text::convertUTF8($address->cLand));
+            ->setName(Text::convertUTF8(html_entity_decode($address->cVorname . ' ' . $address->cNachname)))
+            ->setStreet(Text::convertUTF8(html_entity_decode($address->cStrasse . ' ' . $address->cHausnummer)))
+            ->setZip(Text::convertUTF8(html_entity_decode($address->cPLZ)))
+            ->setCity(Text::convertUTF8(html_entity_decode($address->cOrt)))
+            ->setCountry(Text::convertUTF8(html_entity_decode($address->cLand)));
     }
 
     /**
@@ -110,22 +127,22 @@ trait HasCustomer
     protected function createHeidelpayB2BCustomer(ShopCustomer $customer): Customer
     {
         $address  = (new Address())
-            ->setName(Text::convertUTF8($customer->cVorname . ' ' . $customer->cNachname))
-            ->setStreet(Text::convertUTF8($customer->cStrasse . ' ' . $customer->cHausnummer))
-            ->setZip(Text::convertUTF8($customer->cPLZ))
-            ->setCity(Text::convertUTF8($customer->cOrt))
-            ->setCountry(Text::convertUTF8($customer->cLand));
+            ->setName(Text::convertUTF8(html_entity_decode($customer->cVorname . ' ' . $customer->cNachname)))
+            ->setStreet(Text::convertUTF8(html_entity_decode($customer->cStrasse . ' ' . $customer->cHausnummer)))
+            ->setZip(Text::convertUTF8(html_entity_decode($customer->cPLZ)))
+            ->setCity(Text::convertUTF8(html_entity_decode($customer->cOrt)))
+            ->setCountry(Text::convertUTF8(html_entity_decode($customer->cLand)));
 
         // Registered = registered in the commercial register with a commercial register number
         if ($customer->cUSTID) {
             $obj = CustomerFactory::createRegisteredB2bCustomer(
                 $address,
-                Text::convertUTF8($customer->cUSTID),
-                Text::convertUTF8($customer->cFirma)
+                Text::convertUTF8(html_entity_decode($customer->cUSTID)),
+                Text::convertUTF8(html_entity_decode($customer->cFirma))
             );
 
-            $obj->setFirstname(Text::convertUTF8($customer->cVorname));
-            $obj->setLastname(Text::convertUTF8($customer->cNachname));
+            $obj->setFirstname(Text::convertUTF8(html_entity_decode($customer->cVorname)));
+            $obj->setLastname(Text::convertUTF8(html_entity_decode($customer->cNachname)));
             $obj->setEmail($customer->cMail);
             $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : 'mrs');
             $obj->setCustomerId($customer->kKunde);
@@ -140,12 +157,12 @@ trait HasCustomer
         }
 
         $obj = CustomerFactory::createNotRegisteredB2bCustomer(
-            Text::convertUTF8($customer->cVorname),
-            Text::convertUTF8($customer->cNachname),
+            Text::convertUTF8(html_entity_decode($customer->cVorname)),
+            Text::convertUTF8(html_entity_decode($customer->cNachname)),
             $birthday,
             $address,
-            Text::convertUTF8($customer->cMail),
-            Text::convertUTF8($customer->cFirma)
+            Text::convertUTF8(html_entity_decode($customer->cMail)),
+            Text::convertUTF8(html_entity_decode($customer->cFirma))
         );
         $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : 'mrs');
         $obj->setCustomerId($customer->kKunde);

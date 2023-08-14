@@ -20,8 +20,6 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration
  */
 namespace UnzerSDK\test\integration;
@@ -36,6 +34,8 @@ use UnzerSDK\test\BaseIntegrationTest;
 
 class BasketTest extends BaseIntegrationTest
 {
+    //<editor-fold desc="Basket v1 tests">
+
     /**
      * Verify basket can be created and fetched.
      *
@@ -65,17 +65,17 @@ class BasketTest extends BaseIntegrationTest
      *
      * @test
      */
-    public function maxBasketShouldBeCreatableAndFetchableWorkAround(): void
+    public function maxBasketShouldBeCreatableAndFetchable(): void
     {
         $basket = new Basket('b' . self::generateRandomId(), 123.4, 'EUR', []);
         $basket->setNote('This basket is creatable!');
         $basketItem = (new BasketItem('myItem', 1234, 2345, 12))
             ->setBasketItemReferenceId('refId')
             ->setAmountVat(1.24)
-            ->setVat(19)
+            ->setVat(19.5)
             ->setUnit('ert')
             ->setAmountDiscount(1234.9)
-            ->setImageUrl('https://dev.unzer.com/wp-content/uploads/2020/09/Unzer__PrimaryLogo_Raspberry_RGB.png')
+            ->setImageUrl('https://docs.unzer.com/card/card.png')
             ->setSubTitle('This is some subtitle for this item')
             ->setType('this is some type');
         $basket->addBasketItem($basketItem);
@@ -241,6 +241,8 @@ class BasketTest extends BaseIntegrationTest
         $this->assertEquals($basket->expose(), $fetchedPayment->getBasket()->expose());
     }
 
+    //</editor-fold>
+
     //<editor-fold desc="Data Providers">
 
     /**
@@ -249,7 +251,7 @@ class BasketTest extends BaseIntegrationTest
     public function basketItemWithInvalidUrlWillThrowAnErrorDP(): array
     {
         return [
-            'valid ' => [false, 'https://dev.unzer.com/wp-content/uploads/2020/09/Unzer__PrimaryLogo_Raspberry_RGB.png'],
+            'valid ' => [false, 'https://docs.unzer.com/card/card.png'],
             'valid null' => [false, null],
             'valid empty' => [false, ''],
             'invalid not available' => [true, 'https://files.readme.io/does-not-exist.jpg', ApiResponseCodes::API_ERROR_BASKET_ITEM_IMAGE_INVALID_URL]

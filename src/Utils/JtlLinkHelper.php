@@ -22,6 +22,7 @@ class JtlLinkHelper
      */
     public const ADMIN_TAB_SETTINGS = 'Einstellungen';
     public const ADMIN_TAB_ORDERS = 'Bestellungen';
+    public const ADMIN_TAB_APPLE_PAY = 'Apple Pay';
 
     // Frontend Files
     public const FRONTEND_FILE_WEBHOOKS = 'webhook.php';

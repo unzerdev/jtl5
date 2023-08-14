@@ -1,0 +1,34 @@
+// Heidelpay UI Fixes
+.unzerUI {
+    .field {
+        position: relative;
+    }
+}
+
+// NOVA Fixes
+.label-slide .form-group:not(.exclude-from-label-slide):not(.checkbox) .unzerUI {
+    &.form {
+        label {
+            position: relative;
+            top: initial;
+            left: initial;
+            font-size: 1rem;
+            margin: 0 0 .28571429rem;
+            padding: 0;
+            transform: none;
+            line-height: 30px;
+            pointer-events: all;
+            text-overflow: initial;
+            white-space: normal;
+            overflow: initial;
+            max-width: none;
+        }
+    }
+
+    &.checkbox {
+        .box, label {
+            cursor: pointer;
+            padding-left: 2.5em;
+        }
+    }
+}

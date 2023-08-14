@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments\Traits;
 
@@ -7,6 +9,7 @@ use UnzerSDK\Resources\Basket;
 use UnzerSDK\Resources\EmbeddedResources\BasketItem;
 use JTL\Cart\Cart;
 use JTL\Cart\CartItem;
+use JTL\Catalog\Currency;
 use JTL\Helpers\Tax;
 use JTL\Helpers\Text;
 use JTL\Language\LanguageHelper;
@@ -20,40 +23,92 @@ use JTL\Language\LanguageHelper;
 trait HasBasket
 {
     /**
-     * Create a Heidelpay Basket instance.
+     * Create apple pay line items from cart
      *
      * @param Cart $cart
      * @param object $currency
+     * @param LanguageHelper $lang
+     * @param string $orderId
+     * @return array
+     */
+    protected function createApplePayLineItems(Cart $cart, $currency, LanguageHelper $lang, string $orderId = ''): array
+    {
+        $basket = $this->createHeidelpayBasket($cart, $currency, $lang, $orderId);
+        $lineItems = [];
+
+        foreach ($basket->getBasketItems() as $lineItem) {
+            /** @var BasketItem $lineItem */
+            $lineItems[] = [
+                'label'  => $lineItem->getTitle(),
+                'amount' => round($lineItem->getAmountPerUnitGross() * $lineItem->getQuantity(), 2), // Total Amount
+                'type'   => 'final'
+            ];
+        }
+
+        return $lineItems;
+    }
+
+    /**
+     * Create a Heidelpay Basket instance.
+     *
+     * @param Cart $cart
+     * @param Currency|object $currency
      * @param LanguageHelper $lang
      * @param string $orderId
      * @return Basket
      */
     protected function createHeidelpayBasket(Cart $cart, $currency, LanguageHelper $lang, string $orderId = ''): Basket
     {
-        $basket = (new Basket($orderId))
-            ->setAmountTotalGross($cart->gibGesamtsummeWaren(true, false))
-            ->setCurrencyCode($currency->cISO ?? '');
+        $basket = (new Basket())
+            ->setOrderId($orderId)
+            ->setTotalValueGross(round($cart->gibGesamtsummeWaren(true, false), 2))
+            ->setCurrencyCode(($currency instanceof Currency ? $currency->getCode() : $currency->cISO) ?? '');
 
-        $cumulatedDelta    = 0;
-        $cumulatedDeltaNet = 0;
-        $amountTotalDiscount = 0;
-
+        $cumulatedDelta = 0;
         foreach ($cart->PositionenArr as $position) {
             $basketItem = $this->createHeidelpayBasketItem(
                 $position,
                 $lang,
-                $cumulatedDelta,
-                $cumulatedDeltaNet,
-                $amountTotalDiscount
+                $cumulatedDelta
             );
+
+            // Skip free products which are not a discount because the unzer api does not like them!
+            if ($basketItem->getAmountPerUnitGross() == 0 && $basketItem->getAmountDiscountPerUnitGross() == 0) {
+                continue;
+            }
+
             $basket->addBasketItem($basketItem);
         }
-        $basket->setAmountTotalDiscount($amountTotalDiscount);
 
-        // AmountTotalGross should be the total amount without any coupouns, discounts applied
-        // but gibGesamtsummeWaren() does not consider coupon/voucher positions, so have have to add them here ...
-        if ($basket->getAmountTotalDiscount()) {
-            $basket->setAmountTotalGross($basket->getAmountTotalGross() + $basket->getAmountTotalDiscount());
+        // Check if there is a mismatch between total value gross and sum of all line items, and if so add
+        // an error correction line item (otherwise the unzer api would throw an error due to the mismatch)
+        $totalValueGross = array_reduce(
+            $basket->getBasketItems(),
+            static function (float $sum, BasketItem $item) {
+                $sum += ($item->getAmountPerUnitGross() - $item->getAmountDiscountPerUnitGross()) * $item->getQuantity();
+                return $sum;
+            },
+            0
+        );
+
+        $difference = round($totalValueGross - $basket->getTotalValueGross(), 2);
+        if ($difference < 0) {
+            // Add missing amount as error correction line item
+            $basket->addBasketItem(
+                (new BasketItem())
+                    ->setTitle('ROUNDING ERROR CORRECTION')
+                    ->setQuantity(1)
+                    ->setAmountPerUnitGross($difference * -1)
+            );
+        } elseif ($difference > 0) {
+            // Add "overcharged" amount as discount error correction line item
+            $basket->addBasketItem(
+                (new BasketItem())
+                    ->setTitle('ROUNDING ERROR CORRECTION')
+                    ->setQuantity(1)
+                    ->setAmountPerUnitGross(0)
+                    ->setAmountDiscountPerUnitGross($difference)
+            );
         }
 
         return $basket;
@@ -65,16 +120,12 @@ trait HasBasket
      * @param CartItem $position
      * @param LanguageHelper $lang
      * @param float $cumulatedDelta    Rounding Error Delta, @see Cart::useSummationRounding
-     * @param float $cumulatedDeltaNet Rounding Error Delta, @see Cart::useSummationRounding
-     * @param float $amountTotalDiscount
      * @return BasketItem
      */
     protected function createHeidelpayBasketItem(
         CartItem $position,
         LanguageHelper $lang,
-        float &$cumulatedDelta,
-        float &$cumulatedDeltaNet,
-        float &$amountTotalDiscount
+        float &$cumulatedDelta
     ): BasketItem {
         $title = $position->cName;
         if (\is_array($title)) {
@@ -82,44 +133,34 @@ trait HasBasket
         }
 
         // !NOTE: JTL distributes its rounding errors of the total basket sum to the cart positions,
-        // ! so we have to do the same ...
+        // ! so we have to do the same (kinda, as we just need the gross amount per unit and not total) ...
         $grossAmount        = Tax::getGross(
-            $position->fPreis * $position->nAnzahl,
+            $position->fPreis,
             Tax::getSalesTax($position->kSteuerklasse),
             12
         );
-        $netAmount          = $position->fPreis * $position->nAnzahl;
         $roundedGrossAmount = Tax::getGross(
-            $position->fPreis * $position->nAnzahl + $cumulatedDelta,
+            $position->fPreis + $cumulatedDelta,
             Tax::getSalesTax($position->kSteuerklasse),
             2
         );
-        $roundedNetAmount   = \round($position->fPreis * $position->nAnzahl + $cumulatedDeltaNet, 2);
-        $cumulatedDelta    += ($grossAmount - $roundedGrossAmount);
-        $cumulatedDeltaNet += ($netAmount - $roundedNetAmount);
+
+        $cumulatedDelta += ($grossAmount - $roundedGrossAmount);
 
         // Unzer API thinks that -0.0 is a negative amount and therefore not allowed (seen for SEPA secured and B2B)
-        if ($roundedNetAmount === -0.0) {
-            $roundedNetAmount = 0;
+        if ($grossAmount === -0.0 || $grossAmount === 0.0) {
+            $roundedGrossAmount = 0;
         }
 
         // Set Basket Item
-        $basketItem = new BasketItem(
-            Text::convertUTF8($title),
-            $roundedNetAmount,
-            $position->fPreis,
-            (int) $position->nAnzahl
-        );
-
-        $basketItem->setAmountGross($roundedGrossAmount);
+        $basketItem = (new BasketItem())
+            ->setTitle(Text::convertUTF8($title))
+            ->setAmountPerUnitGross($roundedGrossAmount)
+            ->setQuantity((int) $position->nAnzahl);
 
         if ($this->isPromotionLineItemType((string) $position->nPosTyp)) {
-            $basketItem->setAmountGross(0);
-            $basketItem->setAmountNet(0);
-            $basketItem->setAmountPerUnit(0);
-            $basketItem->setAmountDiscount($roundedGrossAmount * -1);
-
-            $amountTotalDiscount += $basketItem->getAmountDiscount();
+            $basketItem->setAmountPerUnitGross(0);
+            $basketItem->setAmountDiscountPerUnitGross($roundedGrossAmount * -1);
         }
 
         $basketItem->setVat((float) Tax::getSalesTax($position->kSteuerklasse));

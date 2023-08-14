@@ -1,5 +1,5 @@
 <?php // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
@@ -23,6 +23,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Interfaces\PaymentStatusInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasPayStatus;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasState;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\PriceCurrencyConverter;
+use Plugin\s360_unzer_shop5\src\Utils\Compatibility;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
@@ -37,6 +38,12 @@ use stdClass;
  */
 abstract class HeidelpayPaymentMethod extends Method implements NotificationInterface, PaymentStatusInterface
 {
+    use JtlLoggerTrait;
+    use TranslatorTrait;
+    use HasState;
+    use HasPayStatus;
+    use PriceCurrencyConverter;
+
     // Order Attributes
     public const ATTR_IBAN = 'unzer_iban';
     public const ATTR_BIC = 'unzer_bic';
@@ -45,12 +52,6 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     public const ATTR_SHORT_ID = 'unzer_short_id';
     public const ATTR_PAYMENT_ID = 'unzer_payment_id';
     public const ATTR_PAYMENT_TYPE_ID = 'unzer_payment_type_id';
-
-    use JtlLoggerTrait;
-    use TranslatorTrait;
-    use HasState;
-    use HasPayStatus;
-    use PriceCurrencyConverter;
 
     /**
      * @var PluginInterface
@@ -473,6 +474,7 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
      */
     public function preparePaymentProcess(Bestellung $order): void
     {
+        $transaction = null;
         $redirectError = null;
         $hashes = $this->getPaymentHashes((int) $order->kBestellung ?? -1);
 
@@ -484,7 +486,13 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
 
         // Preorder State (Preorder = 1), order not finalized
         if ($this->duringCheckout) {
-            $order->cBestellNr = \baueBestellnummer();
+            if (Compatibility::isShopAtLeast52()) {
+                $order->cBestellNr = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID)
+                    ?? getOrderHandler()->createOrderNo();
+            } else {
+                $order->cBestellNr = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID) ?? \baueBestellnummer();
+            }
+
             $redirectError = PaymentHandler::REDIRECT_ON_FAILURE_URL;
             $this->state = self::STATE_DURING_CHECKOUT;
 

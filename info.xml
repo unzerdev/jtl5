@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>1.0.2</Version>
+    <Version>1.3.0</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
     <ExsID>eef84f33-97ff-4519-8e0f-6760ae06c51f</ExsID>
@@ -15,6 +15,9 @@
         <Adminmenu>
             <Customlink sort="10">
                 <Name><![CDATA[Bestellungen]]></Name>
+            </Customlink>
+            <Customlink sort="15">
+                <Name><![CDATA[Apple Pay]]></Name>
             </Customlink>
             <Customlink sort="20">
                 <Name><![CDATA[Einstellungen]]></Name>
@@ -75,6 +78,55 @@
         </FrontendLink>
 
         <Locales>
+            <Variable>
+                <Name>s360_hp_cancel_payment_reference</Name>
+                <Description>
+                    <![CDATA[Die Referenz, die dem Kunden bei einer Stornierung/Rückerstattung auf seinem Kontoauszug angezeigt wird]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Stornierung der Bestellung %ORDER_ID% bei %SHOPNAME%]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Cancellation of the order %ORDER_ID% from %SHOPNAME%]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_apple_pay_not_supported</Name>
+                <Description>
+                    <![CDATA[Fehler falls Apple Pay vom Gerät nicht unterstützt wird]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Apple Pay steht auf diesem Gerät nicht zur Verfügung!]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[This device does not support Apple Pay!]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_apple_pay_cancel_by_user</Name>
+                <Description>
+                    <![CDATA[Fehler falls Apple Pay vom Kunden abgebrochen wird]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Zahlungsvorgang wurde vom Benutzer abgebrochen!]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Canceled payment process by user!]]>
+                </VariableLocalized>
+            </Variable>
+
+            <Variable>
+                <Name>s360_hp_error_validating_merchant</Name>
+                <Description>
+                    <![CDATA[Fehler bei Apple Pay Händler Validierung]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Es ist ein Fehler bei der Validierung des Händlers aufgetreten. Bitte versuchen Sie es später noch einmal.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[There has been an error validating the merchant. Please try again later.]]>
+                </VariableLocalized>
+            </Variable>
             <Variable>
                 <Name>s360_hp_invalid_form_token</Name>
                 <Description>
@@ -362,6 +414,31 @@
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Unzer Invoice]]></Name>
                     <ChargeName><![CDATA[Unzer Invoice]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Rechnung (Jetzt kaufen, Später bezahlen)]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>INVOICE</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerPaylaterInvoice.php</ClassFile>
+                <ClassName>UnzerPaylaterInvoice</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/paylater_invoice_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Rechnung (Paylater)]]></Name>
+                    <ChargeName><![CDATA[Unzer Rechnung (Paylater)]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Invoice (Paylater)]]></Name>
+                    <ChargeName><![CDATA[Unzer Invoice (Paylater)]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -671,6 +748,56 @@
                     </Description>
                     <ValueName>effectiveInterest</ValueName>
                 </Setting>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Apple Pay]]></Name>
+                <Sort>10</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerApplePay.php</ClassFile>
+                <ClassName>UnzerApplePay</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/applepay.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Apple Pay]]></Name>
+                    <ChargeName><![CDATA[Apple Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Apple Pay]]></Name>
+                    <ChargeName><![CDATA[Apple Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Bancontact]]></Name>
+                <Sort>20</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerBancontact.php</ClassFile>
+                <ClassName>UnzerBancontact</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/bancontact_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Bancontact]]></Name>
+                    <ChargeName><![CDATA[Unzer Bancontact]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Bancontact]]></Name>
+                    <ChargeName><![CDATA[Unzer Bancontact]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
             </Method>
         </PaymentMethod>
     </Install>

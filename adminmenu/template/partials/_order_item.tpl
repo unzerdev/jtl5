@@ -1,5 +1,5 @@
 {strip}
-    <tr class="hp-order-item {$bgClass}" data-shop-order-id="{$hpOrder->getId()}">
+    <tr class="hp-order-item" data-shop-order-id="{$hpOrder->getId()}">
         <td class="hp-order-table-column hp-shop-order-number">
             {if $hpOrder->getJtlOrderNumber()}{$hpOrder->getJtlOrderNumber()}{elseif $hpOrder->getId()}{$hpOrder->getId()}{else} - {/if}
         </td>
@@ -25,7 +25,7 @@
             {/if}
         </td>
         <td class="hp-order-table-column hp-payment-id">{if $hpOrder->getPaymentId()}{$hpOrder->getPaymentId()}{else} - {/if}</dt>
-        <td class="hp-order-table-column hp-order-status hp-status-{if $hpOrder->getPaymentState()}{$hpOrder->getPaymentState()|mb_strtolower|escape}{else}unknown{/if}">
+        <td class="hp-order-table-column hp-order-status hp-status-{if $hpOrder->getPaymentState()}{mb_strtolower($hpOrder->getPaymentState())|escape}{else}unknown{/if}">
             {if $hpOrder->getPaymentState()}
                {if $hpOrder->getPaymentState() === \UnzerSDK\Constants\PaymentState::STATE_NAME_PENDING}
                     {__('hpStatePending')}
@@ -95,15 +95,15 @@
                 <em>({$hpOrder->getPaymentTypeId()})</em>
             {/if}
         </td>
-        <td class="hp-order-table-column hp-amount tright">{gibPreisStringLocalized($hpOrder->getOrder()->fGesamtsumme)}</td>
-        <td class="hp-order-table-column hp-date tright">{if isset($hpOrder->getOrder()->dErstellt)}{$hpOrder->getOrder()->dErstellt|strtotime|date_format:"d.m.Y H:i:s"}{else} - {/if}</td>
+        <td class="hp-order-table-column hp-amount tright">{\JTL\Catalog\Product\Preise::getLocalizedPriceString($hpOrder->getOrder()->fGesamtsumme)}</td>
+        <td class="hp-order-table-column hp-date tright">{if isset($hpOrder->getOrder()->dErstellt)}{strtotime($hpOrder->getOrder()->dErstellt)|date_format:"d.m.Y H:i:s"}{else} - {/if}</td>
         <td class="hp-order-table-column hp-order-actions">
             <div class="input-group">
                 <div class="btn-group input-group-btn">
                     <button type="button" class="btn btn-xs btn-default" title="Details ansehen" onclick="window.hpOrderManagement.getDetails('{$hpOrder->getId()}');"><i class="fa fas fa-pen fa-pencil" aria-hidden="true"></i></button>
-                    {if $hpPortalUrl}
+                    {* {if $hpPortalUrl}
                         <a class="btn btn-xs btn-primary" title="Bestellung im hp-Portal anzeigen" href="{$hpPortalUrl}" target="_blank"><i class="fa fas fa-external-link" aria-hidden="true"></i></a>
-                    {/if}
+                    {/if} *}
                 </div>
             </div>
         </td>

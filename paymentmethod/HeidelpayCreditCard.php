@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
@@ -16,6 +17,7 @@ use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 
@@ -35,9 +37,12 @@ use Plugin\s360_unzer_shop5\src\Utils\Config;
  *
  * @see https://docs.heidelpay.com/docs/card-payment
  */
-class HeidelpayCreditCard extends HeidelpayPaymentMethod implements RedirectPaymentInterface, HandleStepAdditionalInterface
+class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
+    RedirectPaymentInterface,
+    HandleStepAdditionalInterface
 {
     use HasMetadata;
+    use HasCustomer;
 
     // Order Attributes
     public const ATTR_CARD_HOLDER = 'unzer_card_holder';
@@ -68,6 +73,10 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements RedirectPaym
             $oPaymentInfo->cGueltigkeit = Text::convertUTF8($type->getExpiryDate() ?? '');
             $oPaymentInfo->cCVV         = Text::convertUTF8($type->getCvc() ?? '');
             $oPaymentInfo->cKartenTyp   = Text::convertUTF8($type->getBrand() ?? '');
+            $oPaymentInfo->cBankName    = '';
+            $oPaymentInfo->cKartenNr    = '';
+            $oPaymentInfo->cCVV         = '';
+
 
             isset($oPaymentInfo->kZahlungsInfo) ? $oPaymentInfo->updateInDB() : $oPaymentInfo->insertInDB();
 
@@ -82,7 +91,7 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements RedirectPaym
         } catch (Exception $exc) {
             $this->errorLog(
                 'An exception was thrown while trying to get the order attributes '
-                . Text::convertUTF8($exc->getMessage()),
+                    . Text::convertUTF8($exc->getMessage()),
                 static::class
             );
         }
@@ -117,13 +126,24 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements RedirectPaym
      */
     protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
     {
-        return $this->adapter->getApi()->charge(
+        // Create / Update existing customer resource if needed
+        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+
+        if ($customer->getId()) {
+            $customer = $this->adapter->getApi()->updateCustomer($customer);
+        }
+
+        $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->cISO,
+            $order->Waehrung->getCode(),
+            $this->getReturnURL($order)
+        );
+        $charge->setOrderId($order->cBestellNr ?? null);
+
+        return $this->adapter->getApi()->performCharge(
+            $charge,
             $payment->getId(),
-            $this->getReturnURL($order),
-            null,
-            $order->cBestellNr ?? null,
+            $customer,
             $this->createMetadata()
         );
     }

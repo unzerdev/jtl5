@@ -30,7 +30,7 @@
                                 <label for="hpSettings-publicKey">{__('hpSettingsPublicKeyLabel')}</label>
                             </div>
                             <div class="hp-admin-option__input col-xs-9 col-9">
-                                <input type="text" class="form-control" name="publicKey" id="hpSettings-publicKey" placeholder="{_('hpSettingsPublicKeyPlaceholder')}" value="{if isset($hpSettings.config.publicKey)}{$hpSettings.config.publicKey}{/if}" />
+                                <input type="text" class="form-control" name="publicKey" id="hpSettings-publicKey" placeholder="{__('hpSettingsPublicKeyPlaceholder')}" value="{if isset($hpSettings.config.publicKey)}{$hpSettings.config.publicKey}{/if}" />
                                 <small class="form-text help-block text-muted">{__('hpSettingsPublicKeyHelp')}</small>
                             </div>
                         </div>
@@ -94,6 +94,19 @@
                     </div>
 
                     <div class="panel-body card-body">
+                        {* Add Incming Payments *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-addIncomingPayments">{__('hpSettingsAddIncomingPayments')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="checkbox" class="checkbox" name="addIncomingPayments" id="hpSettings-addIncomingPayments" {if !isset($hpSettings.config.addIncomingPayments) || $hpSettings.config.addIncomingPayments}checked{/if} />
+                                {__('hpSettingsActive')}
+                                <small class="form-text help-block text-muted">{__('hpSettingsAddIncomingPaymentsHelp')}</small>
+                            </div>
+                        </div>
+
+
                         {* PQ Selector Submit Button *}
                         <div class="hp-admin-option row mb-2">
                             <div class="hp-admin-option__title col-xs-3 col-3">
@@ -111,7 +124,7 @@
                                 <label for="hpSettings-pqSelectorChangePaymentMethod">{__('hpSettingsPqSelectorChangePaymentMethod')}</label>
                             </div>
                             <div class="hp-admin-option__input col-xs-9 col-9">
-                                <input type="text" class="form-control" name="pqSelectorChangePaymentMethod" id="hpSettings-pqSelectorChangePaymentMethod" placeholder="#order-additional-payment" value="{if isset($hpSettings.config.pqSelectorChangePaymentMethod)}{$hpSettings.config.pqSelectorChangePaymentMethod}{else}#order-additional-payment{/if}" />
+                                <input type="text" class="form-control" name="pqSelectorChangePaymentMethod" id="hpSettings-pqSelectorChangePaymentMethod" placeholder="#order-additional-payment" value="{if isset($hpSettings.config.pqSelectorChangePaymentMethod)}{$hpSettings.config.pqSelectorChangePaymentMethod}{/if}" />
                                 <small class="form-text help-block text-muted">{__('hpSettingsPqSelectorChangePaymentMethodHelp')}</small>
                             </div>
                         </div>

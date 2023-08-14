@@ -18,8 +18,6 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\examples
  */
 
@@ -47,11 +45,11 @@ function printMessage($type, $title, $text)
     <head>
         <meta charset="UTF-8">
         <title>Unzer UI Examples</title>
-        <script src="https://code.jquery.com/jquery-3.5.1.min.js"
-                integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+                integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.js"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.3.1/semantic.min.css" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css" />
 
         <link rel="stylesheet" href="https://static.unzer.com/v1/unzer.css" />
         <script type="text/javascript" src="https://static.unzer.com/v1/unzer.js"></script>
@@ -83,6 +81,23 @@ function printMessage($type, $title, $text)
             ?>
 
             <div class="ui four cards">
+                <div class="card olive">
+                    <div class="content">
+                        <div class="header">Apple Pay</div>
+                        <div class="description">
+                            You can try authorize and charge transactions.
+                            Please make sure to provide the path to the certificates for this payment type.
+                            Notes:
+                            <ul>
+                                <li>This payment type is available for Apple devices only.</li>
+                                <li>Please refer to <a href="https://developer.apple.com/videos/play/tutorials/configuring-your-developer-account-for-apple-pay/" target="_blank">this page</a> to learn all about the requirements for Apple Pay.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div id="tryApplePayExample" class="ui bottom attached green button" onclick="location.href='Applepay/';">
+                        Try
+                    </div>
+                </div>
                 <div class="card olive">
                     <div class="content">
                         <div class="header">Card</div>
@@ -220,8 +235,37 @@ function printMessage($type, $title, $text)
                         <div class="header">
                             Unzer Invoice
                         </div>
+                        <div class="description">
+                            With "paylater-invoice" type.
+                        </div>
+                    </div>
+                    <div class="ui attached white button" onclick="location.href='https://docs.unzer.com/payment-methods/unzer-invoice-upl/';">
+                        Documentation
+                    </div>
+                    <div id="tryInvoiceSecuredExample" class="ui bottom attached green button" onclick="location.href='PaylaterInvoice/';">
+                        Try
+                    </div>
+                </div>
+                <div class="card olive">
+                    <div class="content">
+                        <div class="header">
+                            Unzer Invoice (deprecated)
+                        </div>
+                        <div class="description">
+                            With "invoice-secured" type.
+                        </div>
                     </div>
                     <div id="tryInvoiceSecuredExample" class="ui bottom attached green button" onclick="location.href='InvoiceSecured/';">
+                        Try
+                    </div>
+                </div>
+                <div class="card olive">
+                    <div class="content">
+                        <div class="header">
+                            Klarna
+                        </div>
+                    </div>
+                    <div id="tryKlarnaExample" class="ui bottom attached green button" onclick="location.href='Klarna/';">
                         Try
                     </div>
                 </div>
@@ -310,7 +354,7 @@ function printMessage($type, $title, $text)
                             server and redirected to a given RedirectUrl.
                         </div>
                     </div>
-                    <div class="ui attached white button" onclick="location.href='https://docs.unzer.com/accept-payments/accept-payments-payment-page';">
+                    <div class="ui attached white button" onclick="location.href='https://docs.unzer.com/online-payments/payment-pages/integrate-hpp/';">
                         Documentation
                     </div>
                     <div id="tryHostedPayPageExample" class="ui bottom attached green button" onclick="location.href='HostedPayPage/';">
@@ -327,7 +371,7 @@ function printMessage($type, $title, $text)
                             The Payment Page will be shown as an Overlay in your own shop.
                         </div>
                     </div>
-                    <div class="ui attached white button" onclick="location.href='https://docs.unzer.com/accept-payments/accept-payments-payment-page';">
+                    <div class="ui attached white button" onclick="location.href='https://docs.unzer.com/online-payments/payment-pages/integrate-epp/';">
                         Documentation
                     </div>
                     <div id="tryEmbeddedPayPageExample" class="ui bottom attached green button" onclick="location.href='EmbeddedPayPage/';">

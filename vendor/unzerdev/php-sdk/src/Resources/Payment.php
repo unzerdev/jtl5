@@ -18,8 +18,6 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Resources
  */
 namespace UnzerSDK\Resources;
@@ -69,6 +67,20 @@ class Payment extends AbstractUnzerResource
 
     /** @var array $charges */
     private $charges = [];
+
+    /**
+     * Associative array using the Id of the cancellations as the key.
+     *
+     * @var array $reversals
+     */
+    private $reversals = [];
+
+    /**
+     * Associative array using the Id of the cancellations as the key.
+     *
+     * @var array $refunds
+     */
+    private $refunds = [];
 
     /** @var Customer $customer */
     private $customer;
@@ -466,6 +478,12 @@ class Payment extends AbstractUnzerResource
      */
     public function getCancellations(): array
     {
+        if (!empty($this->refunds) || !(empty($this->reversals))) {
+            return array_merge(
+                array_values($this->reversals),
+                array_values($this->refunds)
+            );
+        }
         $refunds = [];
 
         /** @var Charge $charge */
@@ -591,6 +609,69 @@ class Payment extends AbstractUnzerResource
         return $this;
     }
 
+    /**
+     * @return array Associative array with cancellation id as the key and the Cancellation object as value.
+     */
+    public function getRefunds(): array
+    {
+        return $this->refunds;
+    }
+
+    /**
+     * @param array $refunds
+     *
+     * @return Payment
+     */
+    public function setRefunds(array $refunds): Payment
+    {
+        $this->refunds = $refunds;
+        return $this;
+    }
+
+    /**
+     * @param Cancellation $refund
+     *
+     * @return Payment
+     */
+    public function addRefund(Cancellation $refund): Payment
+    {
+        $this->refunds[$refund->getId()] = $refund;
+        return $this;
+    }
+
+    /**
+     * @return array Associative array with cancellation id as the key and the Cancellation object as value.
+     */
+    public function getReversals(): array
+    {
+        return $this->reversals;
+    }
+
+    /**
+     * @param array $reversals
+     *
+     * @return Payment
+     */
+    public function setReversals(array $reversals): Payment
+    {
+        $this->reversals = $reversals;
+        return $this;
+    }
+
+    /**
+     * Adds a Cancellation to the associative reversal array with the cancellation id as the key. If a cancellation with
+     * that ID already exists it will be overwritten.
+     *
+     * @param Cancellation $reversal
+     *
+     * @return Payment
+     */
+    public function addReversal(Cancellation $reversal): Payment
+    {
+        $this->reversals[$reversal->getId()] = $reversal;
+        return $this;
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="Overridable Methods">
@@ -684,17 +765,16 @@ class Payment extends AbstractUnzerResource
     /**
      * Performs a Charge transaction on the payment.
      *
-     * @param null $amount   The amount to be charged.
-     * @param null $currency The currency of the charged amount.
+     * @param float|null $amount The amount to be charged.
      *
      * @return Charge|AbstractUnzerResource The resulting Charge object.
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function charge($amount = null, $currency = null): Charge
+    public function charge($amount = null): Charge
     {
-        return $this->getUnzerObject()->chargePayment($this, $amount, $currency);
+        return $this->getUnzerObject()->chargePayment($this, $amount);
     }
 
     /**
@@ -814,7 +894,8 @@ class Payment extends AbstractUnzerResource
             $authorization = (new Authorization())->setPayment($this)->setId($transactionId);
             $this->setAuthorization($authorization);
         }
-        $authorization->setAmount($transaction->amount);
+
+        $authorization->handleResponse($transaction);
     }
 
     /**
@@ -834,7 +915,8 @@ class Payment extends AbstractUnzerResource
             $charge = (new Charge())->setPayment($this)->setId($transactionId);
             $this->addCharge($charge);
         }
-        $charge->setAmount($transaction->amount);
+
+        $charge->handleResponse($transaction);
     }
 
     /**
@@ -849,17 +931,25 @@ class Payment extends AbstractUnzerResource
     private function updateReversalTransaction($transaction): void
     {
         $transactionId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CANCEL);
-        $authorization = $this->getAuthorization(true);
-        if (!$authorization instanceof Authorization) {
-            throw new RuntimeException('The Authorization object can not be found.');
+
+        $isPaymentCancellation = IdService::isPaymentCancellation($transaction->url);
+        if ($isPaymentCancellation) {
+            $cancellation = (new Cancellation())->setPayment($this)->setId($transactionId);
+            $this->addReversal($cancellation);
+        } else {
+            $initialTransaction = $this->getInitialTransaction(true);
+            if (!$initialTransaction instanceof Authorization && !$initialTransaction instanceof Charge) {
+                throw new RuntimeException('The initial transaction object (Authorize or Charge) can not be found.');
+            }
+
+            $cancellation = $initialTransaction->getCancellation($transactionId, true);
+            if (!$cancellation instanceof Cancellation) {
+                $cancellation = (new Cancellation())->setPayment($this)->setId($transactionId);
+                $initialTransaction->addCancellation($cancellation);
+            }
         }
 
-        $cancellation = $authorization->getCancellation($transactionId, true);
-        if (!$cancellation instanceof Cancellation) {
-            $cancellation = (new Cancellation())->setPayment($this)->setId($transactionId);
-            $authorization->addCancellation($cancellation);
-        }
-        $cancellation->setAmount($transaction->amount);
+        $cancellation->handleResponse($transaction);
     }
 
     /**
@@ -874,19 +964,27 @@ class Payment extends AbstractUnzerResource
     private function updateRefundTransaction($transaction): void
     {
         $refundId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CANCEL);
-        $chargeId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CHARGE);
-
-        $charge = $this->getCharge($chargeId, true);
-        if (!$charge instanceof Charge) {
-            throw new RuntimeException('The Charge object can not be found.');
-        }
-
-        $cancellation = $charge->getCancellation($refundId, true);
-        if (!$cancellation instanceof Cancellation) {
+        $isPaymentCancellation = IdService::isPaymentCancellation($transaction->url);
+        if ($isPaymentCancellation) {
             $cancellation = (new Cancellation())->setPayment($this)->setId($refundId);
-            $charge->addCancellation($cancellation);
+            $this->addRefund($cancellation);
         }
-        $cancellation->setAmount($transaction->amount);
+
+        if (!$isPaymentCancellation) {
+            $chargeId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CHARGE);
+            $charge = $this->getCharge($chargeId, true);
+            if (!$charge instanceof Charge) {
+                throw new RuntimeException('The Charge object can not be found.');
+            }
+            $cancellation = $charge->getCancellation($refundId, true);
+
+            if (!$cancellation instanceof Cancellation) {
+                $cancellation = (new Cancellation())->setPayment($this)->setId($refundId);
+                $charge->addCancellation($cancellation);
+            }
+        }
+
+        $cancellation->handleResponse($transaction);
     }
 
     /**
@@ -906,7 +1004,8 @@ class Payment extends AbstractUnzerResource
             $shipment = (new Shipment())->setId($shipmentId);
             $this->addShipment($shipment);
         }
-        $shipment->setAmount($transaction->amount);
+
+        $shipment->handleResponse($transaction);
     }
 
     /**
@@ -926,7 +1025,8 @@ class Payment extends AbstractUnzerResource
             $payout = (new Payout())->setId($payoutId);
             $this->setPayout($payout);
         }
-        $payout->setAmount($transaction->amount);
+
+        $payout->handleResponse($transaction);
     }
 
     //</editor-fold>

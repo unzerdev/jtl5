@@ -1,51 +1,55 @@
-# Unzer payment methods (JTL shop 5)
+# Unzer Zahlungsarten (JTL-Shop 5)
 
-This plugin integrates the following Unzer payment methods in the JTL Shop:
+Dieses Plugin integriert die folgenden Unzer-Zahlungsarten im JTL Shop:
 
+- ApplePay
 - Alipay
+- Bancontact
 - EPS
 - Giropay
 - iDEAL
-- Credit Card / Debit Card
+- Kreditkarte
 - PayPal
 - Przelewy24
 - SOFORT
 - WeChat Pay
-- Invoice
-- Sepa Direct Debit
-- Unzer Bank Transfer
-- Unzer Instalment
-- Unzer Invoice secured
-- Unzer Direct Debit secured
-- Unzer Prepayment
+- Unzer Direktüberweisung
+- Unzer Ratenkauf
+- Unzer Rechnung
+- Unzer Rechnung (secured)
+- Unzer Rechnung (Jetzt kaufen, Später bezahlen)
+- Unzer Lastschrift
+- Unzer Lastschrift (secured)
+- Unzer Vorkasse
+
 
 ## Installation / Update
-### System requirements
-- JTL-Shop 5.0.0+ and its requirements
-- PHP 7.1 - 7.4
-- The following PHP extensions
+### Systemvoraussetzungen
+- JTL-Shop 5.0.0+ und dessen Vorraussetzungen
+- mindestens PHP 7.1
+- Die folgenden PHP Erweiterungen
   - ext-json
   - ext-curl
-- In order to avoid rounding errors when transmitting floating point values to the API we recommend you to set the following value in your `php.ini`, which will select an enhanced algorithm for rounding such numbers.
-~~~ini
-// php.ini
-; When floats & doubles are serialized store serialize_precision significant
-; digits after the floating point. The default value ensures that when floats
-; are decoded with unserialize, the data will remain the same.
-serialize_precision = -1
-~~~
 
+### Weitere Voraussetzungen
+Sie müssen bei Unzer registriert sein.
 
-### Further requirements
-You must be registered with Unzer.
+#### Apple Pay
+Wenn Sie Apple Pay auf Ihrer Seite anbieten möchten, müssen Sie außerdem die folgenden Voraussetzungen erfüllen:
 
-### Plugin installation
-The installation of the plugin is done in the standard procedure for JTL-Shop 5 as described [here](https://jtl-devguide.readthedocs.io/projects/jtl-shop/de/latest/shop_plugins/allgemein.html#pluginverwaltung-im-backend-von-jtl-shop).
+- Apple Developer Account mit Teilnahme am Apple Developer Program, siehe Mitgliedschaft auswählen - Support - Apple Developer
 
-### Plugin update
-For an update, upload the plugin to the `./plugins/` folder or via the plugin manager in the shop backend in the latest version as for an installation (and overwrite all existing plugin files if necessary) or follow the instructions of the Extension Store.
-Then go to the plugin manager in the shop backend and press the update button.
+> **Ohne Teilnahme am am Apple Developer Program kann Apple Pay im Plugin nicht genutzt werden! Der einfache und kostenlose Apple Developer Account reicht nicht aus!**
 
-## Configuration
-After the actual plugin installation, it is necessary to activate the new payment methods and add them to the desired shipping methods.
-Further information and configuration can be found in the [Instructions](https://redirect.solution360.de/?r=docsunzerjtl5).
+### Plugin-Installation
+Die Installation des Plugins erfolgt im Standardverfahren für JTL-Shop 5, wie es [hier](https://jtl-devguide.readthedocs.io/projects/jtl-shop/de/latest/shop_plugins/allgemein.html#pluginverwaltung-im-backend-von-jtl-shop) beschrieben ist.
+
+### Plugin-Update
+Für ein Update laden Sie das Plugin wie bei einer Installation in der neuesten Version hoch (und überschreiben ggf. alle vorhandenen Plugindateien) oder folgen Sie den Hinweisen des Extension Stores.
+
+Gehen Sie dann in die Pluginverwaltung und betätigen Sie den Update-Button.
+
+## Konfiguration
+Nach der eigentlichen Plugin-Installation ist es notwendig, die neuen Zahlungsmethoden zu aktivieren und zu den gewünschten Versandarten hinzuzufügen.
+
+Weitere Informationen und Konfiguration finden Sie in der [Anleitung](https://redirect.solution360.de/?r=docsunzerjtl5)

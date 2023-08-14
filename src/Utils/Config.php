@@ -10,6 +10,7 @@ use JTL\Backend\NotificationEntry;
 use JTL\DB\DbInterface;
 use JTL\Plugin\PluginInterface;
 use JTL\Shop;
+use Plugin\s360_unzer_shop5\src\Orders\OrderMappingEntity;
 
 /**
  * Config Class
@@ -23,6 +24,8 @@ class Config
     public const PLUGIN_SESSION = 's360_heidelpay';
     public const HIP_URL = 'https://insights.unzer.com/merchant/{merchantId}/order/{id}';
     public const HIP_URL_SANDBOX = 'https://sbx-insights.unzer.com/merchant/{merchantId}/order/{id}';
+    public const PAYLATER_PORTAL_URL = 'https://merchant.payolution.com/';
+    public const PAYLATER_PORTAL_URL_SANDBOX = 'https://test-merchant.paylater.unzer.com/';
 
     // Lang Var Keys
     public const LANG_INVALID_TOKEN = 's360_hp_invalid_form_token';
@@ -38,6 +41,10 @@ class Config
     public const LANG_DOWNLOAD_YOUR_PLAN = 's360_hp_download_your_plan';
     public const LANG_CLOSE_MODAL = 's360_hp_close_modal';
     public const LANG_CONFIRMATION_CHECKSUM = 's360_hp_confirmation_checksum';
+    public const LANG_ERROR_VALIDATING_MERCHANT = 's360_hp_error_validating_merchant';
+    public const LANG_APPLE_PAY_NOT_SUPPORTED = 's360_hp_apple_pay_not_supported';
+    public const LANG_APPLE_PAY_CANCEL_BY_USER = 's360_hp_apple_pay_cancel_by_user';
+    public const LANG_CANCEL_PAYMENT_REFERENCE = 's360_hp_cancel_payment_reference';
 
     // Config Keys
     public const PRIVATE_KEY = 'privateKey';
@@ -55,6 +62,53 @@ class Config
     public const PQ_METHOD_REVIEW_STEP = 'pqMethodReviewStep';
     public const PQ_SELECTOR_PAYMENT_INFORMATION = 'pqSelectorPaymentInformation';
     public const PQ_METHOD_PAYMENT_INFORMATION = 'pqMethodPaymentInformation';
+    public const ADD_INCOMING_PAYMENTS = 'addIncomingPayments';
+
+    // Apple Pay Config Keys
+    public const APPLEPAY_MERCHANT_IDENTIFIER = 'applepay_merchant_identifier';
+    public const APPLEPAY_MERCHANT_DOMAIN = 'applepay_merchant_domain';
+    public const APPLEPAY_UNZER_PRIVATE_KEY_ID = 'applepay_unzer_private_key_id';
+    public const APPLEPAY_UNZER_CERTIFICATE_ID = 'applepay_unzer_certificate_id';
+
+    /**
+     * @var string Key for `ecckey.key` file content
+     */
+    public const APPLEPAY_PAYMENT_ECC_KEY = 'applepay_payment_ecc_key';
+
+    /**
+     * @var string Key for `ecccertreq.csr` file content
+     */
+    public const APPLEPAY_PAYMENT_CSR = 'applepay_payment_csr';
+
+    /**
+     * @var string Key for `apple_pay.pem` file content
+     */
+    public const APPLEPAY_PAYMENT_SIGNED_PEM = 'applepay_payment_signed_pem';
+
+    /**
+     * @var string Key for `privatekey.key` file content
+     */
+    public const APPLEPAY_PAYMENT_PRIVATE_KEY = 'applepay_payment_private_key';
+
+    /**
+     * @var string Key for `merchant_id.csr` file content
+     */
+    public const APPLEPAY_MERCHANT_CSR = 'applepay_merchant_csr';
+
+    /**
+     * @var string Key for `merchant_id.pem` file content
+     */
+    public const APPLEPAY_MERCHANT_SIGNED_PEM = 'applepay_merchant_signed_pem';
+
+    /**
+     * @var string Key for `encrypted_merchant_id.key` file content
+     */
+    public const APPLEPAY_MERCHANT_PRIVATE_KEY = 'applepay_merchant_private_key';
+
+    /**
+     * @var string Key for `merchant_id.key` file content
+     */
+    public const APPLEPAY_MERCHANT_NON_ENCRYPTED_PRIVATE_KEY = 'applepay_merchant_nonencrypted_private_key';
 
     /**
      * @var DbInterface
@@ -166,17 +220,21 @@ class Config
     /**
      * Get Insight Portal URL if merchant id is configured
      *
-     * @param string|null $uid
+     * @param OrderMappingEntity|null $orderMapping
      * @return string|null
      */
-    public function getInsightPortalUrl(?string $uid): ?string
+    public function getInsightPortalUrl(?OrderMappingEntity $orderMapping): ?string
     {
         $merchantId = $this->get(self::MERCHANT_ID);
 
-        if (!empty($merchantId) && !empty($uid)) {
+        if ($orderMapping->getPaymentTypeName() === 'paylater-invoice') {
+            return $this->isSandbox() ? self::PAYLATER_PORTAL_URL_SANDBOX : self::PAYLATER_PORTAL_URL;
+        }
+
+        if (!empty($merchantId) && !empty($orderMapping->getTransactionUniqueId())) {
             return str_replace(
                 ['{merchantId}', '{id}'],
-                [$merchantId, $uid],
+                [$merchantId, $orderMapping->getTransactionUniqueId()],
                 $this->isSandbox() ? self::HIP_URL_SANDBOX : self::HIP_URL
             );
         }

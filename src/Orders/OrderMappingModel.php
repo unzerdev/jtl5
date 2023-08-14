@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Orders;
 
@@ -55,7 +56,7 @@ class OrderMappingModel extends Model
         $orderMapping = $this->find($id);
 
         if (!empty($orderMapping)) {
-            $obj = new stdClass;
+            $obj = new stdClass();
             $obj->cAbgeholt = 'N';
 
             return (int) $this->database->update(
@@ -99,7 +100,7 @@ class OrderMappingModel extends Model
     public function saveOrderAttributes(Bestellung $order, array $attributes): void
     {
         foreach ($attributes as $key => $value) {
-            $attr = new stdClass;
+            $attr = new stdClass();
             $attr->kBestellung = $order->kBestellung;
             $attr->cName = $key;
             $attr->cValue = $value;
@@ -141,11 +142,44 @@ class OrderMappingModel extends Model
         $data = [];
         foreach ($result as $row) {
             $order = new Bestellung();
-            $attrs = get_object_vars($row);
-            foreach ($attrs as $key => $val) {
-                if (property_exists($order, $key)) {
-                    $order->$key = $val;
-                }
+
+            $order->kBestellung          = (int)$row->kBestellung;
+            $order->kWarenkorb           = (int)$row->kWarenkorb;
+            $order->kKunde               = (int)$row->kKunde;
+            $order->kLieferadresse       = (int)$row->kLieferadresse;
+            $order->kRechnungsadresse    = (int)$row->kRechnungsadresse;
+            $order->kZahlungsart         = (int)$row->kZahlungsart;
+            $order->kVersandart          = (int)$row->kVersandart;
+            $order->kSprache             = (int)$row->kSprache;
+            $order->kWaehrung            = (int)$row->kWaehrung;
+            $order->fGuthaben            = $row->fGuthaben;
+            $order->fGesamtsumme         = $row->fGesamtsumme;
+            $order->cSession             = $row->cSession;
+            $order->cVersandartName      = $row->cVersandartName;
+            $order->cZahlungsartName     = $row->cZahlungsartName;
+            $order->cBestellNr           = $row->cBestellNr;
+            $order->cVersandInfo         = $row->cVersandInfo;
+            $order->nLongestMinDelivery  = (int)$row->nLongestMinDelivery;
+            $order->nLongestMaxDelivery  = (int)$row->nLongestMaxDelivery;
+            $order->dVersandDatum        = $row->dVersandDatum;
+            $order->dBezahltDatum        = $row->dBezahltDatum;
+            $order->dBewertungErinnerung = $row->dBewertungErinnerung;
+            $order->cTracking            = $row->cTracking;
+            $order->cKommentar           = $row->cKommentar;
+            $order->cLogistiker          = $row->cLogistiker;
+            $order->cTrackingURL         = $row->cTrackingURL;
+            $order->cIP                  = $row->cIP;
+            $order->cAbgeholt            = $row->cAbgeholt;
+            $order->cStatus              = $row->cStatus;
+            $order->dErstellt            = $row->dErstellt;
+            $order->fWaehrungsFaktor     = $row->fWaehrungsFaktor;
+            $order->cPUIZahlungsdaten    = $row->cPUIZahlungsdaten;
+
+            if (isset($order->nLongestMinDelivery, $order->nLongestMaxDelivery)) {
+                $order->setEstimatedDelivery($order->nLongestMinDelivery, $order->nLongestMaxDelivery);
+                unset($order->nLongestMinDelivery, $order->nLongestMaxDelivery);
+            } else {
+                $order->setEstimatedDelivery();
             }
 
             $entity = $this->createEntity($row);

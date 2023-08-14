@@ -1,10 +1,12 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Foundation;
 
 use JTL\Plugin\Helper;
 use JTL\Services\Container;
+use Plugin\s360_unzer_shop5\src\ApplePay\CertificationService;
 use Plugin\s360_unzer_shop5\src\Charges\ChargeHandler;
 use Plugin\s360_unzer_shop5\src\Charges\ChargeMappingModel;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingModel;
@@ -66,7 +68,11 @@ class ServiceProvider
         });
 
         $this->app->setFactory(ChargeHandler::class, function (Container $app) {
-            return new ChargeHandler(new ChargeMappingModel($app->getDB()));
+            return new ChargeHandler(
+                new ChargeMappingModel($app->getDB()),
+                $app->get(Config::class),
+                $app->get(HeidelpayApiAdapter::class)
+            );
         });
 
         $this->app->setFactory(PaymentHandler::class, function (Container $app) {
@@ -77,6 +83,14 @@ class ServiceProvider
                 $app->get(HeidelpayApiAdapter::class),
                 $app->get(ChargeHandler::class),
                 new OrderMappingModel($app->getDB())
+            );
+        });
+
+        $this->app->setFactory(CertificationService::class, function (Container $app) {
+            return new CertificationService(
+                $app->getCryptoService(),
+                $app->get(Config::class),
+                $app->get(HeidelpayApiAdapter::class)
             );
         });
     }

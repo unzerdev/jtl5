@@ -1,8 +1,11 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Controllers;
 
 use JTL\Checkout\Bestellung;
+use JTL\Shop;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 
 /**
@@ -21,25 +24,25 @@ class FrontendOutputController extends Controller
     public function handle(): string
     {
         // Add "Change Payment Button"/Link
-        if (Shop()->getPageType() == \PAGE_BESTELLVORGANG) {
+        if (Shop::getPageType() == \PAGE_BESTELLVORGANG) {
             $snippet = $this->view(self::TEMPLATE_ID_CHANGE_PAYMENT_METHOD);
             $pqMethod = $this->config->get(Config::PQ_METHOD_CHANGE_PAYMENT_METHOD, 'append');
-            pq(
-                $this->config->get(
-                    Config::PQ_SELECTOR_CHANGE_PAYMENT_METHOD,
-                    '#order-additional-payment'
-                )
-            )->$pqMethod($snippet);
+            $pqSelector = $this->config->get(Config::PQ_SELECTOR_CHANGE_PAYMENT_METHOD);
+
+            if ($pqSelector) {
+                pq($pqSelector)->$pqMethod($snippet);
+            }
         }
 
         // Add Payment Information
-        if (Shop()->getPageType() == \PAGE_BESTELLABSCHLUSS) {
+        if (Shop::getPageType() == \PAGE_BESTELLABSCHLUSS) {
             /** @var Bestellung $order */
-            $order = $this->smarty->get_template_vars('Bestellung');
-            if (!empty($order) && (
+            $order = $this->smarty->getTemplateVars('Bestellung');
+            if (
+                !empty($order) && (
                 strpos($order->Zahlungsart->cModulId, 'unzervorkasse') !== false ||
-                strpos($order->Zahlungsart->cModulId, 'unzerrechnung') !== false
-            )) {
+                strpos($order->Zahlungsart->cModulId, 'unzerrechnung') !== false)
+            ) {
                 $snippet = $this->view(self::TEMPLATE_ID_PAYMENT_INFO);
                 $pqMethod = $this->config->get(Config::PQ_METHOD_PAYMENT_INFORMATION, 'append');
 

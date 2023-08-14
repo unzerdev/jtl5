@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
@@ -15,10 +17,12 @@ use Plugin\s360_unzer_shop5\src\Charges\ChargeHandler;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingEntity;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingModel;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
+use Plugin\s360_unzer_shop5\src\Utils\Compatibility;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
 use Plugin\s360_unzer_shop5\src\Utils\TranslatorTrait;
+use UnzerSDK\Resources\TransactionTypes\Authorization;
 
 /**
  * Heidelpay Payment Handler.
@@ -49,7 +53,7 @@ class PaymentHandler
     /**
      * @var SessionHelper
      */
-    protected $sessionHelper;
+    protected $session;
 
     /**
      * @var HeidelpayApiAdapter
@@ -132,10 +136,12 @@ class PaymentHandler
         }
 
         // Redirect Payment
-        if (!$transaction->isError() && $this->isRedirectPayment($this->paymentMethod)
+        if (
+            !$transaction->isError() && $this->isRedirectPayment($this->paymentMethod)
             && $transaction->getRedirectUrl() !== null
         ) {
-            $this->adapter->redirectTransaction($transaction, $_POST);
+            $this->adapter->redirectTransaction($transaction, $order, $_POST);
+            return;
         }
 
         // No-Redirect and no error -> success, so we create the order
@@ -148,7 +154,14 @@ class PaymentHandler
             }
 
             // Preorder=1, order not finalized yet -> finalize and save the order
-            $finalizedOrder = finalisiereBestellung($transaction->getPayment()->getOrderId() ?? '');
+            if (Compatibility::isShopAtLeast52()) {
+                $finalizedOrder = getOrderHandler()->finalizeOrder(
+                    $this->session->get(SessionHelper::KEY_ORDER_ID) ?? ''
+                );
+            } else {
+                $finalizedOrder = finalisiereBestellung($this->session->get(SessionHelper::KEY_ORDER_ID) ?? '');
+            }
+
             $this->saveOrderMapping($transaction->getPayment(), $finalizedOrder);
             $this->acceptPayment($finalizedOrder, $this->paymentMethod->hash, $transaction);
 
@@ -316,7 +329,7 @@ class PaymentHandler
         }
 
         if ($this->basketChanged($payment)) {
-            $this->plugin->getSession->addErrorAlert(
+            $this->session->addErrorAlert(
                 'Aborting Checkout. Basket mismatch.',
                 $this->trans(Config::LANG_PAYMENT_PROCESS_EXCEPTION),
                 'transactionAborted',
@@ -339,7 +352,7 @@ class PaymentHandler
     public function currencyChanged(Payment $payment): bool
     {
         $currency = $this->session->getFrontendSession()->getCurrency();
-        return $currency->cISO !== $payment->getCurrency();
+        return $currency->getCode() !== $payment->getCurrency();
     }
 
     /**
@@ -366,9 +379,12 @@ class PaymentHandler
      */
     public function saveOrderMapping(Payment $payment, Bestellung $order): void
     {
-        /** @var Charge $charge */
         $charge = $payment->getChargeByIndex(0);
-        $uniqId = $charge->getUniqueId();
+        $uniqId = null;
+
+        if ($charge instanceof Charge || $charge instanceof Authorization) {
+            $uniqId = $charge->getUniqueId();
+        }
 
         $entity = new OrderMappingEntity();
         $entity->setId((int) $order->kBestellung);

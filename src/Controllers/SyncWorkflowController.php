@@ -54,9 +54,10 @@ class SyncWorkflowController extends Controller
         // Validate Request.
         $this->debugLog('Called SyncWorkflowController with the following data: ' . print_r($_POST, true));
         $attrs = [];
-        parse_str(str_replace('|', '&', Request::postVar('attrs')), $attrs);
+        parse_str(str_replace('|', '&', Request::postVar('attrs', '')), $attrs);
 
-        if (empty($attrs) || empty($attrs[HeidelpayPaymentMethod::ATTR_PAYMENT_ID])
+        if (
+            empty($attrs) || empty($attrs[HeidelpayPaymentMethod::ATTR_PAYMENT_ID])
             || !Request::hasGPCData('invoice_id')
         ) {
             $this->errorLog('Missing parameter payment_id or invoice_id' . print_r($attrs, true), static::class);

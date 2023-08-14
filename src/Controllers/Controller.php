@@ -53,11 +53,12 @@ abstract class Controller
     }
 
     /**
-     * Expeected to fill smarty variables and return template.
+     * Expected to fill smarty variables and return template and return a json seriable object
+     * in case of an IO Controller.
      *
-     * @return string
+     * @return mixed
      */
-    abstract public function handle(): string;
+    abstract public function handle();
 
     /**
      * Prepare variable which are passed to the view.

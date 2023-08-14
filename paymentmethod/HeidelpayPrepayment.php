@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
@@ -10,6 +11,7 @@ use JTL\Checkout\Bestellung;
 use JTL\Checkout\ZahlungsInfo;
 use JTL\Helpers\Text;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 
 /**
@@ -29,6 +31,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 class HeidelpayPrepayment extends HeidelpayPaymentMethod
 {
     use HasMetadata;
+    use HasCustomer;
 
     /**
      * Data the merchant needs to put on the Invoice.
@@ -55,6 +58,9 @@ class HeidelpayPrepayment extends HeidelpayPaymentMethod
         $oPaymentInfo->cKontoNr          = $oPaymentInfo->cIBAN;
         $oPaymentInfo->cBLZ              = $oPaymentInfo->cBIC;
         $oPaymentInfo->cVerwendungszweck = Text::convertUTF8($transaction->getDescriptor() ?? '');
+        $oPaymentInfo->cBankName         = '';
+        $oPaymentInfo->cKartenNr         = '';
+        $oPaymentInfo->cCVV              = '';
 
         isset($oPaymentInfo->kZahlungsInfo) ? $oPaymentInfo->updateInDB() : $oPaymentInfo->insertInDB();
 
@@ -72,13 +78,24 @@ class HeidelpayPrepayment extends HeidelpayPaymentMethod
      */
     protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
     {
-        return $this->adapter->getApi()->charge(
+        // Create / Update existing customer resource if needed
+        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+
+        if ($customer->getId()) {
+            $customer = $this->adapter->getApi()->updateCustomer($customer);
+        }
+
+        $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->cISO,
+            $order->Waehrung->getCode(),
+            $this->getReturnURL($order)
+        );
+        $charge->setOrderId($order->cBestellNr ?? null);
+
+        return $this->adapter->getApi()->performCharge(
+            $charge,
             $payment->getId(),
-            $this->getReturnURL($order),
-            null,
-            $order->cBestellNr ?? null,
+            $customer,
             $this->createMetadata()
         );
     }

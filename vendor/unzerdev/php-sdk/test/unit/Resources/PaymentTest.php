@@ -20,14 +20,14 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
 namespace UnzerSDK\test\unit\Resources;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use RuntimeException;
+use stdClass;
 use UnzerSDK\Constants\PaymentState;
-use UnzerSDK\Unzer;
 use UnzerSDK\Resources\Basket;
 use UnzerSDK\Resources\Customer;
 use UnzerSDK\Resources\CustomerFactory;
@@ -43,9 +43,7 @@ use UnzerSDK\Resources\TransactionTypes\Payout;
 use UnzerSDK\Resources\TransactionTypes\Shipment;
 use UnzerSDK\Services\ResourceService;
 use UnzerSDK\test\BasePaymentTest;
-use PHPUnit\Framework\MockObject\MockObject;
-use RuntimeException;
-use stdClass;
+use UnzerSDK\Unzer;
 
 class PaymentTest extends BasePaymentTest
 {
@@ -63,6 +61,9 @@ class PaymentTest extends BasePaymentTest
         /** @noinspection UnnecessaryAssertionInspection */
         $this->assertInstanceOf(Amount::class, $payment->getAmount());
         $this->assertNull($payment->getTraceId());
+        $this->assertNull($payment->getAuthorization());
+        $this->assertIsEmptyArray($payment->getReversals());
+        $this->assertIsEmptyArray($payment->getRefunds());
 
         // update
         $ids = (object)['traceId' => 'myTraceId'];
@@ -77,6 +78,81 @@ class PaymentTest extends BasePaymentTest
         $this->assertSame($authorize, $payment->getAuthorization(true));
         $this->assertSame($payout, $payment->getPayout(true));
         $this->assertSame('myTraceId', $payment->getTraceId());
+    }
+
+    /**
+     * Verify that direct payment cancellations are handled correctly.
+     *
+     * @test
+     */
+    public function PaymentCancellationsShouldBeHandledAsExpected()
+    {
+        $payment = (new Payment())->setParentResource(new Unzer('s-priv-1234'));
+
+        $this->assertIsEmptyArray($payment->getReversals());
+        $this->assertIsEmptyArray($payment->getRefunds());
+
+        $transactions = [
+            (object)[
+                "date" => "2022-05-13 08:04:29",
+                "type" => "authorize",
+                "status" => "success",
+                "url" => "https://api.unzer.com/v1/payments/s-pay-777/authorize/s-aut-1",
+                "amount" => "99.9900"
+            ],
+            (object)[
+                "date" => "2022-05-13 08:04:30",
+                "type" => "charge",
+                "status" => "success",
+                "url" => "https://api.unzer.com/v1/payments/s-pay-777/charges/s-chg-1",
+                "amount" => "99.9900"
+            ],
+            (object)[
+                "date" => "2022-05-13 08:04:31",
+                "type" => "cancel-authorize",
+                "status" => "success",
+                "url" => "https://api.unzer.com/v1/payments/s-pay-777/authorize/cancels/s-cnl-1",
+                "amount" => "22.2200"
+            ],
+            (object)[
+                "date" => "2022-05-13 08:04:31",
+                "type" => "cancel-charge",
+                "status" => "success",
+                "url" => "https://api.unzer.com/v1/payments/s-pay-777/charges/cancels/s-cnl-1",
+                "amount" => "22.2200"
+            ]
+        ];
+
+        $payment->handleResponse((object)['transactions' => $transactions]);
+
+        $this->assertCount(1, $payment->getReversals());
+        $this->assertCount(1, $payment->getRefunds());
+        $this->assertCount(2, $payment->getCancellations());
+    }
+
+    /**
+     * Verify that adding refunds/reversals to the payment happens as expected
+     *
+     * @test
+     */
+    public function verifyAddingCancelationsWorksProperly()
+    {
+        $payment = (new Payment())->setParentResource(new Unzer('s-priv-1234'));
+        $this->assertIsEmptyArray($payment->getReversals());
+        $this->assertIsEmptyArray($payment->getRefunds());
+        $reversal1 = (new Cancellation())->setId('s-cnl-1')->setAmount(99.99);
+        $reversal2 = (new Cancellation())->setId('s-cnl-2')->setAmount(99.99);
+        $reversal3 = (new Cancellation())->setId('s-cnl-2')->setAmount(33.33);
+
+        $payment->addReversal($reversal1);
+        $payment->addReversal($reversal2);
+        $this->assertCount(2, $payment->getReversals());
+
+        // update existing transaction.
+        $payment->addReversal($reversal3);
+        $this->assertCount(2, $payment->getReversals());
+
+        $this->assertEquals(33.33, $payment->getReversals()['s-cnl-2']->getAmount());
     }
 
     /**
@@ -595,6 +671,53 @@ class PaymentTest extends BasePaymentTest
         $this->assertEquals('MyTestGetCurrency', $payment->getCurrency());
     }
 
+    /**
+     * Verify that a payment that contains a cancel-authorize transaction can be fetched, even though no authorize
+     * transaction exists. Can occur when canceling via Insights.
+     *
+     * @test
+     */
+    public function cancelAuthorizeOnInvoiceShouldBeHandledCorrectly(): void
+    {
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)
+            ->disableOriginalConstructor()->setMethods(['getResource'])->getMock();
+        /** @noinspection PhpParamsInspection */
+
+        /** @var ResourceService $resourceServiceMock */
+        $unzerObj = (new Unzer('s-priv-123'))->setResourceService($resourceServiceMock);
+        $payment = new Payment();
+        $payment->setParentResource($unzerObj);
+
+        $response = (object)[
+            "id" => "s-pay-666",
+            "state" => (object)["id" => 1, "name" => "completed"],
+            "currency" => "EUR",
+            "transactions" => [
+                (object)["date" => "2021-11-17 11:47:07",
+                    "type" => "charge",
+                    "status" => "pending",
+                    "url" => "https://api.unzer.com/v1/payments/s-pay-666/charges/s-chg-1", "amount" => "14.9900"
+                ],
+                (object)[
+                    "date" => "2021-11-17 11:48:52",
+                    "type" => "shipment", "status" => "success",
+                    "url" => "https://api.unzer.com/v1/payments/s-pay-666/shipments/s-shp-1",
+                    "amount" => "14.9900"],
+                (object)["date" => "2021-11-17 11:48:52",
+                    "type" => "cancel-authorize",
+                    "status" => "success",
+                    "url" => "https://api.unzer.com/v1/payments/s-pay-666/charges/s-chg-1/cancels/s-cnl-1",
+                    "amount" => "10.0000"]
+            ]
+        ];
+        $payment->handleResponse($response);
+        $this->assertNull($payment->getAuthorization());
+        /** @var Charge $initialCharge */
+        $initialCharge = $payment->getCharges()[0];
+
+        $this->assertCount(1, $initialCharge->getCancellations());
+    }
+
     //<editor-fold desc="Handle Response Tests">
 
     /**
@@ -976,7 +1099,7 @@ class PaymentTest extends BasePaymentTest
         $response->transactions = [$cancellation];
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('The Authorization object can not be found.');
+        $this->expectExceptionMessage('The initial transaction object (Authorize or Charge) can not be found.');
         $payment->handleResponse($response);
     }
 
@@ -1193,13 +1316,13 @@ class PaymentTest extends BasePaymentTest
             ->withConsecutive(
                 [$payment, null, null],
                 [$payment, 1.1, null],
-                [$payment, 2.2, 'MyCurrency']
+                [$payment, 2.2]
             )->willReturn(new Charge());
         $payment->setParentResource($unzerMock);
 
         $payment->charge();
         $payment->charge(1.1);
-        $payment->charge(2.2, 'MyCurrency');
+        $payment->charge(2.2);
     }
 
     /**
@@ -1303,7 +1426,8 @@ class PaymentTest extends BasePaymentTest
                 static function ($object) use ($basket, $unzer) {
                     /** @var Basket $object */
                     return $object === $basket && $object->getParentResource() === $unzer;
-                })
+                }
+            )
         );
 
         $payment = new Payment($unzer);

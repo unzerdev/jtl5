@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Controllers\Admin;
 
@@ -53,7 +55,8 @@ class AdminOrdersController extends AdminController implements AjaxResponse
         parent::prepare();
 
         // Abort if there are no API keys set yet (probably new install).
-        if (empty($this->config->get(Config::PRIVATE_KEY))
+        if (
+            empty($this->config->get(Config::PRIVATE_KEY))
             || empty($this->config->get(Config::PUBLIC_KEY))
         ) {
             $this->debugLog('Abort Controller. No API Keys set yet.', static::class);
@@ -152,7 +155,15 @@ class AdminOrdersController extends AdminController implements AjaxResponse
 
             foreach ($chg->getCancellations() as $cancel) {
                 /** @var Cancellation $cancel */
-                $this->adapter->getApi()->fetchRefundById($payment, $chg->getId(), $cancel->getId());
+                try {
+                    $this->adapter->getApi()->fetchRefundById($payment, $chg->getId(), $cancel->getId());
+                } catch (UnzerApiException $exc) {
+                    $this->errorLog(
+                        'Error while loading cancellation: ' . $exc->getMerchantMessage()
+                        . ' | Error-Code: ' . $exc->getCode(),
+                        static::class
+                    );
+                }
             }
         }
 
@@ -164,16 +175,19 @@ class AdminOrdersController extends AdminController implements AjaxResponse
         // Update order mapping
         $orderMapping->setOrder($order);
         $orderMapping->setPaymentState($payment->getStateName());
-        $orderMapping->setInvoiceId($payment->getInvoiceId());
+        // $orderMapping->setInvoiceId($payment->getInvoiceId());
         $this->model->save($orderMapping);
 
         // Load View
-        $url = $this->config->getInsightPortalUrl($orderMapping->getTransactionUniqueId());
+        $url = $this->config->getInsightPortalUrl($orderMapping);
+        $orderMapping->setOrder(null);
+
         $this->jsonResponse([
             'status' => self::RESULT_SUCCESS,
             'data'   => new OrderViewStruct(
                 $orderMapping,
                 $this->view(self::TEMPLATE_ID_ORDER_DETAIL, [
+                    'hpOrderMapping' => $orderMapping,
                     'hpOrder'     => $order,
                     'hpPayment'   => $payment,
                     'hpPortalUrl' => $url
@@ -198,7 +212,7 @@ class AdminOrdersController extends AdminController implements AjaxResponse
 
         foreach ($orders as $order) {
             /** @var OrderMappingEntity $order */
-            $url = $this->config->getInsightPortalUrl($order->getTransactionUniqueId());
+            $url = $this->config->getInsightPortalUrl($order);
             $data[] = new OrderViewStruct(
                 $order,
                 $this->view(self::TEMPLATE_ID_ORDER_ITEM, [

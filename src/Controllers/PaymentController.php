@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Controllers;
 
@@ -60,8 +62,15 @@ class PaymentController extends Controller
             }
         }
 
+        // HP-121: Clear Plugin Session on the order status page in case that a user aborted its payment process,
+        // otherwise the existing plugin session would mess things up
+        if (Shop::getPageType() === \PAGE_BESTELLSTATUS) {
+            $session->clear();
+        }
+
         // Clear Payment Data if the customer wants to change his payment or shipping method
-        if (Shop::getPageType() === \PAGE_BESTELLVORGANG &&
+        if (
+            Shop::getPageType() === \PAGE_BESTELLVORGANG &&
             (Request::verifyGPCDataInt('editZahlungsart') > 0 || Request::verifyGPCDataInt('editVersandart') > 0)
         ) {
             $session->clearCheckoutSession();

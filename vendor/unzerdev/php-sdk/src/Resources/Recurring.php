@@ -18,12 +18,11 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Resources
  */
 namespace UnzerSDK\Resources;
 
+use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Traits\HasAdditionalTransactionData;
 use UnzerSDK\Traits\HasCustomerMessage;
 use UnzerSDK\Traits\HasDate;

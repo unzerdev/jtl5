@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
@@ -24,6 +25,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
+use Plugin\s360_unzer_shop5\src\Utils\Compatibility;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
 use Plugin\s360_unzer_shop5\src\Utils\TranslatorTrait;
@@ -42,20 +44,23 @@ require_once PFAD_ROOT . PFAD_INCLUDES . '/bestellabschluss_inc.php';
  * 6 and 3 months are the most common, but other plans are possible as well.
  *
  * @see https://docs.heidelpay.com/docs/hire-purchase-payment
+ * @deprecated
  */
-class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements HandleStepAdditionalInterface, HandleStepReviewOrderInterface
+class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
+    HandleStepAdditionalInterface,
+    HandleStepReviewOrderInterface
 {
-    public const TEMPLATE_REVIEW_ORDER = 'template/hire_purchase_direct_debit';
-    public const ATTR_PDF_LINK = 'unzer_rate_pdf_link';
-    public const ATTR_TOTAL_AMOUNT = 'unzer_rate_total_amount';
-    public const ATTR_TOTAL_PURCHASE_AMOUNT = 'unzer_rate_total_purchase_amount';
-    public const ATTR_TOTAL_INTEREST_AMOUNT = 'unzer_rate_total_interest_amount';
-
     use HasBasket;
     use HasCustomer;
     use HasMetadata;
     use SupportsB2B;
     use TranslatorTrait;
+
+    public const TEMPLATE_REVIEW_ORDER = 'template/hire_purchase_direct_debit';
+    public const ATTR_PDF_LINK = 'unzer_rate_pdf_link';
+    public const ATTR_TOTAL_AMOUNT = 'unzer_rate_total_amount';
+    public const ATTR_TOTAL_PURCHASE_AMOUNT = 'unzer_rate_total_purchase_amount';
+    public const ATTR_TOTAL_INTEREST_AMOUNT = 'unzer_rate_total_interest_amount';
 
     /**
      * Save the instalment rate information.
@@ -82,6 +87,9 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
             $oPaymentInfo->cBIC              = Text::convertUTF8($type->getBic() ?? '');
             $oPaymentInfo->cKontoNr          = $oPaymentInfo->cIBAN;
             $oPaymentInfo->cBLZ              = $oPaymentInfo->cBIC;
+            $oPaymentInfo->cBankName         = '';
+            $oPaymentInfo->cKartenNr         = '';
+            $oPaymentInfo->cCVV              = '';
 
             isset($oPaymentInfo->kZahlungsInfo) ? $oPaymentInfo->updateInDB() : $oPaymentInfo->insertInDB();
 
@@ -148,10 +156,28 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
             $this->sessionHelper->getFrontendSession()->getCart()->gibGesamtsummeWaren(true),
             2
         );
-        $data['currency'] = $this->sessionHelper->getFrontendSession()->getCurrency()->cISO;
+        $data['currency'] = $this->sessionHelper->getFrontendSession()->getCurrency()->getCode();
         $data['orderDate'] = date('Y-m-d');
 
         $view->assign('hpPayment', $data);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isValid(object $customer, Cart $cart): bool
+    {
+        //! Note: Payment Method is deprecated -> should not be used anymore
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isSelectable(): bool
+    {
+        //! Note: Payment Method is deprecated -> should not be used anymore
+        return false;
     }
 
     /**
@@ -205,7 +231,7 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
         $this->handler->prepareView();
 
         try {
-            $paymentId = $this->sessionHelper->get(SessionHelper::KEY_PAYMENT_ID, '');
+            $paymentId = $this->sessionHelper->get(SessionHelper::KEY_PAYMENT_ID);
             $payment = $this->adapter->getApi()->fetchPayment($paymentId);
 
             // If currency or basket change, redirect to select payment screen to reauthorize new amounts!
@@ -312,7 +338,13 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
     {
         // We need to register an order id here otherwise the auth call will fail!
         // @see: BillPay for similiar behavior
-        $orderId = \baueBestellnummer();
+        if (Compatibility::isShopAtLeast52()) {
+            $orderId = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID) ?? getOrderHandler()->createOrderNo();
+        } else {
+            $orderId = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID) ?? \baueBestellnummer();
+        }
+
+        $this->sessionHelper->set(SessionHelper::KEY_ORDER_ID, $orderId);
 
         // Create or fetch customer resource
         $session = $this->sessionHelper->getFrontendSession();
@@ -343,13 +375,16 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
             $paymentType = $this->adapter->fetchPaymentType();
 
             // Authorize Transaction
-            $authorization = $this->adapter->getApi()->authorize(
+            $auth = (new Authorization(
                 $paymentType->getTotalPurchaseAmount(),
-                $session->getCurrency()->cISO,
+                $session->getCurrency()->getCode(),
+                Shop::Container()->getLinkService()->getStaticRoute('bestellvorgang.php')
+            ))->setOrderId($orderId);
+
+            $authorization = $this->adapter->getApi()->performAuthorization(
+                $auth,
                 $paymentType,
-                Shop::Container()->getLinkService()->getStaticRoute('bestellvorgang.php'),
                 $customer,
-                $orderId,
                 $this->createMetadata(),
                 $basket
             );
@@ -372,7 +407,7 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
             $this->sessionHelper->redirectError(
                 Text::convertUTF8($authorization->getMessage()->getCustomer()),
                 'heidelpayTransactionError',
-                PaymentHandler::REDIRECT_ON_FAILURE_URL
+                PaymentHandler::REDIRECT_TO_PAYMENT_SELECTION_URL
             );
         } catch (UnzerApiException $exc) {
             $msg = $exc->getMerchantMessage() . ' | Id: ' . $exc->getErrorId() . ' | Code: ' . $exc->getCode();
@@ -380,7 +415,7 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
             $this->sessionHelper->redirectError(
                 Text::convertUTF8($exc->getClientMessage()),
                 'UnzerApiException',
-                PaymentHandler::REDIRECT_ON_FAILURE_URL
+                PaymentHandler::REDIRECT_TO_PAYMENT_SELECTION_URL
             );
         } catch (RuntimeException $exc) {
             $this->errorLog(
@@ -390,14 +425,14 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
             $this->sessionHelper->redirectError(
                 $this->trans(Config::LANG_PAYMENT_PROCESS_RUNTIME_EXCEPTION),
                 'paymentRuntimeException',
-                PaymentHandler::REDIRECT_ON_FAILURE_URL
+                PaymentHandler::REDIRECT_TO_PAYMENT_SELECTION_URL
             );
         } catch (Exception $exc) {
             $this->errorLog('An error occured in the payment process: ' . $exc->getMessage(), static::class);
             $this->sessionHelper->redirectError(
                 $this->trans(Config::LANG_PAYMENT_PROCESS_EXCEPTION),
                 'paymentRuntimeException',
-                PaymentHandler::REDIRECT_ON_FAILURE_URL
+                PaymentHandler::REDIRECT_TO_PAYMENT_SELECTION_URL
             );
         }
     }

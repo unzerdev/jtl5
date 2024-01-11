@@ -73,12 +73,14 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
      */
     public function handleStepAdditional(JTLSmarty $view): void
     {
+        $this->adapter->getConnectionForSession();
         $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
         $customer = $this->createOrFetchHeidelpayCustomer(
             $this->adapter,
             $this->sessionHelper,
             $this->isB2BCustomer($shopCustomer)
         );
+
         $customer->setShippingAddress(
             $this->createHeidelpayAddress(
                 $this->sessionHelper->getFrontendSession()->get('Lieferadresse')
@@ -120,7 +122,7 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
      * @inheritDoc
      * @return AbstractTransactionType|Charge
      */
-    protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
+    protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
         // Create or fetch customer resource
         $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
@@ -135,7 +137,7 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
 
         // Update existing customer resource if needed
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
             $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
@@ -156,7 +158,7 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
         );
         $charge->setOrderId($order->cBestellNr ?? null);
 
-        return $this->adapter->getApi()->performCharge(
+        return $this->adapter->getCurrentConnection()->performCharge(
             $charge,
             $payment->getId(),
             $customer,

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Services;
 
 use UnzerSDK\Adapter\CurlAdapter;
@@ -141,6 +143,7 @@ class HttpServiceTest extends BasePaymentTest
      * Verify 'Accept-Language' header only set when a locale is defined in the Unzer object.
      *
      * @test
+     *
      * @dataProvider languageShouldOnlyBeSetIfSpecificallyDefinedDP
      *
      * @param $locale
@@ -171,9 +174,10 @@ class HttpServiceTest extends BasePaymentTest
      * Verify 'CLIENTIP' header only set when a clientIp is defined in the Unzer object.
      *
      * @test
+     *
      * @dataProvider clientIpHeaderShouldBeSetProperlyDP
      *
-     * @param $clientIp
+     * @param       $clientIp
      * @param mixed $isHeaderExpected
      */
     public function clientIpHeaderShouldBeSetProperly($clientIp, $isHeaderExpected): void
@@ -282,6 +286,7 @@ class HttpServiceTest extends BasePaymentTest
      * Verify handleErrors will throw Exception if responseCode is greaterOrEqual to 400 or is not a number.
      *
      * @test
+     *
      * @dataProvider responseCodeProvider
      *
      * @param string $responseCode
@@ -400,8 +405,8 @@ class HttpServiceTest extends BasePaymentTest
      *
      * @dataProvider environmentUrlSwitchesWithEnvironmentVariableDP
      *
-     * @param $environment
-     * @param $apiUrl
+     * @param        $environment
+     * @param        $apiUrl
      * @param string $key
      */
     public function environmentUrlSwitchesWithEnvironmentVariable($environment, $apiUrl, string $key): void

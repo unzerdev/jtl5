@@ -386,6 +386,9 @@ var UnzerPayment = /*#__PURE__*/function () {
         case UnzerPayment.PAYMENT_TYPES.BANCONTACT:
           return this.createBancontact();
 
+        case UnzerPayment.PAYMENT_TYPES.PAYLATER_INSTALLMENT:
+          return this.createPaylaterInstallment();
+
         default:
           throw new Error('Unkown Payment Type: ' + type);
       }
@@ -435,6 +438,7 @@ var UnzerPayment = /*#__PURE__*/function () {
      * Create (or update) customer resource.
      *
      * @param {?String} paymentTypeName
+     * @param {?String} multipleValidation
      * @see https://docs.heidelpay.com/docs/customer-ui-integration
      * @returns {{createCustomer: Function, updateCustomer: Function}} Customer Resource
      */
@@ -443,6 +447,7 @@ var UnzerPayment = /*#__PURE__*/function () {
     key: "createCustomer",
     value: function createCustomer() {
       var paymentTypeName = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+      var multipleValidation = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
       var Customer = this.settings.isB2B ? this.unzerInstance.B2BCustomer() : this.unzerInstance.Customer();
       var customerObj = this.settings.customer || {};
       var continueButton = this.settings.submitButton || document.getElementById("submit-button");
@@ -457,14 +462,37 @@ var UnzerPayment = /*#__PURE__*/function () {
       }
 
       Customer.initFormFields(customerObj);
-      Customer.addEventListener('validate', function (e) {
-        if (e.success) {
-          continueButton.removeAttribute('disabled');
-          return;
-        }
 
-        continueButton.setAttribute('disabled', true);
-      });
+      if (multipleValidation) {
+        continueButton.setAttribute('data-s360-valid', 0);
+        Customer.addEventListener('validate', function (e) {
+          console.log('customer validate', e, continueButton, continueButton.getAttribute('data-s360-valid'));
+
+          if (e.success) {
+            if (continueButton.getAttribute('data-s360-valid') != 0) {
+              continueButton.removeAttribute('disabled');
+            }
+
+            continueButton.setAttribute('data-s360-valid', 'customer');
+            return;
+          }
+
+          continueButton.setAttribute('disabled', true); // only invalidate if the customer was valid before
+
+          if (continueButton.getAttribute('data-s360-valid') == 'customer') {
+            continueButton.setAttribute('data-s360-valid', 0);
+          }
+        });
+      } else {
+        Customer.addEventListener('validate', function (e) {
+          if (e.success) {
+            continueButton.removeAttribute('disabled');
+            return;
+          }
+
+          continueButton.setAttribute('disabled', true);
+        });
+      }
 
       if (this.customerId) {
         options.fields = ['name', 'birthdate']; // if (this.settings.isB2B) {
@@ -479,6 +507,56 @@ var UnzerPayment = /*#__PURE__*/function () {
       return Customer;
     }
     /**
+     * Create Paylayter Installment Payment Type
+     *
+     * @see https://docs.unzer.com/payment-methods/unzer-installment-upl/accept-unzer-installment-ui-component/
+     * @returns {{createResource: Function}}
+     */
+
+  }, {
+    key: "createPaylaterInstallment",
+    value: function createPaylaterInstallment() {
+      this.customerResource = this.createCustomer('paylater-installment', true);
+      var continueButton = this.settings.submitButton || document.getElementById("submit-button");
+      var paylaterInstallment = this.unzerInstance.PaylaterInstallment();
+      paylaterInstallment.create({
+        containerId: 'paylater-installment',
+        amount: this.settings.amount,
+        currency: this.settings.currency,
+        country: this.settings.country
+      });
+      paylaterInstallment.addEventListener('paylaterInstallmentEvent', function (e) {
+        switch (e.currentStep) {
+          case 'plan-list':
+            continueButton.setAttribute('disabled', true);
+            break;
+
+          case 'plan-detail':
+            continueButton.setAttribute('disabled', false);
+            break;
+
+          default:
+            break;
+        }
+
+        if (e.action === 'validate' && e.success) {
+          if (continueButton.getAttribute('data-s360-valid') != 0) {
+            continueButton.removeAttribute('disabled');
+          }
+
+          continueButton.setAttribute('data-s360-valid', 'paylater-installment');
+          return;
+        }
+
+        continueButton.setAttribute('disabled', true); // only invalidate if the paylater-installment was valid before
+
+        if (continueButton.getAttribute('data-s360-valid') == 'paylater-installment') {
+          continueButton.setAttribute('data-s360-valid', 0);
+        }
+      });
+      return paylaterInstallment;
+    }
+    /**
      * Create Paylayter Invoice Payment Type
      *
      * @see https://docs.unzer.com/payment-methods/unzer-invoice-upl/accept-unzer-invoice-upl-ui-component/
@@ -488,7 +566,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createPaylaterInvoice",
     value: function createPaylaterInvoice() {
-      this.customerResource = this.createCustomer('paylater-invoice');
+      this.customerResource = this.createCustomer('paylater-invoice', true);
       var continueButton = this.settings.submitButton || document.getElementById("submit-button");
       var paylaterInvoice = this.unzerInstance.PaylaterInvoice();
       paylaterInvoice.create({
@@ -496,12 +574,22 @@ var UnzerPayment = /*#__PURE__*/function () {
         customerType: this.settings.isB2B ? 'B2B' : 'B2C'
       });
       paylaterInvoice.addEventListener('change', function (e) {
+        console.log('payleterinvoice', e, continueButton, continueButton.getAttribute('data-s360-valid'));
+
         if (e.success) {
-          continueButton.removeAttribute('disabled');
+          if (continueButton.getAttribute('data-s360-valid') != 0) {
+            continueButton.removeAttribute('disabled');
+          }
+
+          continueButton.setAttribute('data-s360-valid', 'paylater-invoice');
           return;
         }
 
-        continueButton.setAttribute('disabled', true);
+        continueButton.setAttribute('disabled', true); // only invalidate if the paylater-invoice was valid before
+
+        if (continueButton.getAttribute('data-s360-valid') == 'paylater-invoice') {
+          continueButton.setAttribute('data-s360-valid', 0);
+        }
       });
       return paylaterInvoice;
     }
@@ -948,7 +1036,8 @@ exports["default"] = UnzerPayment;
   PREPAYMENT: 'Prepayment',
   WECHAT_PAY: 'WeChat Pay',
   PAYLATER_INVOICE: 'Paylater Invoice',
-  BANCONTACT: 'Bancontact'
+  BANCONTACT: 'Bancontact',
+  PAYLATER_INSTALLMENT: 'Paylater Installment'
 });
 
 },{"../utils/errors":6,"@babel/runtime/helpers/classCallCheck":7,"@babel/runtime/helpers/createClass":8,"@babel/runtime/helpers/defineProperty":9,"@babel/runtime/helpers/interopRequireDefault":10}],4:[function(require,module,exports){

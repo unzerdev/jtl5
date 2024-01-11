@@ -20,14 +20,13 @@
  *
  * @package  UnzerSDK\Traits
  */
+
 namespace UnzerSDK\Traits;
 
 trait HasInvoiceId
 {
     /** @var string $invoiceId */
     protected $invoiceId;
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string|null
@@ -42,11 +41,9 @@ trait HasInvoiceId
      *
      * @return self
      */
-    public function setInvoiceId($invoiceId): self
+    public function setInvoiceId(?string $invoiceId): self
     {
         $this->invoiceId = $invoiceId;
         return $this;
     }
-
-    //</editor-fold>
 }

@@ -20,6 +20,7 @@
  *
  * @package  UnzerSDK\Resources
  */
+
 namespace UnzerSDK\Resources;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
@@ -57,8 +58,6 @@ class Recurring extends AbstractUnzerResource
         $this->returnUrl     = $returnUrl;
         $this->paymentTypeId = $paymentType;
     }
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string
@@ -111,20 +110,16 @@ class Recurring extends AbstractUnzerResource
      *
      * @return Recurring
      */
-    protected function setRedirectUrl($redirectUrl): Recurring
+    protected function setRedirectUrl(?string $redirectUrl): Recurring
     {
         $this->redirectUrl = $redirectUrl;
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable Methods">
-
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         $parts = [
             'types',
@@ -134,6 +129,4 @@ class Recurring extends AbstractUnzerResource
 
         return implode('/', $parts);
     }
-
-    //</editor-fold>
 }

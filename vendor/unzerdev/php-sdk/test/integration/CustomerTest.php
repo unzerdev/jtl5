@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -23,6 +24,7 @@
  *
  * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test\integration;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -31,6 +33,7 @@ use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\Customer;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\test\BaseIntegrationTest;
+
 use function microtime;
 
 class CustomerTest extends BaseIntegrationTest
@@ -104,7 +107,9 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @param Customer $customer
+     *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedById(Customer $customer): void
@@ -115,6 +120,7 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedByCustomerId(): void
@@ -129,7 +135,9 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @param Customer $customer
+     *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedByObject(Customer $customer): void
@@ -141,7 +149,9 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @param Customer $customer
+     *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedByObjectWithData(Customer $customer): void
@@ -223,6 +233,7 @@ class CustomerTest extends BaseIntegrationTest
      * Customer can be updated.
      *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      *
      * @param Customer $customer
@@ -243,6 +254,7 @@ class CustomerTest extends BaseIntegrationTest
      * Customer can be deleted.
      *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      *
      * @param Customer $customer

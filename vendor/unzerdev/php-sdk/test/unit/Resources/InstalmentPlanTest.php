@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Resources;
 
 use DateTime;
@@ -35,6 +37,7 @@ class InstalmentPlanTest extends BasePaymentTest
      * Verify the functionalities of the instalment plan resources.
      *
      * @test
+     *
      * @dataProvider verifyQueryStringDP
      *
      * @param float  $amount

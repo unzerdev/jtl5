@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -37,6 +39,7 @@ class PrepaymentTest extends BaseIntegrationTest
      * Verify Prepayment can be created and fetched.
      *
      * @return Prepayment
+     *
      * @test
      */
     public function prepaymentShouldBeCreatableAndFetchable(): AbstractUnzerResource

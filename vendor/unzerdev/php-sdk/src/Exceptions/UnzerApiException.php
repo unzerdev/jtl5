@@ -20,6 +20,7 @@
  *
  * @package  UnzerSDK\Exceptions
  */
+
 namespace UnzerSDK\Exceptions;
 
 use Exception;
@@ -38,12 +39,12 @@ class UnzerApiException extends Exception
     /**
      * UnzerApiException constructor.
      *
-     * @param string $merchantMessage
-     * @param string $clientMessage
-     * @param string $code
-     * @param string $errorId
+     * @param string      $merchantMessage
+     * @param string      $clientMessage
+     * @param string      $code
+     * @param string|null $errorId
      */
-    public function __construct($merchantMessage = '', $clientMessage = '', $code = null, $errorId = null)
+    public function __construct($merchantMessage = '', $clientMessage = '', $code = null, string $errorId = null)
     {
         $merchantMessage = empty($merchantMessage) ? static::MESSAGE : $merchantMessage;
         $this->clientMessage = empty($clientMessage) ? static::CLIENT_MESSAGE : $clientMessage;

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Constants;
 
 use UnzerSDK\Constants\PaymentState;
@@ -34,6 +36,7 @@ class PaymentStateTest extends BasePaymentTest
      * This should verify the mapping of the payment state to the state code.
      *
      * @test
+     *
      * @dataProvider codeToNameDataProvider
      *
      * @param integer $code
@@ -48,6 +51,7 @@ class PaymentStateTest extends BasePaymentTest
      * This should verify the mapping of the payment state to the state code.
      *
      * @test
+     *
      * @dataProvider nameToCodeDataProvider
      *
      * @param integer $code

@@ -22,6 +22,7 @@
  *
  * @package  UnzerSDK\Resources
  */
+
 namespace UnzerSDK\Resources;
 
 use DateTime;
@@ -64,8 +65,6 @@ class InstalmentPlans extends AbstractUnzerResource
         $this->effectiveInterest = $effectiveInterest;
         $this->setOrderDate($orderDate);
     }
-
-    //<editor-fold desc="Getters / Setters">
 
     /**
      * @return float
@@ -162,10 +161,6 @@ class InstalmentPlans extends AbstractUnzerResource
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable methods">
-
     /**
      * Returns the parameter array containing the values for the query string.
      *
@@ -196,7 +191,7 @@ class InstalmentPlans extends AbstractUnzerResource
     /**
      * {@inheritDoc}
      */
-    public function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    public function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return 'plans' . $this->getQueryString();
     }
@@ -204,7 +199,7 @@ class InstalmentPlans extends AbstractUnzerResource
     /**
      * {@inheritDoc}
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 
@@ -218,6 +213,4 @@ class InstalmentPlans extends AbstractUnzerResource
             $this->setPlans($plans);
         }
     }
-
-    //</editor-fold>
 }

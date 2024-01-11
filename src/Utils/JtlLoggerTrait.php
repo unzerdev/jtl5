@@ -1,9 +1,8 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Utils;
-
-use JTL\Shop;
 
 /**
  * JTL Logger Trait
@@ -57,23 +56,19 @@ trait JtlLoggerTrait
      */
     private function writeLog($message, int $level, string $context = ''): void
     {
-        if ($context !== '') {
-            $context .= ': ';
-        }
-
         if (\is_array($message)) {
             foreach ($message as $msg) {
-                Shop::Container()->getLogService()->addRecord($level, '[Unzer] ' . $context . $msg);
+                Logger::log($context . ' ' . $msg, $level);
             }
 
             return;
         }
 
         if (\is_string($message)) {
-            Shop::Container()->getLogService()->addRecord($level, '[Unzer] ' . $context . $message);
+            Logger::log($context . ' '. $message, $level);
             return;
         }
 
-        Shop::Container()->getLogService()->addRecord($level, '[Unzer] ' . $context . print_r($message, true));
+        Logger::log($context . ' ' . print_r($message, true), $level);
     }
 }

@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\ApplePay;
 
@@ -187,7 +188,9 @@ class CertificationService
             $nonEncryptedKey = '';
             $merchantPem = $this->transformCertToText(file_get_contents($merchantCert));
             openssl_pkey_export(
-                $this->get(Config::APPLEPAY_MERCHANT_PRIVATE_KEY), $nonEncryptedKey, BLOWFISH_KEY,
+                $this->get(Config::APPLEPAY_MERCHANT_PRIVATE_KEY),
+                $nonEncryptedKey,
+                BLOWFISH_KEY,
                 [
                     'private_key_type' => OPENSSL_KEYTYPE_RSA,
                     'private_key_bits' => 2048,
@@ -213,9 +216,9 @@ class CertificationService
     public function activateCertificates(): bool
     {
         // Upload signedPrivateKey to unzer
-        $httpService = $this->apiAdapter->getApi()->getHttpService();
+        $httpService = $this->apiAdapter->getDefaultConnection()->getHttpService();
         $keypair = new PrivateKeysResource();
-        $keypair->setParentResource($this->apiAdapter->getApi());
+        $keypair->setParentResource($this->apiAdapter->getDefaultConnection());
         $keypair->setCertificate($this->get(Config::APPLEPAY_PAYMENT_PRIVATE_KEY));
 
         $response = json_decode(
@@ -226,7 +229,7 @@ class CertificationService
 
         // Upload signedCert to unzer
         $cert = new CertificatesResource();
-        $cert->setParentResource($this->apiAdapter->getApi());
+        $cert->setParentResource($this->apiAdapter->getDefaultConnection());
         $cert->setPrivateKey($response['id']);
         $cert->setCertificate($this->get(Config::APPLEPAY_PAYMENT_SIGNED_PEM));
 
@@ -238,9 +241,9 @@ class CertificationService
         $this->config->set(Config::APPLEPAY_UNZER_CERTIFICATE_ID, $response['id']);
 
         // Activate Certificate
-        $httpService = $this->apiAdapter->getApi()->getHttpService();
+        $httpService = $this->apiAdapter->getDefaultConnection()->getHttpService();
         $cert = new ActivateCertificateResource();
-        $cert->setParentResource($this->apiAdapter->getApi());
+        $cert->setParentResource($this->apiAdapter->getDefaultConnection());
         $cert->setCertificate($this->config->get(Config::APPLEPAY_UNZER_CERTIFICATE_ID));
 
         $response = json_decode(
@@ -258,8 +261,9 @@ class CertificationService
     /**
      * Download either PAYMENT_CSR or MERCHANT_CSR.
      *
+     * @SuppressWarnings(PHPMD.ExitExpression)
      * @param string $type
-     * @return void
+     * @return never
      */
     public function download(string $type)
     {
@@ -324,7 +328,7 @@ class CertificationService
     {
         return
             '-----BEGIN CERTIFICATE-----' . PHP_EOL
-            .chunk_split(base64_encode($certificate), 64, PHP_EOL)
-            .'-----END CERTIFICATE-----' . PHP_EOL;
+            . chunk_split(base64_encode($certificate), 64, PHP_EOL)
+            . '-----END CERTIFICATE-----' . PHP_EOL;
     }
 }

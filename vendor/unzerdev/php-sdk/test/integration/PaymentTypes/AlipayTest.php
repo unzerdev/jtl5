@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -23,6 +24,7 @@
  *
  * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -62,6 +64,7 @@ class AlipayTest extends BaseIntegrationTest
      * @param Alipay $alipay
      *
      * @return Charge
+     *
      * @depends alipayShouldBeCreatableAndFetchable
      */
     public function alipayShouldBeAbleToCharge(Alipay $alipay): Charge
@@ -80,6 +83,7 @@ class AlipayTest extends BaseIntegrationTest
      * @test
      *
      * @param Alipay $alipay
+     *
      * @depends alipayShouldBeCreatableAndFetchable
      */
     public function alipayShouldNotBeAuthorizable(Alipay $alipay): void

@@ -14,12 +14,18 @@
 
                     <div class="panel-body card-body">
                         {* Private Key *}
+                        {* Hide last 16 chars to prevent misuse from unauthorized users *}
                         <div class="hp-admin-option row mb-2">
                             <div class="hp-admin-option__title col-xs-3 col-3">
-                                <label for="hpSettings-privateKey">{__('hpSettingsPrivateKeyLabel')}</label>
+                                <label for="hpSettings-privateKey">
+                                    {__('hpSettingsPrivateKeyLabel')}
+                                    {if isset($hpSettings.config.privateKey)}
+                                        <br/><small>{__('current')}: {substr($hpSettings.config.privateKey, 0, -16)}{str_repeat('&bull;', 16)}</small>
+                                    {/if}
+                                </label>
                             </div>
                             <div class="hp-admin-option__input col-xs-9 col-9">
-                                <input type="text" class="form-control" name="privateKey" id="hpSettings-privateKey" placeholder="{__('hpSettingsPrivateKeyPlaceholder')}" value="{if isset($hpSettings.config.privateKey)}{$hpSettings.config.privateKey}{/if}" />
+                                <input type="password" class="form-control" name="privateKey" id="hpSettings-privateKey" placeholder="{__('hpSettingsPrivateKeyPlaceholder')}" value="{if isset($hpSettings.config.privateKey)}{password_hash($hpSettings.config.privateKey, PASSWORD_BCRYPT)}{/if}" />
                                 <small class="form-text help-block text-muted">{__('hpSettingsPrivateKeyHelp')}</small>
                             </div>
                         </div>
@@ -227,6 +233,34 @@
                                     <option value="replaceWith" {if isset($hpSettings.config.pqMethodPaymentInformation) && $hpSettings.config.pqMethodPaymentInformation == 'replaceWith'}selected{/if}>{__('hpSettingsReplace')}</option>
                                 </select>
                                 <small class="form-text help-block text-muted">{__('hpSettingsPqMethodPaymentInformationHelp')}</small>
+                            </div>
+                        </div>
+
+                        {* PQ Selector Instalment Information *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-pqSelectorInstalmentInfo">{__('hpSettingsPqSelectorInstalmentInfo')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="text" class="form-control" name="pqSelectorInstalmentInfo" id="hpSettings-pqSelectorInstalmentInfo" placeholder="#complete-order-button" value="{if isset($hpSettings.config.pqSelectorInstalmentInfo)}{$hpSettings.config.pqSelectorInstalmentInfo}{else}#complete-order-button{/if}" />
+                                <small class="form-text help-block text-muted">{__('hpSettingsPqSelectorInstalmentInfoHelp')}</small>
+                            </div>
+                        </div>
+
+                        {* PQ Method Instalment Information *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-pqMethodInstalmentInfo">{__('hpSettingsPqMethodInstalmentInfo')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <select class="form-control" name="pqMethodInstalmentInfo" id="hpSettings-pqMethodInstalmentInfo">
+                                    <option value="append" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'append'}selected{/if}>{__('hpSettingsAppend')}</option>
+                                    <option value="prepend" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'prepend'}selected{/if}>{__('hpSettingsPrepend')}</option>
+                                    <option value="before" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'before'}selected{/if}>{__('hpSettingsBefore')}</option>
+                                    <option value="after" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'after' || !isset($hpSettings.config.pqMethodInstalmentInfo)}selected{/if}>{__('hpSettingsAfter')}</option>
+                                    <option value="replaceWith" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'replaceWith'}selected{/if}>{__('hpSettingsReplace')}</option>
+                                </select>
+                                <small class="form-text help-block text-muted">{__('hpSettingsPqMethodInstalmentInfoHelp')}</small>
                             </div>
                         </div>
                     </div>

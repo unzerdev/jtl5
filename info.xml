@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>1.3.0</Version>
+    <Version>1.3.1</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
     <ExsID>eef84f33-97ff-4519-8e0f-6760ae06c51f</ExsID>
@@ -18,6 +18,9 @@
             </Customlink>
             <Customlink sort="15">
                 <Name><![CDATA[Apple Pay]]></Name>
+            </Customlink>
+            <Customlink sort="17">
+                <Name><![CDATA[Key Pairs]]></Name>
             </Customlink>
             <Customlink sort="20">
                 <Name><![CDATA[Einstellungen]]></Name>
@@ -289,6 +292,18 @@
                     <![CDATA[Your basket has changed. Please try again.]]>
                 </VariableLocalized>
             </Variable>
+            <Variable>
+                <Name>s360_hp_instalment_info</Name>
+                <Description>
+                    <![CDATA[Hinweistext, dass sich die Gesamtsumme von der zu zahlenden Summe unterscheidet aufgrund des gewählten Ratenzahlungsplans.]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[<strong>Hinweis:</strong> Die angegebene Gesamtsumme unterscheidet sich von dem zu zahlenden Betrag. Den zu zahlenden Betrag entnehmen Sie bitte ihrem Ratenzahlungsplan.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[<strong>Note:</strong> The total amount shown differs from the amount to be paid. Please refer to your instalment plan for the amount to be paid.]]>
+                </VariableLocalized>
+            </Variable>
         </Locales>
 
         <PaymentMethod>
@@ -382,13 +397,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/invoice_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Unzer Rechnung]]></Name>
-                    <ChargeName><![CDATA[Unzer Rechnung]]></ChargeName>
+                    <Name><![CDATA[(Veraltet) Rechnungskauf]]></Name>
+                    <ChargeName><![CDATA[(Veraltet) Rechnungskauf]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Unzer Invoice]]></Name>
-                    <ChargeName><![CDATA[Unzer Invoice]]></ChargeName>
+                    <Name><![CDATA[(Deprecated) Invoice]]></Name>
+                    <ChargeName><![CDATA[(Deprecated) Invoice]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -407,13 +422,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/invoice_guaranteed_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Unzer Rechnung]]></Name>
-                    <ChargeName><![CDATA[Unzer Rechnung]]></ChargeName>
+                    <Name><![CDATA[(Veraltet) Rechnungskauf Gesichert]]></Name>
+                    <ChargeName><![CDATA[(Veraltet) Rechnungskauf Gesichert]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Unzer Invoice]]></Name>
-                    <ChargeName><![CDATA[Unzer Invoice]]></ChargeName>
+                    <Name><![CDATA[(Deprecated) Invoice Secured]]></Name>
+                    <ChargeName><![CDATA[(Deprecated) Invoice Secured]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -432,13 +447,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/paylater_invoice_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Unzer Rechnung (Paylater)]]></Name>
-                    <ChargeName><![CDATA[Unzer Rechnung (Paylater)]]></ChargeName>
+                    <Name><![CDATA[Rechnungskauf]]></Name>
+                    <ChargeName><![CDATA[Rechnungskauf]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Unzer Invoice (Paylater)]]></Name>
-                    <ChargeName><![CDATA[Unzer Invoice (Paylater)]]></ChargeName>
+                    <Name><![CDATA[Invoice]]></Name>
+                    <ChargeName><![CDATA[Invoice]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -796,6 +811,31 @@
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Unzer Bancontact]]></Name>
                     <ChargeName><![CDATA[Unzer Bancontact]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Ratenzahlung (Paylater)]]></Name>
+                <Sort>30</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerPaylaterInstallment.php</ClassFile>
+                <ClassName>UnzerPaylaterInstallment</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/paylater_installment_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Ratenkauf]]></Name>
+                    <ChargeName><![CDATA[Ratenkauf]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Installment]]></Name>
+                    <ChargeName><![CDATA[Installment]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>

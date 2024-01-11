@@ -20,6 +20,7 @@
  *
  * @package  UnzerSDK\PaymentTypes
  */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
@@ -66,18 +67,16 @@ class Card extends BasePaymentType
     /**
      * Card constructor.
      *
-     * @param string      $number
-     * @param string      $expiryDate
+     * @param string|null $number
+     * @param string|null $expiryDate
      * @param string|null $email
      */
-    public function __construct($number, $expiryDate, $email = null)
+    public function __construct(?string $number, ?string $expiryDate, string $email = null)
     {
         $this->setNumber($number);
         $this->setExpiryDate($expiryDate);
         $this->setEmail($email);
     }
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string
@@ -88,11 +87,11 @@ class Card extends BasePaymentType
     }
 
     /**
-     * @param string $pan
+     * @param string|null $pan
      *
      * @return Card
      */
-    public function setNumber($pan): Card
+    public function setNumber(?string $pan): Card
     {
         $this->number = $pan;
         return $this;
@@ -107,13 +106,12 @@ class Card extends BasePaymentType
     }
 
     /**
-     * @param string $expiryDate
+     * @param string|null $expiryDate
      *
      * @return Card
      *
-     * @throws RuntimeException
      */
-    public function setExpiryDate($expiryDate): Card
+    public function setExpiryDate(?string $expiryDate): Card
     {
         // Null value is allowed to be able to fetch a card object with nothing but the id set.
         if ($expiryDate === null) {
@@ -138,11 +136,11 @@ class Card extends BasePaymentType
     }
 
     /**
-     * @param string $cvc
+     * @param string|null $cvc
      *
      * @return Card
      */
-    public function setCvc($cvc): Card
+    public function setCvc(?string $cvc): Card
     {
         $this->cvc = $cvc;
         return $this;
@@ -161,7 +159,7 @@ class Card extends BasePaymentType
      *
      * @return Card
      */
-    public function setCardHolder($cardHolder): Card
+    public function setCardHolder(string $cardHolder): Card
     {
         $this->cardHolder = $cardHolder;
         return $this;
@@ -180,7 +178,7 @@ class Card extends BasePaymentType
      *
      * @return Card
      */
-    public function set3ds($card3ds): Card
+    public function set3ds(?bool $card3ds): Card
     {
         $this->card3ds = $card3ds;
         return $this;
@@ -235,10 +233,6 @@ class Card extends BasePaymentType
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable Methods">
-
     /**
      * Rename internal property names to external property names.
      *
@@ -257,7 +251,7 @@ class Card extends BasePaymentType
     /**
      * {@inheritDoc}
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 
@@ -266,6 +260,4 @@ class Card extends BasePaymentType
             $this->cardDetails->handleResponse($response->cardDetails);
         }
     }
-
-    //</editor-fold>
 }

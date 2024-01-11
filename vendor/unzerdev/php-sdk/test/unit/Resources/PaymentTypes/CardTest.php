@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Resources\PaymentTypes;
 
 use UnzerSDK\Resources\EmbeddedResources\CardDetails;
@@ -133,6 +135,7 @@ class CardTest extends BasePaymentTest
      * Verify expiryDate year is extended if it is the short version.
      *
      * @test
+     *
      * @dataProvider expiryDateDataProvider
      *
      * @param string $testData
@@ -148,6 +151,7 @@ class CardTest extends BasePaymentTest
      * Verify invalid expiryDate throws Exception.
      *
      * @test
+     *
      * @dataProvider invalidExpiryDateDataProvider
      *
      * @param string $testData
@@ -274,7 +278,7 @@ class CardTest extends BasePaymentTest
         $this->assertEquals('client ip', $geoLocation->getClientIp());
         $this->assertEquals('country code', $geoLocation->getCountryCode());
 
-        $cardDetails = new stdClass;
+        $cardDetails = new stdClass();
         $cardDetails->cardType = 'my card type';
         $cardDetails->account = 'CREDIT';
         $cardDetails->countryIsoA2 = 'DE';

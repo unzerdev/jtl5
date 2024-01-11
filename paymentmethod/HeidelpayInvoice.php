@@ -121,13 +121,13 @@ class HeidelpayInvoice extends HeidelpayPaymentMethod
      * @inheritDoc
      * @return AbstractTransactionType|Charge
      */
-    protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
+    protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
         // Create / Update existing customer resource if needed
         $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
 
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
         }
 
         $charge = new Charge(
@@ -137,7 +137,7 @@ class HeidelpayInvoice extends HeidelpayPaymentMethod
         );
         $charge->setOrderId($order->cBestellNr ?? null);
 
-        return $this->adapter->getApi()->performCharge(
+        return $this->adapter->getCurrentConnection()->performCharge(
             $charge,
             $payment->getId(),
             $customer,

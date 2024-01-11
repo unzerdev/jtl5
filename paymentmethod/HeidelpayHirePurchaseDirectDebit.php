@@ -232,7 +232,7 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
 
         try {
             $paymentId = $this->sessionHelper->get(SessionHelper::KEY_PAYMENT_ID);
-            $payment = $this->adapter->getApi()->fetchPayment($paymentId);
+            $payment = $this->adapter->getCurrentConnection()->fetchPayment($paymentId);
 
             // If currency or basket change, redirect to select payment screen to reauthorize new amounts!
             if ($this->handler->currencyChanged($payment) || $this->handler->basketChanged($payment)) {
@@ -361,7 +361,7 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
 
         // Update existing customer resource if needed
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
             $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
@@ -381,7 +381,7 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
                 Shop::Container()->getLinkService()->getStaticRoute('bestellvorgang.php')
             ))->setOrderId($orderId);
 
-            $authorization = $this->adapter->getApi()->performAuthorization(
+            $authorization = $this->adapter->getCurrentConnection()->performAuthorization(
                 $auth,
                 $paymentType,
                 $customer,

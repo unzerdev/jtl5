@@ -45,6 +45,7 @@ class Config
     public const LANG_APPLE_PAY_NOT_SUPPORTED = 's360_hp_apple_pay_not_supported';
     public const LANG_APPLE_PAY_CANCEL_BY_USER = 's360_hp_apple_pay_cancel_by_user';
     public const LANG_CANCEL_PAYMENT_REFERENCE = 's360_hp_cancel_payment_reference';
+    public const LANG_INSTLAMENT_INFO = 's360_hp_instalment_info';
 
     // Config Keys
     public const PRIVATE_KEY = 'privateKey';
@@ -63,6 +64,8 @@ class Config
     public const PQ_SELECTOR_PAYMENT_INFORMATION = 'pqSelectorPaymentInformation';
     public const PQ_METHOD_PAYMENT_INFORMATION = 'pqMethodPaymentInformation';
     public const ADD_INCOMING_PAYMENTS = 'addIncomingPayments';
+    public const PQ_METHOD_INSTALMENT_INFO = 'pqMethodInstalmentInfo';
+    public const PQ_SELECTOR_INSTALMENT_INFO = 'pqSelectorInstalmentInfo';
 
     // Apple Pay Config Keys
     public const APPLEPAY_MERCHANT_IDENTIFIER = 'applepay_merchant_identifier';

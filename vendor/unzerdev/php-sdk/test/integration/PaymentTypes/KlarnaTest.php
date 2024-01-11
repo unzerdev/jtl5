@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -23,6 +24,7 @@
  *
  * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Exceptions\UnzerApiException;
@@ -61,6 +63,7 @@ class KlarnaTest extends BaseIntegrationTest
      * @test
      *
      * @param Klarna $klarna
+     *
      * @depends klarnaShouldBeCreatableAndFetchable
      */
     public function klarnaShouldBeAuthorizable(Klarna $klarna): void

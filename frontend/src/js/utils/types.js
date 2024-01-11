@@ -29,7 +29,8 @@
  *  effectiveInterest: null|string|number,
  *  orderDate: ?string,
  *  styling: {fontSize: string, fontFamily: string, fontColor: string},
- *  isB2B: ?boolean
+ *  isB2B: ?boolean,
+ *  county: ?string
  * }} PaymentSettings
  */
 

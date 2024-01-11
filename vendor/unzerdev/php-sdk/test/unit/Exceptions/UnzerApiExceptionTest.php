@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Exceptions;
 
 use UnzerSDK\Exceptions\UnzerApiException;
@@ -47,6 +49,7 @@ class UnzerApiExceptionTest extends BasePaymentTest
      * Verify the exception stores the given data.
      *
      * @test
+     *
      * @dataProvider exceptionDataProvider
      *
      * @param array $expected

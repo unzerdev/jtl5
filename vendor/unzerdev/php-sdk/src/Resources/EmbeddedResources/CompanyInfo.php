@@ -20,11 +20,13 @@
  *
  * @package  UnzerSDK\Resources\EmbeddedResources
  */
+
 namespace UnzerSDK\Resources\EmbeddedResources;
 
 use UnzerSDK\Constants\CompanyCommercialSectorItems;
 use UnzerSDK\Resources\AbstractUnzerResource;
 use stdClass;
+
 use function is_string;
 
 class CompanyInfo extends AbstractUnzerResource
@@ -47,8 +49,6 @@ class CompanyInfo extends AbstractUnzerResource
     /** @var CompanyOwner|null $owner */
     protected $owner;
 
-    //<editor-fold desc="Getters/Setters">
-
     /**
      * @return string|null
      */
@@ -62,7 +62,7 @@ class CompanyInfo extends AbstractUnzerResource
      *
      * @return CompanyInfo
      */
-    public function setRegistrationType($registrationType): CompanyInfo
+    public function setRegistrationType(?string $registrationType): CompanyInfo
     {
         $this->registrationType = $this->removeRestrictedSymbols($registrationType);
         return $this;
@@ -81,7 +81,7 @@ class CompanyInfo extends AbstractUnzerResource
      *
      * @return CompanyInfo
      */
-    public function setCommercialRegisterNumber($commercialRegisterNumber): CompanyInfo
+    public function setCommercialRegisterNumber(?string $commercialRegisterNumber): CompanyInfo
     {
         $this->commercialRegisterNumber = empty($commercialRegisterNumber) ?
             $commercialRegisterNumber : $this->removeRestrictedSymbols($commercialRegisterNumber);
@@ -101,7 +101,7 @@ class CompanyInfo extends AbstractUnzerResource
      *
      * @return CompanyInfo
      */
-    public function setFunction($function): CompanyInfo
+    public function setFunction(?string $function): CompanyInfo
     {
         $this->function = $this->removeRestrictedSymbols($function);
         return $this;
@@ -164,10 +164,6 @@ class CompanyInfo extends AbstractUnzerResource
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable methods">
-
     /**
      * Create instances of necessary properties to handle API responses.
      *
@@ -182,10 +178,6 @@ class CompanyInfo extends AbstractUnzerResource
         }
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Helpers">
-
     /**
      * Removes some restricted symbols from the given value.
      *
@@ -193,7 +185,7 @@ class CompanyInfo extends AbstractUnzerResource
      *
      * @return mixed
      */
-    private function removeRestrictedSymbols($value)
+    private function removeRestrictedSymbols(?string $value)
     {
         if (!is_string($value)) {
             return $value;
@@ -201,6 +193,4 @@ class CompanyInfo extends AbstractUnzerResource
 
         return str_replace(['<', '>'], '', $value);
     }
-
-    //</editor-fold>
 }

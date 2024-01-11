@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Plugin\s360_unzer_shop5\src\Controllers;
 
 use Exception;
+use JTL\Checkout\Bestellung;
 use UnzerSDK\Exceptions\UnzerApiException;
 use JTL\Helpers\Request;
 use JTL\Helpers\Text;
@@ -88,7 +89,7 @@ class SyncWorkflowController extends Controller
         }
 
         // Update Payment Resource (needed for HDD, as it needs invoiceDate etc)
-        $this->updatePaymentType($order->getPaymentTypeId());
+        $this->updatePaymentType($order->getPaymentTypeId(), new Bestellung($order->getId(), true));
         $this->debugLog('Number of affected rows: ' . $saved, static::class);
         $this->debugLog(
             'Saved invoice id ' . Request::postVar('invoice_id') . ' for order ' . json_encode($order->jsonSerialize()),
@@ -99,19 +100,17 @@ class SyncWorkflowController extends Controller
 
     /**
      * Update payment type if necessary
-     *
-     * @param string $paymentTypeId
-     * @return void
      */
-    private function updatePaymentType(string $paymentTypeId): void
+    private function updatePaymentType(string $paymentTypeId, Bestellung $order): void
     {
         try {
+            $api = $this->adapter->getConnectionForOrder($order);
             $paymentType = $this->adapter->fetchPaymentType($paymentTypeId);
 
             if ($paymentType instanceof InstallmentSecured) {
                 $paymentType->setInvoiceDate(date('Y-m-d'));
                 $paymentType->setInvoiceDueDate(date('Y-m-d'));
-                $this->adapter->getApi()->updatePaymentType($paymentType);
+                $api->updatePaymentType($paymentType);
                 $this->debugLog('Updated payment type: ' . json_encode($paymentType->jsonSerialize()));
             }
         } catch (UnzerApiException $exc) {

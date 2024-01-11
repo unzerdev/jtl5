@@ -9,3 +9,4 @@
 <link rel="stylesheet" href="{$hpAdmin.adminMenuUrl}css/admin.css?v={$hpAdmin.pluginVersion}" type="text/css">
 <script src="{$hpAdmin.adminMenuUrl}js/admin.js?v={$hpAdmin.pluginVersion}" defer="defer"></script>
 <script src="{$hpAdmin.adminMenuUrl}js/ordermanagement.js?v={$hpAdmin.pluginVersion}" defer="defer"></script>
+<script src="{$hpAdmin.adminMenuUrl}js/keypairs.js?v={$hpAdmin.pluginVersion}" defer="defer"></script>

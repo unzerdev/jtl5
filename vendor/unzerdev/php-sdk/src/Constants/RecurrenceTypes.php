@@ -21,6 +21,7 @@
  *
  * @package  UnzerSDK\Constants
  */
+
 namespace UnzerSDK\Constants;
 
 class RecurrenceTypes
@@ -28,7 +29,7 @@ class RecurrenceTypes
     /** @var string  Recurring with a defined interval and a defined amount.*/
     public const SCHEDULED = 'scheduled';
 
-    /** @var string  Recurring with a undefined interval and/or an undefined amount.*/
+    /** @var string  Recurring with an undefined interval and/or an undefined amount.*/
     public const UNSCHEDULED = 'unscheduled';
 
     /** @var string If the payment type should be used again for future transactions.*/

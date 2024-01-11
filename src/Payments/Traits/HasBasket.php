@@ -154,7 +154,7 @@ trait HasBasket
 
         // Set Basket Item
         $basketItem = (new BasketItem())
-            ->setTitle(Text::convertUTF8($title))
+            ->setTitle(Text::convertUTF8($title ?? ''))
             ->setAmountPerUnitGross($roundedGrossAmount)
             ->setQuantity((int) $position->nAnzahl);
 

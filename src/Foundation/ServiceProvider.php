@@ -9,6 +9,8 @@ use JTL\Services\Container;
 use Plugin\s360_unzer_shop5\src\ApplePay\CertificationService;
 use Plugin\s360_unzer_shop5\src\Charges\ChargeHandler;
 use Plugin\s360_unzer_shop5\src\Charges\ChargeMappingModel;
+use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairModel;
+use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairService;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingModel;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Payments\PaymentHandler;
@@ -59,9 +61,16 @@ class ServiceProvider
             return new Config();
         });
 
+        $this->app->setSingleton(KeyPairService::class, function (Container $app) {
+            return new KeyPairService(
+                new KeyPairModel($app->getDB()),
+                $app->get(Config::class)
+            );
+        });
+
         $this->app->setSingleton(HeidelpayApiAdapter::class, function (Container $app) {
             return new HeidelpayApiAdapter(
-                $app->get(Config::class),
+                $app->get(KeyPairService::class),
                 $app->get(SessionHelper::class),
                 new JtlLinkHelper()
             );

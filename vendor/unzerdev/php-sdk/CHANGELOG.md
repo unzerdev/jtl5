@@ -5,6 +5,82 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres
 to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [3.3.0](https://github.com/unzerdev/php-sdk/compare/3.2.0..3.3.0)
+### Added
+*   Chargeback transaction type.
+    *   Add class `\UnzerSDK\Resources\TransactionTypes\Chargeback`.
+    *   Add methods `\UnzerSDK\Unzer::fetchChargeback` and `\UnzerSDK\Unzer::fetchChargebackById` to fetch chargeback information.
+*   Add `\UnzerSDK\Resources\PaymentTypes\PayU` payment type.
+*   Add example for PayU payment type.
+
+## [3.2.0](https://github.com/unzerdev/php-sdk/compare/3.1.0..3.2.0)
+
+### Added
+*   Support for "Paylater Installment" payment type.
+    *   Add payment type "PaylaterInstallment"
+    *   Add `\UnzerSDK\Unzer::fetchPaylaterInstallmentPlans` method to get available installment plans. 
+*   Add "Paylater Installment" example.
+
+### Deprecated
+*   `\UnzerSDK\Resources\Payment::getCancellation`, please use `getCancellation` method of `\UnzerSDK\Resources\TransactionTypes\Charge` or `\UnzerSDK\Resources\TransactionTypes\Authorization` instead, depending on your use-case.
+*   `\UnzerSDK\Resources\PaymentTypes\InstallmentSecured`, will be replaced by `\UnzerSDK\Resources\PaymentTypes\PaylaterInstallment` in the future.
+
+### Changed
+*   Remove test-only constants and functions from `\UnzerSDK\Services\EnvironmentService` and move them to `\UnzerSDK\test\Helper\TestEnvironmentService`.
+*   `\UnzerSDK\Unzer::fetchPayPage()` method no longer automatically fetches linked Paypage to avoid issues with expired payment pages. 
+
+## [3.1.0](https://github.com/unzerdev/php-sdk/compare/3.0.0..3.1.0)
+
+### Added
+
+*   Add payment types "Post Finance Card" and "Post Finance eFinance".
+*   Add setter/getter to PayPage for `recurrenceType` and `exemptionType`.
+
+### Changed
+
+*   Make setter and getter for `PayPage::AdditionalAttributes` public to allow adding information manually.
+
+## [3.0.0](https://github.com/unzerdev/php-sdk/compare/1.2.3.0..3.0.0)
+
+### Added
+
+*   Enable PHP version 8.2 in composer.json.
+*   Add paypage property to `Payment` class.
+*   Add class `\UnzerSDK\Resources\EmbeddedResources\CardTransactionData`.
+    Set as "card" field of additionalTransactionData    
+*   Add constants `\UnzerSDK\Constants\LiabilityShiftIndicator` for valid liability shift indicator values, relevant for card payment.
+    *   Charge and authorize transactions with card can contain that indicator in Api Response. (`CardTransactionData::$liability`)
+
+### Changed
+
+*   Switch SDK to 3-digit versioning. First digit, formerly representing API version gets omitted (1.3.0.0 -> 3.0.0).
+*   Add Type declaration to methods where applicable.
+*   Enable `Unzer::fetchPaymentRefund` and `Unzer::fetchPaymentReversal` to use resource ID as parameter.
+*   Raise minimum PHP version to 7.4 in composer.json
+*   Handling of additionalTransactionData:
+    *   `additionalTransactionData.card` from API responses will be mapped on `\UnzerSDK\Resources\EmbeddedResources\CardTransactionData` now.
+    *   Remove `paymentType` parameter of `\UnzerSDK\Traits\HasRecurrenceType::setRecurrenceType`, it will always be set for `card` field of `additionalTransactionData`.
+
+## [1.2.3.0](https://github.com/unzerdev/php-sdk/compare/1.2.2.0..1.2.3.0)
+
+### Changed
+
+*   Resource ID fields won't be sent in payment request if they are empty anymore.
+
+### Added
+
+*   Add support for express checkout via PayPal.
+    *   Add support to set `checkoutType` for charge/authorize request.
+    *   Add transaction status `resumed`.
+    *   Add `updateCharge` and `updateAuthorization` method to `Unzer` class
+
+*   Add missing "payment" webhook event.
+*   Add `invoiceId` to Cancellation class.
+
+### Deprecated
+
+*   Marked unsecured `Invoice` class as deprecated.
+
 ## [1.2.2.0](https://github.com/unzerdev/php-sdk/compare/1.2.1.0..1.2.2.0)
 
 ### Changed

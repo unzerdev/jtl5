@@ -20,11 +20,13 @@
  *
  * @package  UnzerSDK\TransactionTypes
  */
+
 namespace UnzerSDK\Resources\TransactionTypes;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\AbstractUnzerResource;
+use UnzerSDK\Resources\EmbeddedResources\CardTransactionData;
 use UnzerSDK\Resources\EmbeddedResources\RiskData;
 use UnzerSDK\Resources\EmbeddedResources\ShippingData;
 use UnzerSDK\Resources\Payment;
@@ -32,6 +34,7 @@ use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Traits\HasAdditionalTransactionData;
 use UnzerSDK\Traits\HasCustomerMessage;
 use UnzerSDK\Traits\HasDate;
+use UnzerSDK\Traits\HasInvoiceId;
 use UnzerSDK\Traits\HasOrderId;
 use UnzerSDK\Traits\HasStates;
 use UnzerSDK\Traits\HasTraceId;
@@ -42,6 +45,7 @@ use stdClass;
 abstract class AbstractTransactionType extends AbstractUnzerResource
 {
     use HasOrderId;
+    use HasInvoiceId;
     use HasStates;
     use HasUniqueAndShortId;
     use HasTraceId;
@@ -49,13 +53,9 @@ abstract class AbstractTransactionType extends AbstractUnzerResource
     use HasAdditionalTransactionData;
     use HasDate;
 
-    //<editor-fold desc="Properties">
 
     /** @var Payment $payment */
     private $payment;
-    //</editor-fold>
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * Return the payment property.
@@ -74,7 +74,7 @@ abstract class AbstractTransactionType extends AbstractUnzerResource
      *
      * @return $this
      */
-    public function setPayment($payment): self
+    public function setPayment(Payment $payment): self
     {
         $this->payment = $payment;
         $this->setParentResource($payment);
@@ -82,9 +82,9 @@ abstract class AbstractTransactionType extends AbstractUnzerResource
     }
 
     /**
-     * Return the Id of the referenced payment object.
+     * Return the ID of the referenced payment object.
      *
-     * @return null|string The Id of the payment object or null if nothing is found.
+     * @return null|string The ID of the payment object or null if nothing is found.
      */
     public function getPaymentId(): ?string
     {
@@ -105,17 +105,13 @@ abstract class AbstractTransactionType extends AbstractUnzerResource
         return $this->payment->getRedirectUrl();
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable methods">
-
     /**
      * {@inheritDoc}
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 
@@ -158,8 +154,6 @@ abstract class AbstractTransactionType extends AbstractUnzerResource
         ];
     }
 
-    //</editor-fold>
-
     /**
      * Updates the referenced payment object if it exists and if this is not the payment object itself.
      * This is called from the crud methods to update the payments state whenever anything happens.
@@ -190,6 +184,7 @@ abstract class AbstractTransactionType extends AbstractUnzerResource
 
             $this->handleRiskData($additionalTransactionData);
             $this->handleShipping($additionalTransactionData);
+            $this->handleCardTransactionData($additionalTransactionData);
         }
     }
 
@@ -224,6 +219,23 @@ abstract class AbstractTransactionType extends AbstractUnzerResource
             $shippingObject = $this->getShipping() ?? new ShippingData();
             $shippingObject->handleResponse($shipping);
             $this->setShipping($shippingObject);
+        }
+    }
+
+    /**
+     * Handle CardTransactionData object contained in additional transaction data from API response.
+     *
+     * @param stdClass $additionalTransactionData
+     *
+     * @return void
+     */
+    protected function handleCardTransactionData(stdClass $additionalTransactionData): void
+    {
+        $card = $additionalTransactionData->card ?? null;
+        if ($card !== null) {
+            $cardTransactionData = $this->getCardTransactionData() ?? new CardTransactionData();
+            $cardTransactionData->handleResponse($card);
+            $this->setCardTransactionData($cardTransactionData);
         }
     }
 }

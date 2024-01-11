@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments\Traits;
 
@@ -9,9 +11,11 @@ use JTL\Checkout\Adresse;
 use JTL\Customer\Customer as ShopCustomer;
 use JTL\Helpers\Text;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
+use Plugin\s360_unzer_shop5\src\Utils\Logger;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
+use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Constants\ShippingTypes;
-use UnzerSDK\Resources\EmbeddedResources\CompanyInfo;
+use UnzerSDK\Exceptions\UnzerApiException;
 
 /**
  * Payment Methods which require a Customer object.
@@ -36,7 +40,19 @@ trait HasCustomer
     ): Customer {
         if ($session->has(SessionHelper::KEY_CUSTOMER_ID) && $session->get(SessionHelper::KEY_CUSTOMER_ID) != -1) {
             $frontSession = $session->getFrontendSession();
-            $customer = $adapter->getApi()->fetchCustomer($session->get(SessionHelper::KEY_CUSTOMER_ID));
+
+            // Try to fetch customer
+            try {
+                $customer = $adapter->getCurrentConnection()->fetchCustomer($session->get(SessionHelper::KEY_CUSTOMER_ID));
+            } catch (UnzerApiException $exc) {
+                if ($exc->getCode() === ApiResponseCodes::API_ERROR_CUSTOMER_DOES_NOT_EXIST) {
+                    Logger::debug($exc->getMessage() . ' - maybe due to key pair change and invalid session');
+                }
+
+                // Could not load customer for their saved id -> try to create a new customer
+                $session->clear(SessionHelper::KEY_CUSTOMER_ID);
+                return $this->createOrFetchHeidelpayCustomer($adapter, $session, $isB2B);
+            }
 
             if (!empty($frontSession->getCustomer()->cFirma) && empty($customer->getCompany())) {
                 $customer->setCompany(Text::convertUTF8(html_entity_decode($frontSession->getCustomer()->cFirma)));
@@ -70,7 +86,7 @@ trait HasCustomer
             return $this->createHeidelpayB2BCustomer($session->getFrontendSession()->getCustomer());
         }
 
-        return $adapter->getApi()->createOrUpdateCustomer(
+        return $adapter->getCurrentConnection()->createOrUpdateCustomer(
             $this->createHeidelpayCustomer($session->getFrontendSession()->getCustomer())
         );
     }
@@ -97,7 +113,7 @@ trait HasCustomer
         }
 
         // Set external customer so we do not have to map it ourself.
-        $customerObj->setCustomerId($customer->kKunde);
+        $customerObj->setCustomerId((string) $customer->kKunde);
 
         return $customerObj;
     }
@@ -110,12 +126,17 @@ trait HasCustomer
      */
     protected function createHeidelpayAddress($address): Address
     {
+        $type = $_SESSION['Bestellung'] && $_SESSION['Bestellung']->kLieferadresse == -1
+            ? ShippingTypes::DIFFERENT_ADDRESS
+            : ShippingTypes::EQUALS_BILLING;
+
         return (new Address())
             ->setName(Text::convertUTF8(html_entity_decode($address->cVorname . ' ' . $address->cNachname)))
             ->setStreet(Text::convertUTF8(html_entity_decode($address->cStrasse . ' ' . $address->cHausnummer)))
             ->setZip(Text::convertUTF8(html_entity_decode($address->cPLZ)))
             ->setCity(Text::convertUTF8(html_entity_decode($address->cOrt)))
-            ->setCountry(Text::convertUTF8(html_entity_decode($address->cLand)));
+            ->setCountry(Text::convertUTF8(html_entity_decode($address->cLand)))
+            ->setShippingType($type);
     }
 
     /**
@@ -168,5 +189,46 @@ trait HasCustomer
         $obj->setCustomerId($customer->kKunde);
 
         return $obj;
+    }
+
+    /**
+     * @param Address $address
+     * @return array{firstname: string, lastname: string}
+     */
+    protected function getNamesFromAddress(Address $address): array
+    {
+        $names = mb_split('\s+', $address->getName() ?? '', 2);
+        if (!empty($names) && \count($names) >= 1) {
+            return [
+                'firstname' => current($names) ?? '',
+                'lastname' => end($names) ?? '',
+            ];
+        }
+
+        return ['firstname' => '', 'lastname' => $address->getName() ?? ''];
+    }
+
+    /**
+     * @param Address $address
+     * @return array{number: string, street: string}
+     */
+    protected function getStreetFromAddress(Address $address): array
+    {
+        $data = ['number' => '', 'street' => ''];
+        $split = mb_split(' ', $address->getStreet() ?? '');
+
+        if (\count($split) > 1) {
+            $data['number'] = $split[count($split) - 1];
+            unset($split[count($split) - 1]);
+            $data['street'] = implode(' ', $split);
+        } else {
+            $sStreet = implode(' ', $split);
+            if (mb_strlen($sStreet) > 1) {
+                $data['number'] = mb_substr($sStreet, -1);
+                $data['street'] = mb_substr($sStreet, 0, -1);
+            }
+        }
+
+        return $data;
     }
 }

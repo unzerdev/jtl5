@@ -20,6 +20,7 @@
  *
  * @package  UnzerSDK\PaymentTypes
  */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
@@ -47,7 +48,6 @@ abstract class BasePaymentType extends AbstractUnzerResource
         return false;
     }
 
-    //<editor-fold desc="Overridable Methods">
     public function supportsDirectPaymentCancel(): bool
     {
         return static::SUPPORT_DIRECT_PAYMENT_CANCEL;
@@ -56,7 +56,7 @@ abstract class BasePaymentType extends AbstractUnzerResource
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         $path = 'types';
         if ($httpMethod !== HttpAdapterInterface::REQUEST_GET || $this->id === null) {
@@ -76,6 +76,4 @@ abstract class BasePaymentType extends AbstractUnzerResource
     {
         return [];
     }
-
-    //</editor-fold>
 }

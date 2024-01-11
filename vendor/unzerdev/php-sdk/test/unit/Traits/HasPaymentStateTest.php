@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Traits;
 
 use UnzerSDK\Constants\PaymentState;
@@ -33,6 +35,7 @@ class HasPaymentStateTest extends BasePaymentTest
      * Verify that getters and setters work properly.
      *
      * @test
+     *
      * @dataProvider gettersAndSettersShouldWorkProperlyDP
      *
      * @param mixed $state

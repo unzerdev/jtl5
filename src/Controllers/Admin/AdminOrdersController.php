@@ -9,6 +9,7 @@ use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\Resources\TransactionTypes\Shipment;
 use InvalidArgumentException;
+use JTL\Catalog\Currency;
 use JTL\Checkout\Bestellung;
 use JTL\Helpers\Request;
 use JTL\Helpers\Text;
@@ -35,15 +36,8 @@ class AdminOrdersController extends AdminController implements AjaxResponse
     public const TEMPLATE_ID_ORDER_DETAIL = 'template/partials/_order_detail';
     public const TEMPLATE_ID_ORDER_ITEM = 'template/partials/_order_item';
 
-    /**
-     * @var OrderMappingModel
-     */
-    private $model;
-
-    /**
-     * @var HeidelpayApiAdapter
-     */
-    private $adapter;
+    private OrderMappingModel $model;
+    private HeidelpayApiAdapter $adapter;
 
     /**
      * Init dependencies
@@ -145,8 +139,10 @@ class AdminOrdersController extends AdminController implements AjaxResponse
             ]);
         }
 
-        $payment = $this->adapter->fetchPayment($orderMapping->getPaymentId());
         $order = new Bestellung($orderMapping->getId(), true);
+        $api = $this->adapter->getConnectionForOrder($order);
+        $payment = $this->adapter->fetchPayment($orderMapping->getPaymentId());
+        $cancellations = [];
 
         // Load Charges, Cancellations and Shipments
         foreach ($payment->getCharges() as $chg) {
@@ -156,7 +152,8 @@ class AdminOrdersController extends AdminController implements AjaxResponse
             foreach ($chg->getCancellations() as $cancel) {
                 /** @var Cancellation $cancel */
                 try {
-                    $this->adapter->getApi()->fetchRefundById($payment, $chg->getId(), $cancel->getId());
+                    $cancellations[$cancel->getId()] = $cancel;
+                    $api->fetchRefundById($payment, $chg->getId(), $cancel->getId());
                 } catch (UnzerApiException $exc) {
                     $this->errorLog(
                         'Error while loading cancellation: ' . $exc->getMerchantMessage()
@@ -164,6 +161,32 @@ class AdminOrdersController extends AdminController implements AjaxResponse
                         static::class
                     );
                 }
+            }
+        }
+
+        foreach ($payment->getReversals() as $reversal) {
+            /** @var Cancellation $reversal */
+            try {
+                $cancellations[$reversal->getId()] = $api->fetchPaymentReversal($payment, $reversal->getId());
+            } catch (UnzerApiException $exc) {
+                $this->errorLog(
+                    'Error while loading cancellation: ' . $exc->getMerchantMessage()
+                    . ' | Error-Code: ' . $exc->getCode(),
+                    static::class
+                );
+            }
+        }
+
+        foreach($payment->getRefunds() as $refund) {
+            /** @var Cancellation $refund */
+            try {
+                $cancellations[$refund->getId()] = $api->fetchPaymentRefund($payment, $refund->getId());
+            } catch (UnzerApiException $exc) {
+                $this->errorLog(
+                    'Error while loading cancellation: ' . $exc->getMerchantMessage()
+                    . ' | Error-Code: ' . $exc->getCode(),
+                    static::class
+                );
             }
         }
 
@@ -190,7 +213,8 @@ class AdminOrdersController extends AdminController implements AjaxResponse
                     'hpOrderMapping' => $orderMapping,
                     'hpOrder'     => $order,
                     'hpPayment'   => $payment,
-                    'hpPortalUrl' => $url
+                    'hpPortalUrl' => $url,
+                    'hpCancellations' => $cancellations
                 ])
             )
         ]);
@@ -212,6 +236,7 @@ class AdminOrdersController extends AdminController implements AjaxResponse
 
         foreach ($orders as $order) {
             /** @var OrderMappingEntity $order */
+            $order->getOrder()->Waehrung = new Currency((int)$order->getOrder()->kWaehrung);
             $url = $this->config->getInsightPortalUrl($order);
             $data[] = new OrderViewStruct(
                 $order,

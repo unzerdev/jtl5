@@ -20,10 +20,13 @@ msgid "Unzer Lastschrift (secured)"
 msgstr "Unzer Lastschrift (secured)"
 
 msgid "Unzer Rechnung"
-msgstr "Unzer Rechnung"
+msgstr "(Veraltet) Unzer Rechnungskauf"
 
 msgid "Unzer Rechnung (guaranteed)"
-msgstr "Unzer Rechnung (secured)"
+msgstr "(Veraltet) Unzer Rechnungskauf Gesichert"
+
+msgid "Unzer Rechnung (secured)"
+msgstr "(Veraltet) Unzer Rechnungskauf Gesichert"
 
 msgid "Unzer Fakturierung von Rechnungen"
 msgstr "Unzer Fakturierung von Rechnungen"
@@ -71,7 +74,10 @@ msgid "Unzer Instalment"
 msgstr "Unzer Ratenkauf"
 
 msgid "Unzer Rechnung (Jetzt kaufen, Später bezahlen)"
-msgstr "Unzer Rechnung (Paylater)"
+msgstr "Unzer Rechnungskauf"
+
+msgid "Unzer Ratenzahlung (Paylater)"
+msgstr "Unzer Ratenkauf"
 
 msgid "hpError"
 msgstr "Fehler"
@@ -500,3 +506,33 @@ msgstr ""
 "Der Ersatz für diese Zahlart ist die neue Zahlart `Unzer Rechnung (Jetzt kaufen, später bezahlen)`.\n"
 "\n"
 "Wenn Sie migrieren möchten, wenden Sie sich bitte an Ihren Ansprechpartner bei Unzer!"
+
+msgid "Key Pairs"
+msgstr "Schlüsselpaare"
+
+msgid "hpKeyPairEdit"
+msgstr "Schlüsselpaar bearbeiten"
+
+msgid "hpKeypairIsB2B"
+msgstr "B2B"
+
+msgid "hpKeypairIsB2BHelp"
+msgstr "Gibt an, ob das Schlüsselpaar nur für B2B Kunden benutzt werden soll."
+
+msgid "hpKeypairCurrencyHelp"
+msgstr "Gibt an für welche Währung das Schlüsselpaar verwendet werden soll."
+
+msgid "hpKeypairPaymentMethodsHelp"
+msgstr "Gibt an für welche Zahlungsart das Schlüsselpaar verwendet werden soll."
+
+msgid "hpSettingsPqSelectorInstalmentInfo"
+msgstr "PQ-Selector für den Ratenzahlungshinweis auf Bestellbestätigungsseite"
+
+msgid "hpSettingsPqSelectorInstalmentInfoHelp"
+msgstr "Der PHP-Query-Selektor für das Einhängen des Ratenzahlungshinweis auf der Bestellbestätigungsseite"
+
+msgid "hpSettingsPqMethodInstalmentInfo"
+msgstr "PQ-Einfügemethode für den Ratenzahlungshinweis auf Bestellbestätigungsseite"
+
+msgid "hpSettingsPqMethodInstalmentInfoHelp"
+msgstr "Die PHP-Query-Einfügemethode für das Einhängen des Ratenzahlungshinweis auf der Bestellbestätigungsseite"

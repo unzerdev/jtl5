@@ -20,13 +20,15 @@
  *
  * @package  UnzerSDK\Resources
  */
+
 namespace UnzerSDK\Resources;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
+use stdClass;
+
 use function count;
 use function in_array;
 use function is_callable;
-use stdClass;
 
 class Metadata extends AbstractUnzerResource
 {
@@ -34,8 +36,6 @@ class Metadata extends AbstractUnzerResource
 
     protected $shopType;
     protected $shopVersion;
-
-    //<editor-fold desc="Setters/Getters">
 
     /**
      * @return string|null
@@ -83,7 +83,7 @@ class Metadata extends AbstractUnzerResource
      *
      * @return Metadata
      */
-    public function addMetadata($name, $value): Metadata
+    public function addMetadata(string $name, string $value): Metadata
     {
         if (!in_array(strtolower($name), ['sdkversion', 'sdktype', 'shoptype', 'shopversion'])) {
             $this->metadata[$name] = $value;
@@ -99,14 +99,10 @@ class Metadata extends AbstractUnzerResource
      *
      * @return mixed
      */
-    public function getMetadata($name)
+    public function getMetadata(string $name)
     {
         return $this->metadata[$name] ?? null;
     }
-
-    //</editor-fold>>
-
-    //<editor-fold desc="Overridable Methods">
 
     /**
      * Add the dynamically set meta data.
@@ -119,10 +115,10 @@ class Metadata extends AbstractUnzerResource
     }
 
     /**
-     * Add custom properties (i. e. properties without setter) to the metadata array.
+     * Add custom properties (i.e. properties without setter) to the metadata array.
      * {@inheritDoc}
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 
@@ -133,6 +129,4 @@ class Metadata extends AbstractUnzerResource
             }
         }
     }
-
-    //</editor-fold>
 }

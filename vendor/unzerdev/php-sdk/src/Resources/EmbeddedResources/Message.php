@@ -1,6 +1,6 @@
 <?php
 /**
- * Represents the message resource holding information like a transactions error code and message.
+ * Represents the message resource holding information like a transaction error code and message.
  *
  * Copyright (C) 2020 - today Unzer E-Com GmbH
  *
@@ -20,6 +20,7 @@
  *
  * @package  UnzerSDK\Resources\EmbeddedResources
  */
+
 namespace UnzerSDK\Resources\EmbeddedResources;
 
 use UnzerSDK\Resources\AbstractUnzerResource;
@@ -34,8 +35,6 @@ class Message extends AbstractUnzerResource
 
     /** @var string $merchant */
     private $merchant = '';
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string
@@ -88,11 +87,9 @@ class Message extends AbstractUnzerResource
      *
      * @return Message
      */
-    protected function setMerchant($merchant): Message
+    protected function setMerchant(?string $merchant): Message
     {
         $this->merchant = $merchant;
         return $this;
     }
-
-    //</editor-fold>
 }

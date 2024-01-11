@@ -24,7 +24,7 @@
                 -
             {/if}
         </td>
-        <td class="hp-order-table-column hp-payment-id">{if $hpOrder->getPaymentId()}{$hpOrder->getPaymentId()}{else} - {/if}</dt>
+        <td class="hp-order-table-column hp-payment-id">{if $hpOrder->getPaymentId()}{$hpOrder->getPaymentId()}{else} - {/if}</td>
         <td class="hp-order-table-column hp-order-status hp-status-{if $hpOrder->getPaymentState()}{mb_strtolower($hpOrder->getPaymentState())|escape}{else}unknown{/if}">
             {if $hpOrder->getPaymentState()}
                {if $hpOrder->getPaymentState() === \UnzerSDK\Constants\PaymentState::STATE_NAME_PENDING}
@@ -50,44 +50,44 @@
             {if $hpOrder->getPaymentTypeName()}
                 {if $hpOrder->getPaymentTypeName() == 'card'}
                     {__('hpPaymentmethodCard')}
-                {else if $hpOrder->getPaymentTypeName() == 'sepa-direct-debit'}
+                {elseif $hpOrder->getPaymentTypeName() == 'sepa-direct-debit'}
                     {__('hpPaymentmethodSEPA')}
-                {else if $hpOrder->getPaymentTypeName() == 'sepa-direct-debit-guaranteed'}
+                {elseif $hpOrder->getPaymentTypeName() == 'sepa-direct-debit-guaranteed'}
                     {__('hpPaymentmethodSEPAGuaranteed')}
-                {else if $hpOrder->getPaymentTypeName() == 'sepa-direct-debit-secured'}
+                {elseif $hpOrder->getPaymentTypeName() == 'sepa-direct-debit-secured'}
                     {__('hpPaymentmethodSEPAGuaranteed')}
-                {else if $hpOrder->getPaymentTypeName() == 'invoice'}
+                {elseif $hpOrder->getPaymentTypeName() == 'invoice'}
                     {__('hpPaymentmethodInvoice')}
-                {else if $hpOrder->getPaymentTypeName() == 'invoice-guaranteed'}
+                {elseif $hpOrder->getPaymentTypeName() == 'invoice-guaranteed'}
                     {__('hpPaymentmethodInvoiceGuaranteed')}
-                {else if $hpOrder->getPaymentTypeName() == 'invoice-secured'}
+                {elseif $hpOrder->getPaymentTypeName() == 'invoice-secured'}
                     {__('hpPaymentmethodInvoiceGuaranteed')}
-                {else if $hpOrder->getPaymentTypeName() == 'invoice-factoring'}
+                {elseif $hpOrder->getPaymentTypeName() == 'invoice-factoring'}
                     {__('hpPaymentmethodInvoiceFactoring')}
-                {else if $hpOrder->getPaymentTypeName() == 'paypal'}
+                {elseif $hpOrder->getPaymentTypeName() == 'paypal'}
                     {__('hpPaymentmethodPayPal')}
-                {else if $hpOrder->getPaymentTypeName() == 'sofort'}
+                {elseif $hpOrder->getPaymentTypeName() == 'sofort'}
                     {__('hpPaymentmethodSOFORT')}
-                {else if $hpOrder->getPaymentTypeName() == 'giropay'}
+                {elseif $hpOrder->getPaymentTypeName() == 'giropay'}
                     {__('hpPaymentmethodGiropay')}
-                {else if $hpOrder->getPaymentTypeName() == 'prepayment'}
+                {elseif $hpOrder->getPaymentTypeName() == 'prepayment'}
                     {__('hpPaymentmethodPrepayment')}
-                {else if $hpOrder->getPaymentTypeName() == 'eps'}
+                {elseif $hpOrder->getPaymentTypeName() == 'eps'}
                     {__('hpPaymentmethodEPS')}
-                {else if $hpOrder->getPaymentTypeName() == 'pis'}
+                {elseif $hpOrder->getPaymentTypeName() == 'pis'}
                     {__('hpPaymentmethodFlexiPayDirect')}
-                {else if $hpOrder->getPaymentTypeName() == 'alipay'}
+                {elseif $hpOrder->getPaymentTypeName() == 'alipay'}
                     {__('hpPaymentmethodAlipay')}
-                {else if $hpOrder->getPaymentTypeName() == 'wechatpay'}
+                {elseif $hpOrder->getPaymentTypeName() == 'wechatpay'}
                     {__('hpPaymentmethodWeChatPay')}
-                {else if $hpOrder->getPaymentTypeName() == 'ideal'}
+                {elseif $hpOrder->getPaymentTypeName() == 'ideal'}
                     {__('hpPaymentmethodiDEAL')}
-                {else if $hpOrder->getPaymentTypeName() == 'hire-purchase-direct-debit'}
+                {elseif $hpOrder->getPaymentTypeName() == 'hire-purchase-direct-debit'}
                     {__('hpPaymentmethodHirePurchaseDirectDebit')}
-                {else if $hpOrder->getPaymentTypeName() == 'installment-secured'}
+                {elseif $hpOrder->getPaymentTypeName() == 'installment-secured'}
                     {__('hpPaymentmethodHirePurchaseDirectDebit')}
                 {else}
-                    {$hpOrder->getPaymentTypeName() }
+                    {__($hpOrder->getPaymentTypeName())}
                 {/if}
             {/if}
 
@@ -95,7 +95,9 @@
                 <em>({$hpOrder->getPaymentTypeId()})</em>
             {/if}
         </td>
-        <td class="hp-order-table-column hp-amount tright">{\JTL\Catalog\Product\Preise::getLocalizedPriceString($hpOrder->getOrder()->fGesamtsumme)}</td>
+        <td class="hp-order-table-column hp-amount tright">
+            {\JTL\Catalog\Product\Preise::getLocalizedPriceString($hpOrder->getOrder()->fGesamtsumme, $hpOrder->getOrder()->Waehrung)}
+        </td>
         <td class="hp-order-table-column hp-date tright">{if isset($hpOrder->getOrder()->dErstellt)}{strtotime($hpOrder->getOrder()->dErstellt)|date_format:"d.m.Y H:i:s"}{else} - {/if}</td>
         <td class="hp-order-table-column hp-order-actions">
             <div class="input-group">

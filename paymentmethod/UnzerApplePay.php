@@ -122,7 +122,7 @@ class UnzerApplePay extends HeidelpayPaymentMethod implements HandleStepAddition
 
         // Update existing customer resource if needed
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
         }
 
         $charge = new Charge(
@@ -132,7 +132,7 @@ class UnzerApplePay extends HeidelpayPaymentMethod implements HandleStepAddition
         );
         $charge->setOrderId($order->cBestellNr ?? null);
 
-        return $this->adapter->getApi()->performCharge(
+        return $this->adapter->getCurrentConnection()->performCharge(
             $charge,
             $payment->getId(),
             $customer,

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Services;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -50,6 +52,7 @@ use UnzerSDK\Services\PaymentService;
 use UnzerSDK\Services\ResourceService;
 use UnzerSDK\test\BasePaymentTest;
 use PHPUnit\Framework\MockObject\MockObject;
+
 use function in_array;
 
 class PaymentServiceTest extends BasePaymentTest
@@ -84,6 +87,7 @@ class PaymentServiceTest extends BasePaymentTest
      * @test
      *
      * @param $card3ds
+     *
      * @dataProvider card3dsDataProvider
      */
     public function authorizeShouldCreateNewAuthorizationAndPayment($card3ds): void
@@ -127,6 +131,7 @@ class PaymentServiceTest extends BasePaymentTest
      * @test
      *
      * @param $card3ds
+     *
      * @dataProvider card3dsDataProvider
      */
     public function chargeShouldCreateNewPaymentAndCharge($card3ds): void

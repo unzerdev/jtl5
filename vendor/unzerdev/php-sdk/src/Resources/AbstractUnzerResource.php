@@ -20,10 +20,12 @@
  *
  * @package  UnzerSDK\Resources
  */
+
 namespace UnzerSDK\Resources;
 
 use DateTime;
 use UnzerSDK\Adapter\HttpAdapterInterface;
+use UnzerSDK\Constants\AdditionalAttributes;
 use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Unzer;
 use UnzerSDK\Interfaces\UnzerParentInterface;
@@ -34,6 +36,7 @@ use ReflectionException;
 use ReflectionProperty;
 use RuntimeException;
 use stdClass;
+
 use function count;
 use function is_array;
 use function is_callable;
@@ -56,8 +59,6 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
 
     /** @var array $additionalAttributes */
     protected $additionalAttributes = [];
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * Returns the API name of the resource.
@@ -82,22 +83,22 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
     /**
      * This setter must be public to enable fetching a resource by setting the id and then call fetch.
      *
-     * @param int $resourceId
+     * @param string|null $resourceId
      *
      * @return $this
      */
-    public function setId($resourceId): self
+    public function setId(?string $resourceId): self
     {
         $this->id = $resourceId;
         return $this;
     }
 
     /**
-     * @param UnzerParentInterface $parentResource
+     * @param UnzerParentInterface|null $parentResource
      *
      * @return $this
      */
-    public function setParentResource($parentResource): self
+    public function setParentResource(?UnzerParentInterface $parentResource): self
     {
         $this->parentResource = $parentResource;
         return $this;
@@ -187,8 +188,11 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
      * @param mixed  $value
      *
      * @return AbstractUnzerResource
+     *
+     * @see AdditionalAttributes
+     *
      */
-    protected function setAdditionalAttribute(string $attribute, $value): AbstractUnzerResource
+    public function setAdditionalAttribute(string $attribute, $value): AbstractUnzerResource
     {
         $this->additionalAttributes[$attribute] = $value;
         return $this;
@@ -199,16 +203,22 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
      *
      * @param string $attribute
      *
+     * @see AdditionalAttributes
+     *
      * @return mixed
      */
-    protected function getAdditionalAttribute(string $attribute)
+    public function getAdditionalAttribute(string $attribute)
     {
         return $this->additionalAttributes[$attribute] ?? null;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Helpers">
+    /**
+     * @return array
+     */
+    public function getAdditionalAttributes()
+    {
+        return $this->additionalAttributes;
+    }
 
     /**
      * {@inheritDoc}
@@ -227,7 +237,7 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
      *
      * @throws RuntimeException
      */
-    public function getUri($appendId = true, $httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    public function getUri(bool $appendId = true, string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         $uri = [rtrim($this->getParentResource()->getUri(), '/'), $this->getResourcePath($httpMethod)];
         if ($appendId) {
@@ -244,7 +254,7 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
     /**
      * This method updates the properties of the resource.
      *
-     * @param $object
+     * @param          $object
      * @param stdClass $response
      */
     private static function updateValues($object, stdClass $response): void
@@ -277,10 +287,6 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
             self::setItemProperty($object, $key, $newValue);
         }
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Resource service facade">
 
     /**
      * @return ResourceService
@@ -320,17 +326,13 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
         $this->getResourceService()->fetchResource($resource);
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Serialization">
-
     /**
      * Specify data which should be serialized to JSON
      *
      * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
      *
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     *               which is a value of any type other than a resource.
+     * @return false|string data which can be serialized by <b>json_encode</b>,
+     *                      which is a value of any type other than a resource.
      */
     public function jsonSerialize()
     {
@@ -363,11 +365,11 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
     }
 
     /**
-     * @param $value
+     * @param array $value
      *
      * @return array
      */
-    private function exposeAdditionalAttributes($value): array
+    private function exposeAdditionalAttributes(array $value): array
     {
         foreach ($value as $attributeName => $attributeValue) {
             $attributeValue        = ValueService::limitFloats($attributeValue);
@@ -380,12 +382,12 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
     /**
      * Returns true if the given property should be skipped.
      *
-     * @param $property
-     * @param $value
+     * @param string $property
+     * @param        $value
      *
      * @return bool
      */
-    private static function propertyShouldBeSkipped($property, $value): bool
+    private static function propertyShouldBeSkipped(string $property, $value): bool
     {
         $skipProperty = false;
 
@@ -422,12 +424,8 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
         }
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable Methods">
-
     /**
-     * Return the resources which should be referenced by Id within the resource section of the resource data.
+     * Return the resources which should be referenced by ID within the resource section of the resource data.
      * Override this to define the linked resources.
      *
      * @return array
@@ -445,7 +443,7 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
      *
      * @return string
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return self::getResourceName($httpMethod);
     }
@@ -456,9 +454,10 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
      *
      * @param stdClass $response
      * @param string   $method
+     *
      * @noinspection PhpUnusedParameterInspection
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         self::updateValues($this, $response);
 
@@ -485,12 +484,8 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
         return null;
     }
 
-    //</editor-fold>/**
-
     /**
      * Exposes properties
-     *
-     * @param array $properties
      *
      * @return array
      */
@@ -525,17 +520,16 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
 
             // handle additionalTransactionData values
             if ($property === 'additionalTransactionData') {
-                if (!empty($value->riskData) && $value->riskData instanceof self) {
-                    $value->riskData = $value->riskData->expose();
-                }
-                if (!empty($value->shipping) && $value->shipping instanceof self) {
-                    $value->shipping = $value->shipping->expose();
+                foreach ($value as $key => $data) {
+                    if ($data instanceof self) {
+                        $value->$key = $data->expose();
+                    }
                 }
             }
 
             $properties[$property] = $value;
         }
-    
+
         return $properties;
     }
 
@@ -552,7 +546,10 @@ abstract class AbstractUnzerResource implements UnzerParentInterface
          * @var AbstractUnzerResource $linkedResource
          */
         foreach ($this->getLinkedResources() as $attributeName => $linkedResource) {
-            $exposedResources[$attributeName . 'Id'] = $linkedResource ? $linkedResource->getId() : '';
+            $resourceId = $linkedResource ? $linkedResource->getId() : null;
+            if ($resourceId !== null) {
+                $exposedResources[$attributeName . 'Id'] = $resourceId;
+            }
         }
         return $exposedResources;
     }

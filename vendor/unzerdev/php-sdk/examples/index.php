@@ -55,7 +55,7 @@ function printMessage($type, $title, $text)
         <script type="text/javascript" src="https://static.unzer.com/v1/unzer.js"></script>
     </head>
 
-    <body style="margin: 70px 70px 0;">
+    <body style="margin: 30px 70px 0;">
         <div class="ui container segment">
             <h2 class="ui header">
                 <i class="shopping cart icon"></i>
@@ -221,7 +221,7 @@ function printMessage($type, $title, $text)
                 <div class="card olive">
                     <div class="content">
                         <div class="header">
-                            Invoice
+                            Invoice (deprecated)
                         </div>
                         <div class="description">
                         </div>
@@ -298,6 +298,18 @@ function printMessage($type, $title, $text)
                 <div class="card olive">
                     <div class="content">
                         <div class="header">
+                            PayU
+                        </div>
+                        <div class="description">
+                        </div>
+                    </div>
+                    <div id="tryPayUExample" class="ui bottom attached green button" onclick="location.href='PayU/';">
+                        Try
+                    </div>
+                </div>
+                <div class="card olive">
+                    <div class="content">
+                        <div class="header">
                             Sofort
                         </div>
                         <div class="description">
@@ -322,7 +334,19 @@ function printMessage($type, $title, $text)
                 <div class="card olive">
                     <div class="content">
                         <div class="header">
-                            Unzer Installment (secured)
+                            Paylater Installment
+                        </div>
+                        <div class="description">
+                        </div>
+                    </div>
+                    <div id="tryPaylaterInstallment" class="ui bottom attached green button" onclick="location.href='PaylaterInstallment/';">
+                        Try
+                    </div>
+                </div>
+                <div class="card olive">
+                    <div class="content">
+                        <div class="header">
+                            Installment Secured (deprecated)
                         </div>
                         <div class="description">
                         </div>
@@ -340,6 +364,30 @@ function printMessage($type, $title, $text)
                         </div>
                     </div>
                     <div id="tryUnzerBankTransferExample" class="ui bottom attached green button" onclick="location.href='BankTransfer/';">
+                        Try
+                    </div>
+                </div>
+                <div class="card olive">
+                    <div class="content">
+                        <div class="header">
+                            Post Finance Card
+                        </div>
+                        <div class="description">
+                        </div>
+                    </div>
+                    <div id="tryPostFinanceCardExample" class="ui bottom attached green button" onclick="location.href='PostFinanceCard/';">
+                        Try
+                    </div>
+                </div>
+                <div class="card olive">
+                    <div class="content">
+                        <div class="header">
+                            Post Finance eFinance
+                        </div>
+                        <div class="description">
+                        </div>
+                    </div>
+                    <div id="tryPostFinanceEfinanceExample" class="ui bottom attached green button" onclick="location.href='PostFinanceEfinance/';">
                         Try
                     </div>
                 </div>

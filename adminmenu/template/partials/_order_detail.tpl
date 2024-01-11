@@ -169,44 +169,44 @@
                                     <dd class="col-7">
                                         {if $hpPayment->getPaymentType()->getResourceName() == 'card'}
                                             {__('hpPaymentmethodCard')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit'}
                                             {__('hpPaymentmethodSEPA')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit-guaranteed'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit-guaranteed'}
                                             {__('hpPaymentmethodSEPAGuaranteed')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit-secured'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit-secured'}
                                             {__('hpPaymentmethodSEPAGuaranteed')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'invoice'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'invoice'}
                                             {__('hpPaymentmethodInvoice')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'invoice-guaranteed'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'invoice-guaranteed'}
                                             {__('hpPaymentmethodInvoiceGuaranteed')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'invoice-secured'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'invoice-secured'}
                                             {__('hpPaymentmethodInvoiceGuaranteed')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'invoice-factoring'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'invoice-factoring'}
                                             {__('hpPaymentmethodInvoiceFactoring')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'paypal'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'paypal'}
                                             {__('hpPaymentmethodPayPal')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'sofort'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'sofort'}
                                             {__('hpPaymentmethodSOFORT')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'giropay'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'giropay'}
                                             {__('hpPaymentmethodGiropay')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'prepayment'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'prepayment'}
                                             {__('hpPaymentmethodPrepayment')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'eps'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'eps'}
                                             {__('hpPaymentmethodEPS')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'pis'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'pis'}
                                             {__('hpPaymentmethodFlexiPayDirect')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'alipay'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'alipay'}
                                             {__('hpPaymentmethodAlipay')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'wechatpay'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'wechatpay'}
                                             {__('hpPaymentmethodWeChatPay')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'ideal'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'ideal'}
                                             {__('hpPaymentmethodiDEAL')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'hire-purchase-direct-debit'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'hire-purchase-direct-debit'}
                                             {__('hpPaymentmethodHirePurchaseDirectDebit')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'installment-secured'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'installment-secured'}
                                             {__('hpPaymentmethodHirePurchaseDirectDebit')}
                                         {else}
-                                            {$hpPayment->getPaymentType()->getResourceName()}
+                                            {__($hpPayment->getPaymentType()->getResourceName())}
                                         {/if}
 
                                         <em>({$hpPayment->getPaymentType()->getId()})</em>
@@ -337,7 +337,7 @@
                 </div>
             {/if}
 
-            {if !empty($hpPayment->getCancellations())}
+            {if !empty($hpCancellations)}
                 <div class="col-12 col-xs-12">
                     <div class="card panel panel-default">
                         <div class="card-header panel-heading">
@@ -356,7 +356,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {foreach from=$hpPayment->getCancellations() item='cancelation' name='cancelations'}
+                                    {foreach from=$hpCancellations item='cancelation' name='cancelations'}
                                         <tr {if !$smarty.foreach.cancelations.first} style="margin-top:10px;"{/if} class="{if $cancelation->isError()}danger{elseif $cancelation->isPending()}warning{else}success{/if}">
                                             <td>{$cancelation->getId()}</td>
                                             <td class="hp-short-id">{$cancelation->getShortId()}</td>

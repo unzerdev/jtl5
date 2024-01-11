@@ -26,6 +26,7 @@ use JTL\Plugin\Payment\Method;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePay;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerBancontact;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInstallment;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInvoice;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use UnzerSDK\Constants\IdStrings;
@@ -40,6 +41,7 @@ use UnzerSDK\Resources\PaymentTypes\Ideal;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
 use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\Resources\PaymentTypes\PIS;
@@ -88,7 +90,8 @@ class PaymentMethodModuleFactory
         HeidelpayWeChatPay::class                 => 'unzerwechatpay',
         UnzerApplePay::class                      => 'unzerapplepay',
         UnzerPaylaterInvoice::class               => 'unzerrechnung(jetztkaufen,späterbezahlen)',
-        UnzerBancontact::class                    => 'unzerbancontact'
+        UnzerBancontact::class                    => 'unzerbancontact',
+        UnzerPaylaterInstallment::class           => 'unzerratenzahlung(paylater)'
     ];
 
     private const FACTORIES = [
@@ -113,6 +116,7 @@ class PaymentMethodModuleFactory
         Sofort::class                    => 'createSofortModule',
         Wechatpay::class                 => 'createWechatpayModule',
         Bancontact::class                => 'createBancontactModule',
+        PaylaterInstallment::class       => 'createPaylaterInstallmentModule'
     ];
 
     public function __construct()
@@ -306,6 +310,16 @@ class PaymentMethodModuleFactory
     public function createPaylaterInvoiceModule(): HeidelpayPaymentMethod
     {
         return $this->create(UnzerPaylaterInvoice::class);
+    }
+
+    /**
+     * Create Paylater Installment Payment Module.
+     *
+     * @return HeidelpayPaymentMethod|UnzerPaylaterInstallment
+     */
+    public function createPaylaterInstallmentModule(): HeidelpayPaymentMethod
+    {
+        return $this->create(UnzerPaylaterInstallment::class);
     }
 
     /**

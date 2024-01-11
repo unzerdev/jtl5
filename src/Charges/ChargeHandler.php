@@ -25,26 +25,10 @@ class ChargeHandler
 {
     use JtlLoggerTrait;
 
-    /**
-     * @var ChargeMappingModel
-     */
-    private $model;
+    private ChargeMappingModel $model;
+    private Config $config;
+    private HeidelpayApiAdapter $adapter;
 
-    /**
-     * @var Config
-     */
-    private $config;
-
-    /**
-     * @var HeidelpayApiAdapter
-     */
-    private $adapter;
-
-    /**
-     * @param ChargeMappingModel $model
-     * @param Config $config
-     * @param HeidelpayApiAdapter $adapter
-     */
     public function __construct(ChargeMappingModel $model, Config $config, HeidelpayApiAdapter $adapter)
     {
         $this->model = $model;
@@ -148,7 +132,7 @@ class ChargeHandler
                 // Add charge (mark delivery as processed)
                 $amount = 0;
                 $this->addCharge(
-                    $this->adapter->getApi()->performChargeOnPayment(
+                    $this->adapter->getConnectionForOrder($order)->performChargeOnPayment(
                         $payment,
                         $chargeInstance->setInvoiceId($entity->getInvoiceId())
                     ),
@@ -170,7 +154,7 @@ class ChargeHandler
 
             // Add charge (mark delivery as processed)
             $this->addCharge(
-                $this->adapter->getApi()->performChargeOnPayment(
+                $this->adapter->getConnectionForOrder($order)->performChargeOnPayment(
                     $payment,
                     $chargeInstance->setInvoiceId($entity->getInvoiceId())
                 ),

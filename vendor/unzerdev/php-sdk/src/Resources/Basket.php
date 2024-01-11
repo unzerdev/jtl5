@@ -20,11 +20,13 @@
  *
  * @package  UnzerSDK\Resources
  */
+
 namespace UnzerSDK\Resources;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Resources\EmbeddedResources\BasketItem;
 use stdClass;
+
 use function count;
 
 class Basket extends AbstractUnzerResource
@@ -62,7 +64,7 @@ class Basket extends AbstractUnzerResource
     /** @var string $note */
     protected $note;
 
-    /** @var array $basketItems */
+    /** @var BasketItem[] $basketItems */
     private $basketItems;
 
     /**
@@ -87,12 +89,10 @@ class Basket extends AbstractUnzerResource
         $this->setBasketItems($basketItems);
     }
 
-    //<editor-fold desc="Getters/Setters">
-
     /**
      * @return float
      *
-     * @deprecated since 1.1.5.0 @see $getTotalValueGross.
+     * @deprecated since 1.1.5.0 @see getTotalValueGross().
      */
     public function getAmountTotalGross(): float
     {
@@ -102,7 +102,7 @@ class Basket extends AbstractUnzerResource
     /**
      * @param float $amountTotalGross
      *
-     * @deprecated since 1.1.5.0 @see $getTotalValueGross.
+     * @deprecated since 1.1.5.0 @see setTotalValueGross().
      *
      * @return Basket
      */
@@ -217,7 +217,7 @@ class Basket extends AbstractUnzerResource
      *
      * @return Basket
      */
-    public function setNote($note): Basket
+    public function setNote(?string $note): Basket
     {
         $this->note = $note;
         return $this;
@@ -287,14 +287,10 @@ class Basket extends AbstractUnzerResource
      *
      * @return BasketItem|null
      */
-    public function getBasketItemByIndex($index): ?BasketItem
+    public function getBasketItemByIndex(int $index): ?BasketItem
     {
         return $this->basketItems[$index] ?? null;
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable Methods">
 
     /**
      * Add the dynamically set meta data.
@@ -340,7 +336,7 @@ class Basket extends AbstractUnzerResource
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return 'baskets';
     }
@@ -348,7 +344,7 @@ class Basket extends AbstractUnzerResource
     /**
      * {@inheritDoc}
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 
@@ -362,6 +358,4 @@ class Basket extends AbstractUnzerResource
             $this->setBasketItems($items);
         }
     }
-
-    //</editor-fold>
 }

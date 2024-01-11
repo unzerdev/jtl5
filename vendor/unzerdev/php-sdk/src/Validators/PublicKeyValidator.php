@@ -20,6 +20,7 @@
  *
  * @package  UnzerSDK\Validators
  */
+
 namespace UnzerSDK\Validators;
 
 use function count;
@@ -29,11 +30,11 @@ class PublicKeyValidator
     /**
      * Returns true if the given public key has a valid format.
      *
-     * @param string $key
+     * @param string|null $key
      *
      * @return bool
      */
-    public static function validate($key): bool
+    public static function validate(?string $key): bool
     {
         $match = [];
         if ($key === null) {

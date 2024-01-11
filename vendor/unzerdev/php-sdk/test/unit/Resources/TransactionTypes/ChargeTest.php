@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Resources\TransactionTypes;
 
 use UnzerSDK\Constants\RecurrenceTypes;
@@ -78,18 +80,16 @@ class ChargeTest extends BasePaymentTest
     }
 
     /**
-     * Setting recurrence type without a payment type Should raise Exception.
+     * Setting recurrence type without a payment type does not raise exception.
      *
      * @test
      */
-    public function SetRecurrenceTypeShouldRaiseExceptionWOPaymentType()
+    public function recurrenceTypeCanBeSetWithoutTypeParameter()
     {
         $charge = new Charge();
 
         $this->assertEmpty($charge->getAdditionalTransactionData());
         $this->assertEmpty($charge->getRecurrenceType());
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Payment type can not be determined. Set it first or provide it via parameter $paymentType.');
 
         $charge->setRecurrenceType(RecurrenceTypes::ONE_CLICK);
     }

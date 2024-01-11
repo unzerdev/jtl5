@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5;
 
@@ -17,6 +18,7 @@ use Plugin\s360_unzer_shop5\paymentmethod\HeidelpayInvoiceFactoring;
 use Plugin\s360_unzer_shop5\Seeders\Shop4PluginMigrationSeeder;
 use Plugin\s360_unzer_shop5\src\ApplePay\CertificationService;
 use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminApplePayController;
+use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminKeyPairsController;
 use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminOrdersController;
 use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminSettingsController;
 use Plugin\s360_unzer_shop5\src\Controllers\ApplePayController;
@@ -25,6 +27,7 @@ use Plugin\s360_unzer_shop5\src\Controllers\PaymentController;
 use Plugin\s360_unzer_shop5\src\Controllers\SyncController;
 use Plugin\s360_unzer_shop5\src\Foundation\Seeder;
 use Plugin\s360_unzer_shop5\src\Foundation\ServiceProvider;
+use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairModel;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingModel;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\NotificationInterface;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
@@ -260,10 +263,11 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
                             $controller->setModel($model);
                             $controller->handleAjax();
                         } catch (Throwable $th) {
-                            return json_encode([
+                            echo json_encode([
                                 'status'   => 'error',
                                 'messages' => [$th->getMessage()]
                             ]);
+                            die;
                         }
                     }
 
@@ -276,6 +280,25 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
                     return $controller->handle();
                 case JtlLinkHelper::ADMIN_TAB_SETTINGS:
                     $controller = new AdminSettingsController($this->getPlugin(), $smarty);
+                    return $controller->handle();
+                case JtlLinkHelper::ADMIN_TAB_KEYPAIRS:
+                    $model = new KeyPairModel($this->getDB());
+                    $controller = new AdminKeyPairsController($this->getPlugin(), $smarty);
+                    $controller->setModel($model);
+
+                    // Handle Ajax Requests
+                    if (Request::isAjaxRequest() && Request::getVar('controller') == 'KeyPairs') {
+                        try {
+                            $controller->handleAjax();
+                        } catch (Throwable $th) {
+                            echo json_encode([
+                                'status'   => 'error',
+                                'messages' => [$th->getMessage()]
+                            ]);
+                            die;
+                        }
+                    }
+
                     return $controller->handle();
                 default:
                     return parent::renderAdminMenuTab($tabName, $menuID, $smarty);

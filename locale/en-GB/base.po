@@ -20,13 +20,13 @@ msgid "Unzer Lastschrift (secured)"
 msgstr "Unzer Direct Debit (secured)"
 
 msgid "Unzer Rechnung"
-msgstr "Unzer Invoice"
+msgstr "(Deprecated) Unzer Invoice"
 
 msgid "Unzer Rechnung (guaranteed)"
-msgstr "Unzer Ivoice (secured)"
+msgstr "(Deprecated) Unzer Invoice Secured"
 
 msgid "Unzer Rechnung (secured)"
-msgstr "Unzer Ivoice (secured)"
+msgstr "(Deprecated) Unzer Invoice Secured"
 
 msgid "Unzer Fakturierung von Rechnungen"
 msgstr "Unzer Invoice Factoring"
@@ -80,7 +80,10 @@ msgid "Unzer Ratenkauf"
 msgstr "Unzer Instalment"
 
 msgid "Unzer Rechnung (Jetzt kaufen, Später bezahlen)"
-msgstr "Unzer Invoice (Paylater)"
+msgstr "Unzer Invoice"
+
+msgid "Unzer Ratenzahlung (Paylater)"
+msgstr "Unzer Installment"
 
 msgid "hpError"
 msgstr "Error"
@@ -222,6 +225,12 @@ msgstr "iDEAL"
 
 msgid "hpPaymentmethodHirePurchaseDirectDebit"
 msgstr "Instalment"
+
+msgid "paylater-invoice"
+msgstr "Invoice (Paylater)"
+
+msgid "paylater-installment"
+msgstr "Installment (Paylater)"
 
 msgid "hpOpenInPortal"
 msgstr "Open Order in Insight Portal"
@@ -509,3 +518,42 @@ msgstr ""
 "The replacement for this payment method is the new `Unzer Invoice (Buy Now Pay Later)` payment method..\n"
 "\n"
 "If you want to migrate, please get in touch with your contact person at Unzer!"
+
+msgid "Ungültiger Private Key."
+msgstr "Invalid private key."
+
+msgid "Ungültiger Public Key. Bitte stellen Sie sicher, dass sie hier Ihren Public Key und nicht Ihren Private Key angeben!"
+msgstr "Invalid public key. Please make sure that you enter your public key here and not your private key!"
+
+msgid "Die Webhooks wurden erfolgreich gespeichert."
+msgstr "The webhooks have been saved successfully."
+
+msgid "Key Pairs"
+msgstr "Key Pairs"
+
+msgid "hpKeyPairEdit"
+msgstr "Edit Key Pair"
+
+msgid "hpKeypairIsB2B"
+msgstr "B2B"
+
+msgid "hpKeypairIsB2BHelp"
+msgstr "Specifies whether the key pair is to be used only for B2B clients."
+
+msgid "hpKeypairCurrencyHelp"
+msgstr "Specifies for which currency the key pair is to be used."
+
+msgid "hpKeypairPaymentMethodsHelp"
+msgstr "Specifies for which payment type the key pair is to be used."
+
+msgid "hpSettingsPqSelectorInstallmentInfo"
+msgstr "PQ-Selector for instalment information on the order confirm page"
+
+msgid "hpSettingsPqSelectorInstallmentInfoHelp"
+msgstr "The PHP Query Selector for the injection of the instalment information on the order confirm page"
+
+msgid "hpSettingsPqMethodInstallmentInfo"
+msgstr "PQ-Method for instalment information on the order confirm page"
+
+msgid "hpSettingsPqMethodInstallmentInfoHelp"
+msgstr "The PHP Query Method for the injection of the instalment information on the order confirm page"

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -23,6 +24,7 @@
  *
  * @package  UnzerSDK\test\integration\TransactionTypes
  */
+
 namespace UnzerSDK\test\integration\TransactionTypes;
 
 use UnzerSDK\Constants\RecurrenceTypes;
@@ -117,6 +119,7 @@ class AuthorizationTest extends BaseIntegrationTest
      * Verify authorization can be fetched.
      *
      * @depends authorizationWithCustomerId
+     *
      * @test
      *
      * @param Authorization $authorization
@@ -131,6 +134,7 @@ class AuthorizationTest extends BaseIntegrationTest
      * Verify authorization has the expected states.
      *
      * @test
+     *
      * @dataProvider authorizeHasExpectedStatesDP
      *
      * @param BasePaymentType|AbstractUnzerResource $paymentType

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -30,12 +32,18 @@ use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\test\BaseIntegrationTest;
+use UnzerSDK\test\Helper\TestEnvironmentService;
 
 /**
  * @deprecated since 1.2.0.0 PaylaterInvoice should be used instead in the future.
  */
 class InvoiceSecuredTest extends BaseIntegrationTest
 {
+    protected function setUp(): void
+    {
+        $this->getUnzerObject(TestEnvironmentService::getLegacyTestPrivateKey());
+    }
+
     /**
      * Verifies Invoice Secured payment type can be created.
      *
@@ -63,6 +71,7 @@ class InvoiceSecuredTest extends BaseIntegrationTest
      * @test
      *
      * @param InvoiceSecured $invoice
+     *
      * @depends invoiceSecuredTypeShouldBeCreatableAndFetchable
      */
     public function verifyInvoiceIsNotAuthorizable(InvoiceSecured $invoice): void
@@ -77,6 +86,7 @@ class InvoiceSecuredTest extends BaseIntegrationTest
      * Verify Invoice Secured needs a customer object
      *
      * @test
+     *
      * @depends invoiceSecuredTypeShouldBeCreatableAndFetchable
      *
      * @param InvoiceSecured $invoiceSecured
@@ -92,6 +102,7 @@ class InvoiceSecuredTest extends BaseIntegrationTest
      * Verify Invoice Secured is chargeable.
      *
      * @test
+     *
      * @depends invoiceSecuredTypeShouldBeCreatableAndFetchable
      *
      * @param InvoiceSecured $invoiceSecured
@@ -151,6 +162,7 @@ class InvoiceSecuredTest extends BaseIntegrationTest
      * Verify Invoice Secured is chargeable.
      *
      * @test
+     *
      * @depends invoiceSecuredTypeShouldBeCreatableAndFetchable
      *
      * @param InvoiceSecured $invoiceSecured
@@ -306,6 +318,7 @@ class InvoiceSecuredTest extends BaseIntegrationTest
      * @test
      *
      * @param Charge $charge
+     *
      * @depends invoiceSecuredShouldBeChargeable
      */
     public function verifyInvoiceChargeCanBeCanceled(Charge $charge): Charge
@@ -322,6 +335,7 @@ class InvoiceSecuredTest extends BaseIntegrationTest
      * @test
      *
      * @param Charge $charge
+     *
      * @depends verifyInvoiceChargeCanBeCanceled
      */
     public function verifyInvoiceChargeCanBeCancelledWoAmount(Charge $charge): void
@@ -339,6 +353,7 @@ class InvoiceSecuredTest extends BaseIntegrationTest
      * @test
      *
      * @param Charge $charge
+     *
      * @depends invoiceSecuredShouldBeChargeable
      */
     public function verifyInvoiceChargeCanNotBeCancelledWoReasonCode(Charge $charge): void

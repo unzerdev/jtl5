@@ -25,7 +25,7 @@ $(document).ready(function() {
     const applePayPaymentRequest = {json_encode($hpPayment.paymentRequest)};
     const snippets = {json_encode($hpPayment.snippets)};
 
-    new window.UnzerApplePay('{$hpPayment.config.publicKey}', applePayPaymentRequest, snippets, {
+    new window.UnzerApplePay('{$hpPayment.publicKey}', applePayPaymentRequest, snippets, {
         submitButton: $('{if $hpPayment.config.selectorSubmitButton}{$hpPayment.config.selectorSubmitButton}{else}#form_payment_extra .submit, #form_payment_extra .submit_once{/if}').get(0),
         locale: '{$hpPayment.locale}'
     });

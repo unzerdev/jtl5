@@ -23,6 +23,7 @@ class SessionHelper
     public const KEY_ORDER_ID = 'orderId';
     public const KEY_RESOURCE_ID = 'resourceId';
     public const KEY_CART_CHECKSUM = 'cartChecksum';
+    public const KEY_CART_CURRENCY = 'cartCurrency';
     public const KEY_CHECKOUT_SESSION = 'checkoutSession';
     public const KEY_CONFIRM_POST_ARRAY = 'confirmPostArray';
     public const KEY_SHORT_ID = 'shortId';

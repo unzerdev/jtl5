@@ -82,6 +82,7 @@ class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implemen
      */
     public function handleStepAdditional(JTLSmarty $view): void
     {
+        $this->adapter->getConnectionForSession();
         $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
         $customer = $this->createOrFetchHeidelpayCustomer(
             $this->adapter,
@@ -158,7 +159,7 @@ class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implemen
 
         // Update existing customer resource if needed
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
             $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
@@ -168,7 +169,7 @@ class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implemen
             $session->getCart(),
             $order->Waehrung,
             $session->getLanguage(),
-            $payment->getId()
+            $order->cBestellNr ?? $payment->getId()
         );
         $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
 
@@ -179,7 +180,7 @@ class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implemen
         );
         $charge->setOrderId($order->cBestellNr ?? null);
 
-        return $this->adapter->getApi()->performCharge(
+        return $this->adapter->getCurrentConnection()->performCharge(
             $charge,
             $payment->getId(),
             $customer,

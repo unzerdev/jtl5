@@ -20,6 +20,7 @@
  *
  * @package  UnzerSDK\PaymentTypes
  */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use stdClass;
@@ -61,7 +62,7 @@ class Applepay extends BasePaymentType
     protected $header;
 
     /**
-     * ApplePay constructor.
+     * Apple Pay constructor.
      *
      * @param string|null         $version
      * @param string|null         $data
@@ -79,8 +80,6 @@ class Applepay extends BasePaymentType
         $this->signature = $signature;
         $this->header = $header;
     }
-
-    //<editor-fold desc="Getters/Setters"
 
     /**
      * @return string|null
@@ -253,12 +252,10 @@ class Applepay extends BasePaymentType
         return $this;
     }
 
-    //</editor-fold>
-
     /**
      * @inheritDoc
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 

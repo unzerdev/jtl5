@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Services;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
@@ -31,7 +33,7 @@ class DummyAdapter implements HttpAdapterInterface
     /**
      * {@inheritDoc}
      */
-    public function init($url, $payload = null, $httpMethod = HttpAdapterInterface::REQUEST_GET): void
+    public function init(string $url, string $payload = null, string $httpMethod = HttpAdapterInterface::REQUEST_GET): void
     {
         // do nothing
     }

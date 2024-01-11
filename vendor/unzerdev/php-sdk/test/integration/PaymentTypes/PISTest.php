@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -23,6 +24,7 @@
  *
  * @package  UnzerSDK\tests/integration/payment_types
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -62,6 +64,7 @@ class PISTest extends BaseIntegrationTest
      * @param PIS $pis
      *
      * @return Charge
+     *
      * @depends pisShouldBeCreatableAndFetchable
      */
     public function pisShouldBeAbleToCharge(PIS $pis): Charge
@@ -80,6 +83,7 @@ class PISTest extends BaseIntegrationTest
      * @test
      *
      * @param PIS $pis
+     *
      * @depends pisShouldBeCreatableAndFetchable
      */
     public function pisShouldNotBeAuthorizable(PIS $pis): void

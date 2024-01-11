@@ -20,6 +20,7 @@
  *
  * @package  UnzerSDK\Services
  */
+
 namespace UnzerSDK\Services;
 
 use RuntimeException;
@@ -32,6 +33,7 @@ use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\Unzer;
+
 use function in_array;
 use function is_string;
 
@@ -49,8 +51,6 @@ class CancelService implements CancelServiceInterface
     {
         $this->unzer = $unzer;
     }
-
-    //<editor-fold desc="Getters/Setters"
 
     /**
      * @return Unzer
@@ -79,10 +79,6 @@ class CancelService implements CancelServiceInterface
         return $this->getUnzer()->getResourceService();
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Authorization Cancel/Reversal transaction">
-
     /**
      * {@inheritDoc}
      */
@@ -104,10 +100,6 @@ class CancelService implements CancelServiceInterface
         $authorization = $this->getResourceService()->fetchAuthorization($payment);
         return $this->cancelAuthorization($authorization, $amount);
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Charge Cancel/Refund transaction">
 
     /**
      * {@inheritDoc}
@@ -149,17 +141,13 @@ class CancelService implements CancelServiceInterface
         return $cancellation;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Payment">
-
     /**
      * {@inheritDoc}
      */
     public function cancelPayment(
         $payment,
         float $amount = null,
-        $reasonCode = CancelReasonCodes::REASON_CODE_CANCEL,
+        ?string $reasonCode = CancelReasonCodes::REASON_CODE_CANCEL,
         string $referenceText = null,
         float $amountNet = null,
         float $amountVat = null
@@ -243,11 +231,11 @@ class CancelService implements CancelServiceInterface
 
     /**
      * @param Payment $payment
-     * @param string  $reasonCode
-     * @param string  $referenceText
-     * @param float   $amountNet
-     * @param float   $amountVat
-     * @param float   $remainingToCancel
+     * @param ?string $reasonCode
+     * @param ?string $referenceText
+     * @param ?float  $amountNet
+     * @param ?float  $amountVat
+     * @param ?float  $remainingToCancel
      *
      * @return array
      *
@@ -256,11 +244,11 @@ class CancelService implements CancelServiceInterface
      */
     public function cancelPaymentCharges(
         Payment $payment,
-        $reasonCode,
-        $referenceText,
-        $amountNet,
-        $amountVat,
-        float $remainingToCancel = null
+        ?string  $reasonCode,
+        ?string  $referenceText,
+        ?float   $amountNet,
+        ?float   $amountVat,
+        ?float   $remainingToCancel = null
     ): array {
         $cancellations = [];
         $cancelWholePayment = $remainingToCancel === null;
@@ -350,14 +338,10 @@ class CancelService implements CancelServiceInterface
         return $cancellation;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Helpers">
-
     /**
      * Throws exception if the passed exception is not to be ignored while cancelling charges or authorization.
      *
-     * @param $exception
+     * @param UnzerApiException $exception
      *
      * @throws UnzerApiException
      */
@@ -384,7 +368,7 @@ class CancelService implements CancelServiceInterface
      *
      * @return float|null
      */
-    private function updateCancelAmount($remainingToCancel, float $amount): ?float
+    private function updateCancelAmount(?float $remainingToCancel, float $amount): ?float
     {
         $cancelWholePayment = $remainingToCancel === null;
         if (!$cancelWholePayment) {
@@ -416,6 +400,4 @@ class CancelService implements CancelServiceInterface
     {
         return round($charge->getAmount() - $receiptAmount - $charge->getCancelledAmount(), 4);
     }
-
-    //</editor-fold>
 }

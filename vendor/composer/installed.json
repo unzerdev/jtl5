@@ -125,17 +125,17 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.16",
-            "version_normalized": "3.0.16.0",
+            "version": "3.0.23",
+            "version_normalized": "3.0.23.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "7181378909ed8890be4db53d289faac5b77f8b05"
+                "reference": "866cc78fbd82462ffd880e3f65692afe928bed50"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/7181378909ed8890be4db53d289faac5b77f8b05",
-                "reference": "7181378909ed8890be4db53d289faac5b77f8b05",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/866cc78fbd82462ffd880e3f65692afe928bed50",
+                "reference": "866cc78fbd82462ffd880e3f65692afe928bed50",
                 "shasum": ""
             },
             "require": {
@@ -153,7 +153,7 @@
                 "ext-mcrypt": "Install the Mcrypt extension in order to speed up a few other cryptographic operations.",
                 "ext-openssl": "Install the OpenSSL extension in order to speed up a wide variety of cryptographic operations."
             },
-            "time": "2022-09-05T18:03:08+00:00",
+            "time": "2023-09-18T17:22:01+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -218,7 +218,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.16"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.23"
             },
             "funding": [
                 {
@@ -238,22 +238,22 @@
         },
         {
             "name": "unzerdev/php-sdk",
-            "version": "1.2.2.0",
-            "version_normalized": "1.2.2.0",
+            "version": "3.3.0",
+            "version_normalized": "3.3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/unzerdev/php-sdk.git",
-                "reference": "cfd2f41d1b194fc9a6a666b9a35ec6013e429953"
+                "reference": "2854951496a7021e3f27fadefe7c35046669edab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/unzerdev/php-sdk/zipball/cfd2f41d1b194fc9a6a666b9a35ec6013e429953",
-                "reference": "cfd2f41d1b194fc9a6a666b9a35ec6013e429953",
+                "url": "https://api.github.com/repos/unzerdev/php-sdk/zipball/2854951496a7021e3f27fadefe7c35046669edab",
+                "reference": "2854951496a7021e3f27fadefe7c35046669edab",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": "~7.1.0|~7.2.0|~7.3.0|~7.4.0|~8.0.0|~8.1.0"
+                "php": "~7.4.0|~8.0.0|~8.1.0|~8.2.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.0",
@@ -262,7 +262,7 @@
             "suggest": {
                 "ext-curl": "*"
             },
-            "time": "2022-10-04T12:05:18+00:00",
+            "time": "2023-09-04T12:55:24+00:00",
             "type": "library",
             "installation-source": "dist",
             "autoload": {
@@ -278,7 +278,7 @@
             "description": "This is the php sdk to connect to the Unzer rest api.",
             "support": {
                 "email": "support@unzer.com",
-                "source": "https://github.com/unzerdev/php-sdk/tree/1.2.2.0"
+                "source": "https://github.com/unzerdev/php-sdk/tree/3.3.0"
             },
             "install-path": "../unzerdev/php-sdk"
         }

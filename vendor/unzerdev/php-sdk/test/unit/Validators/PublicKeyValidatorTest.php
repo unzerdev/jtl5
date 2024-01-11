@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -22,6 +23,7 @@
  *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Validators;
 
 use UnzerSDK\test\BasePaymentTest;
@@ -33,6 +35,7 @@ class PublicKeyValidatorTest extends BasePaymentTest
      * Verify validate method behaves as expected.
      *
      * @test
+     *
      * @dataProvider validateShouldReturnTrueIfPublicKeyHasCorrectFormatDP
      *
      * @param string $key

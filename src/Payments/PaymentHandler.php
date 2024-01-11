@@ -12,6 +12,7 @@ use JTL\Checkout\Bestellung;
 use JTL\Helpers\Text;
 use JTL\Plugin\Payment\MethodInterface;
 use JTL\Plugin\PluginInterface;
+use JTL\Session\Frontend;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\src\Charges\ChargeHandler;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingEntity;
@@ -40,49 +41,14 @@ class PaymentHandler
     public const REDIRECT_ON_FAILURE_URL = 'bestellvorgang.php';
     public const REDIRECT_TO_PAYMENT_SELECTION_URL = 'bestellvorgang.php?editZahlungsart=1';
 
-    /**
-     * @var PluginInterface
-     */
-    protected $plugin;
+    protected PluginInterface $plugin;
+    protected Config $config;
+    protected SessionHelper $session;
+    protected HeidelpayApiAdapter $adapter;
+    protected ChargeHandler $charges;
+    protected OrderMappingModel $model;
+    protected HeidelpayPaymentMethod $paymentMethod;
 
-    /**
-     * @var Config
-     */
-    protected $config;
-
-    /**
-     * @var SessionHelper
-     */
-    protected $session;
-
-    /**
-     * @var HeidelpayApiAdapter
-     */
-    protected $adapter;
-
-    /**
-     * @var ChargeHandler
-     */
-    protected $charges;
-
-    /**
-     * @var OrderMappingModel
-     */
-    protected $model;
-
-    /**
-     * @var HeidelpayPaymentMethod
-     */
-    protected $paymentMethod;
-
-    /**
-     * @param PluginInterface $plugin
-     * @param Config $config
-     * @param SessionHelper $session
-     * @param HeidelpayApiAdapter $adapter
-     * @param ChargeHandler $charges
-     * @param OrderMappingModel $model
-     */
     public function __construct(
         PluginInterface $plugin,
         Config $config,
@@ -167,6 +133,7 @@ class PaymentHandler
 
             // Pretend we were redirected to notify -> Redirect to success page
             $this->session->clear();
+            $this->session->clear(SessionHelper::KEY_CUSTOMER_ID);
             $orderHash = $this->paymentMethod->getOrderHash($finalizedOrder);
             $this->debugLog('Redirecting to bestellabschluss.php?i=' . $orderHash, get_class($this->paymentMethod));
             header('Location: bestellabschluss.php?i=' . $orderHash);
@@ -394,6 +361,7 @@ class PaymentHandler
         $entity->setPaymentState($payment->getStateName());
         $entity->setPaymentTypeId($payment->getPaymentType() ? $payment->getPaymentType()->getId() : '');
         $entity->setPaymentTypeName($payment->getPaymentType() ? $payment->getPaymentType()->getResourceName() : '');
+        $entity->setPaymentMethodId((int)$order->kZahlungsart);
 
         $this->model->save($entity);
     }
@@ -419,6 +387,8 @@ class PaymentHandler
         $smarty = Shop::Smarty();
         $data = $smarty->getTemplateVars('hpPayment') ?: [];
 
+        $this->adapter->getConnectionForSession();
+
         $data['frontendTemplateUrl'] = $this->plugin->getPaths()->getFrontendURL() . 'template/';
         $data['frontendUrl']         = $this->plugin->getPaths()->getFrontendURL();
         $data['frontendPath']        = $this->plugin->getPaths()->getFrontendPath();
@@ -430,6 +400,13 @@ class PaymentHandler
         $data['locale']              = $this->adapter->mapToLocale(
             $this->session->getFrontendSession()->getLanguage()->cISOSprache ?? 'eng'
         );
+
+        $publicKey = $this->adapter->getKeypairService()->getPublicKey(
+            isset(Frontend::getCustomer()->cFirma) && strlen(trim(Frontend::getCustomer()->cFirma)) > 0,
+            (int) Frontend::getCurrency()->getID(),
+            (int) Frontend::get('AktiveZahlungsart')
+        );
+        $data['publicKey'] = $publicKey ?? $this->adapter->getKeypairService()->getDefaultPublicKey();
 
         $smarty->assign('hpPayment', $data);
     }

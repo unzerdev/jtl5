@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -23,6 +24,7 @@
  *
  * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -63,6 +65,7 @@ class SofortTest extends BaseIntegrationTest
      * @param Sofort $sofort
      *
      * @return Charge
+     *
      * @depends sofortShouldBeCreatableAndFetchable
      */
     public function sofortShouldBeAbleToCharge(Sofort $sofort): Charge
@@ -81,6 +84,7 @@ class SofortTest extends BaseIntegrationTest
      * @test
      *
      * @param Sofort $sofort
+     *
      * @depends sofortShouldBeCreatableAndFetchable
      */
     public function sofortShouldNotBeAuthorizable(Sofort $sofort): void

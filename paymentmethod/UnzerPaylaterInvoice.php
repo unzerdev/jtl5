@@ -6,6 +6,7 @@ namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use DateTime;
 use JTL\Checkout\Bestellung;
+use JTL\Checkout\Lieferadresse;
 use JTL\Checkout\ZahlungsInfo;
 use JTL\Helpers\Text;
 use JTL\Shop;
@@ -53,10 +54,7 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
         AbstractTransactionType $transaction,
         Bestellung $order
     ): Cancellation {
-        // Cancel before charge (reversal)
-        if ($transaction instanceof Authorization) {
-            return $this->adapter->getApi()->cancelAuthorizedPayment($payment);
-        }
+        $api = $this->adapter->getConnectionForOrder($order);
 
         $reference = str_replace(
             ['%ORDER_ID%', '%SHOPNAME%'],
@@ -64,12 +62,15 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
             $this->trans(Config::LANG_CANCEL_PAYMENT_REFERENCE)
         );
 
+        $cancel = (new Cancellation($transaction->getAmount()))->setPaymentReference($reference);
+
+        // Cancel before charge (reversal)
+        if ($transaction instanceof Authorization) {
+            return $api->cancelAuthorizedPayment($payment, $cancel);
+        }
+
         // Cancel after charge (refund)
-        return $this->adapter->getApi()->cancelChargedPayment(
-            $payment,
-            (new Cancellation($transaction->getAmount()))
-                ->setPaymentReference($reference)
-        );
+        return $api->cancelChargedPayment($payment, $cancel);
     }
 
 
@@ -122,6 +123,7 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
      */
     public function handleStepAdditional(JTLSmarty $view): void
     {
+        $this->adapter->getConnectionForSession();
         $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
         $customer = $this->createOrFetchHeidelpayCustomer(
             $this->adapter,
@@ -172,44 +174,53 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
         if (isset($postPaymentData['customerId'])) {
             $this->sessionHelper->set(SessionHelper::KEY_CUSTOMER_ID, $postPaymentData['customerId']);
             $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
-            $customer = $this->adapter->getApi()->fetchCustomer($postPaymentData['customerId']);
+            $customer = $this->adapter->getConnectionForSession()->fetchCustomer($postPaymentData['customerId']);
+
+            if (!isset($_SESSION['Bestellung'])) {
+                $_SESSION['Bestellung'] = new stdClass();
+            }
+
+            /** @var Lieferadresse $shipping */
+            $shipping = $this->sessionHelper->getFrontendSession()->get('Lieferadresse');
+
+            // Split name into first and lastname
+            $names = $this->getNamesFromAddress($customer->getShippingAddress());
+            $shipping->cVorname = $names['firstname'] ?: $shipping->cVorname;
+            $shipping->cNachname = $names['lastname'] ?: $shipping->cNachname;
+
+            if ($this->isB2BCustomer($shopCustomer)) {
+                $shipping->cBundesland = $customer->getShippingAddress()->getState();
+                $shipping->cPLZ = $customer->getShippingAddress()->getZip();
+                $shipping->cOrt = $customer->getShippingAddress()->getCity();
+                $shipping->cLand = $customer->getShippingAddress()->getCountry();
+
+                // split street into street and street number
+                $street = $this->getStreetFromAddress($customer->getShippingAddress());
+                $shipping->cHausnummer = $street['number'] ?: $shipping->cHausnummer;
+                $shipping->cStrasse = $street['street'] ?: $shipping->cStrasse;
+            }
 
             // Update Billing Address
-            if ($customer->getShippingAddress()->getShippingType() === ShippingTypes::DIFFERENT_ADDRESS) {
+            // Split name into first and lastname
+            $names = $this->getNamesFromAddress($customer->getBillingAddress());
+            $shopCustomer->cVorname = $names['firstname'] ?: $shopCustomer->cVorname;
+            $shopCustomer->cNachname = $names['lastname'] ?: $shopCustomer->cNachname;
+
+            if ($this->isB2BCustomer($shopCustomer)) {
                 $shopCustomer->cBundesland = $customer->getBillingAddress()->getState();
                 $shopCustomer->cPLZ = $customer->getBillingAddress()->getZip();
                 $shopCustomer->cOrt = $customer->getBillingAddress()->getCity();
                 $shopCustomer->cLand = $customer->getBillingAddress()->getCountry();
 
-                // Split name into first and lastname
-                $names = mb_split('\s+', $customer->getBillingAddress()->getName() ?? '', 2);
-                if (!empty($names) && \count($names) >= 1) {
-                    $shopCustomer->cVorname = current($names) ?? '';
-                    $shopCustomer->cNachname = end($names) ?? '';
-                }
-
                 // split street into street and street number
-                $split = mb_split(' ', $customer->getBillingAddress()->getStreet());
-                if (\count($split) > 1) {
-                    $shopCustomer->cHausnummer = $split[count($split) - 1];
-                    unset($split[count($split) - 1]);
-                    $shopCustomer->cStrasse = implode(' ', $split);
-                } else {
-                    $sStreet = implode(' ', $split);
-                    if (mb_strlen($sStreet) > 1) {
-                        $shopCustomer->cHausnummer = mb_substr($sStreet, -1);
-                        $shopCustomer->cStrasse = mb_substr($sStreet, 0, -1);
-                    } else {
-                        $shopCustomer->cHausnummer = '';
-                    }
-                }
+                $street = $this->getStreetFromAddress($customer->getBillingAddress());
+                $shopCustomer->cHausnummer = $street['number'] ?: $shopCustomer->cHausnummer;
+                $shopCustomer->cStrasse = $street['street'] ?: $shopCustomer->cStrasse;
+            }
 
+            if ($customer->getShippingAddress()->getShippingType() === ShippingTypes::DIFFERENT_ADDRESS) {
                 // Set kLieferadresse to -1 in the order so that JTL knows to use the delivery address from the session
                 // and not use the billing adress as the delivery address
-                if (!isset($_SESSION['Bestellung'])) {
-                    $_SESSION['Bestellung'] = new stdClass();
-                }
-
                 $_SESSION['Bestellung']->kLieferadresse = -1;
                 // $this->sessionHelper->getFrontendSession()->setCustomer($shopCustomer);
             }
@@ -241,13 +252,24 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
             $this->sessionHelper,
             $this->isB2BCustomer($shopCustomer)
         );
-        $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
-        $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
+
+        if ($customer->getShippingAddress()->getStreet() === null) {
+            $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
+        }
+
+        $customer->getBillingAddress()->setShippingType(
+            $order->kLieferadresse == -1 ? ShippingTypes::DIFFERENT_ADDRESS : ShippingTypes::EQUALS_BILLING
+        );
+
+        if ($customer->getBillingAddress()->getStreet() === null) {
+            $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
+        }
+
         $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         // Update existing customer resource if needed
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
             $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
@@ -257,7 +279,7 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
             $session->getCart(),
             $order->Waehrung,
             $session->getLanguage(),
-            $payment->getId()
+            $order->cBestellNr ?? $payment->getId()
         );
         $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
 
@@ -277,7 +299,7 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
         $authorization->setOrderId($order->cBestellNr ?? null);
         $authorization->setRiskData($riskData);
 
-        return $this->adapter->getApi()->performAuthorization(
+        return $this->adapter->getCurrentConnection()->performAuthorization(
             $authorization,
             $payment->getId(),
             $customer,

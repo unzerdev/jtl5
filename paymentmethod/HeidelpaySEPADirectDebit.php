@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
+use JTL\Checkout\Bestellung;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -60,13 +61,13 @@ class HeidelpaySEPADirectDebit extends HeidelpayPaymentMethod implements
      * @inheritDoc
      * @return AbstractTransactionType|Charge
      */
-    protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
+    protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
         // Create / Update existing customer resource if needed
         $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
 
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
         }
 
         $charge = new Charge(
@@ -76,7 +77,7 @@ class HeidelpaySEPADirectDebit extends HeidelpayPaymentMethod implements
         );
         $charge->setOrderId($order->cBestellNr ?? null);
 
-        return $this->adapter->getApi()->performCharge(
+        return $this->adapter->getCurrentConnection()->performCharge(
             $charge,
             $payment->getId(),
             $customer,

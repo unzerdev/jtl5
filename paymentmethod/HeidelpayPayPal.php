@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
+use JTL\Checkout\Bestellung;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -39,7 +40,7 @@ class HeidelpayPayPal extends HeidelpayPaymentMethod implements RedirectPaymentI
      * @inheritDoc
      * @return AbstractTransactionType|Charge
      */
-    protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
+    protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
         // Create a customer with shipping address for Paypal's Buyer Protection
         $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
@@ -48,7 +49,7 @@ class HeidelpayPayPal extends HeidelpayPaymentMethod implements RedirectPaymentI
 
         // Update existing customer resource if needed
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
         }
 
         $charge = new Charge(
@@ -58,7 +59,7 @@ class HeidelpayPayPal extends HeidelpayPaymentMethod implements RedirectPaymentI
         );
         $charge->setOrderId($order->cBestellNr ?? null);
 
-        return $this->adapter->getApi()->performCharge(
+        return $this->adapter->getCurrentConnection()->performCharge(
             $charge,
             $payment->getId(),
             $customer,

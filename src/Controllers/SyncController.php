@@ -37,35 +37,12 @@ class SyncController extends Controller
     public const ACTION_SHIPMENT = 'shipment';
     public const ACTION_CANCEL = 'cancel';
 
-    /**
-     * @var string
-     */
-    protected $action;
-
-    /**
-     * @var Bestellung
-     */
-    protected $order;
-
-    /**
-     * @var OrderMappingModel
-     */
-    protected $model;
-
-    /**
-     * @var HeidelpayApiAdapter
-     */
-    protected $adapter;
-
-    /**
-     * @var PaymentMethodModuleFactory
-     */
-    protected $factory;
-
-    /**
-     * @var ChargeHandler
-     */
-    protected $chargeHandler;
+    protected string $action;
+    protected Bestellung $order;
+    protected OrderMappingModel $model;
+    protected HeidelpayApiAdapter $adapter;
+    protected PaymentMethodModuleFactory $factory;
+    protected ChargeHandler $chargeHandler;
 
     /**
      * @inheritDoc
@@ -124,6 +101,19 @@ class SyncController extends Controller
             return 'error';
         }
 
+        /**
+         *! Because of stupid JTL Shop <-> WaWi matching the payment method by its displayed name it can happen that
+         *! an order with "Unzer Invoice Paylater" turns into an order with "Unzer Invoice" (or default "JTL Invoice").
+         *! This of course messes everything up, especially the logic to determine the API KeyPair...
+         *! So for this case we try to fix that behaviour and reassign the payment method we initially saved for that
+         *! mapped order.
+         */
+        if ($mappedOrder->getPaymentMethodId() && $this->order->kZahlungsart !== $mappedOrder->getPaymentMethodId()) {
+            $this->order->kZahlungsart = $mappedOrder->getPaymentMethodId();
+            $this->order->updateInDB();
+            $this->order = new Bestellung($this->order->kBestellung, true);
+        }
+
         // Action routing
         if ($this->action == self::ACTION_SHIPMENT) {
             $this->handleShipment($mappedOrder);
@@ -166,6 +156,9 @@ class SyncController extends Controller
         }
 
         // Check if shipment call is supported for this payment
+        // Fill order before, otherwise we cannot determine if b2b or not and might get the wrong api key
+        $this->order->fuelleBestellung();
+        $api = $this->adapter->getConnectionForOrder($this->order);
         $payment = $this->adapter->fetchPayment($entity->getPaymentId());
 
         // Charge before shipping calls are made
@@ -175,7 +168,6 @@ class SyncController extends Controller
                 ['id-string' => $entity->getPaymentTypeId()]
             );
 
-            $this->order->fuelleBestellung();
             $this->chargeHandler->chargeOnShipping($this->order, $method, $payment, $entity);
 
             $charge = $payment->getChargeByIndex(0);
@@ -199,7 +191,7 @@ class SyncController extends Controller
             );
 
             // Ship
-            $shipment = $this->adapter->getApi()->ship($payment, $entity->getInvoiceId());
+            $shipment = $api->ship($payment, $entity->getInvoiceId());
             $entity->setPaymentState($payment->getStateName());
 
             if ($shipment->isSuccess()) {
@@ -236,6 +228,8 @@ class SyncController extends Controller
     private function handleCancel(OrderMappingEntity $entity): void
     {
         $this->debugLog('Handle Cancelation for: ' . print_r($entity->toObject(), true));
+
+        $api = $this->adapter->getConnectionForOrder($this->order);
         $payment = $this->adapter->fetchPayment($entity->getPaymentId());
         $method = $this->factory->createForType(
             $payment->getPaymentType(),
@@ -266,7 +260,7 @@ class SyncController extends Controller
         // Most payment types probably contain only one charge, but for a full cancelation we have to cancel all.
         foreach ($payment->getCharges() as $charge) {
             /** @var Charge $charge */
-            $charge = $this->adapter->getApi()->fetchCharge($charge);
+            $charge = $api->fetchCharge($charge);
 
             if (!$charge->isError()) {
                 try {
@@ -311,7 +305,7 @@ class SyncController extends Controller
         if ($method instanceof CancelableInterface) {
             $cancellation = $method->cancelPaymentTransaction($payment, $transaction, $this->order);
         } elseif ($transaction instanceof Authorization) {
-            $cancellation = $this->adapter->getApi()->cancelAuthorizedPayment($payment);
+            $cancellation = $this->adapter->getCurrentConnection()->cancelAuthorizedPayment($payment);
         } else {
             $reference = str_replace(
                 ['%ORDER_ID%', '%SHOPNAME%'],

@@ -20,6 +20,7 @@
  *
  * @package  UnzerSDK\Services
  */
+
 namespace UnzerSDK\Services;
 
 use UnzerSDK\Unzer;
@@ -28,8 +29,9 @@ use UnzerSDK\Interfaces\WebhookServiceInterface;
 use UnzerSDK\Resources\AbstractUnzerResource;
 use UnzerSDK\Resources\Webhook;
 use UnzerSDK\Resources\Webhooks;
-use function is_string;
 use RuntimeException;
+
+use function is_string;
 
 class WebhookService implements WebhookServiceInterface
 {
@@ -49,8 +51,6 @@ class WebhookService implements WebhookServiceInterface
         $this->unzer = $unzer;
         $this->resourceService = $unzer->getResourceService();
     }
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return Unzer
@@ -90,10 +90,6 @@ class WebhookService implements WebhookServiceInterface
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Webhook resource">
-
     /**
      * {@inheritDoc}
      */
@@ -124,7 +120,7 @@ class WebhookService implements WebhookServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function updateWebhook($webhook): Webhook
+    public function updateWebhook(Webhook $webhook): Webhook
     {
         $webhook->setParentResource($this->unzer);
         $this->resourceService->updateResource($webhook);
@@ -144,10 +140,6 @@ class WebhookService implements WebhookServiceInterface
 
         return $this->resourceService->deleteResource($webhookObject);
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Webhooks pseudo resource">
 
     /**
      * {@inheritDoc}
@@ -185,14 +177,10 @@ class WebhookService implements WebhookServiceInterface
         return $webhooks->getWebhookList();
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Event handling">
-
     /**
      * {@inheritDoc}
      */
-    public function fetchResourceFromEvent($eventJson = null): AbstractUnzerResource
+    public function fetchResourceFromEvent(string $eventJson = null): AbstractUnzerResource
     {
         $resourceObject = null;
         $eventData = json_decode($eventJson ?? $this->readInputStream(), false);
@@ -219,6 +207,4 @@ class WebhookService implements WebhookServiceInterface
     {
         return file_get_contents('php://input');
     }
-
-    //</editor-fold>
 }

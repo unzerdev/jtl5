@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Services
  */
+
 namespace UnzerSDK\Services;
 
 class ResourceNameService
@@ -33,7 +32,7 @@ class ResourceNameService
      *
      * @return string
      */
-    public static function getClassShortName($classString): string
+    public static function getClassShortName(string $classString): string
     {
         $classNameParts = explode('\\', $classString);
         return end($classNameParts);
@@ -46,7 +45,7 @@ class ResourceNameService
      *
      * @return string
      */
-    public static function getClassShortNameKebapCase($classString): string
+    public static function getClassShortNameKebapCase(string $classString): string
     {
         return self::toKebapCase(self::getClassShortName($classString));
     }
@@ -58,7 +57,7 @@ class ResourceNameService
      *
      * @return string
      */
-    private static function toKebapCase($str): string
+    private static function toKebapCase(string $str): string
     {
         $kebapCaseString = preg_replace_callback(
             '/([A-Z][a-z])+/',

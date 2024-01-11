@@ -6,15 +6,31 @@ namespace Composer\Autoload;
 
 class ComposerStaticInit798b3a25198002669f69117ca3c6edee
 {
+    public static $files = array (
+        'decc78cc4436b1292c6c0d151b19445c' => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib/bootstrap.php',
+    );
+
     public static $prefixLengthsPsr4 = array (
+        'p' => 
+        array (
+            'phpseclib3\\' => 11,
+        ),
         'U' => 
         array (
             'UnzerSDK\\examples\\' => 18,
             'UnzerSDK\\' => 9,
         ),
+        'P' => 
+        array (
+            'ParagonIE\\ConstantTime\\' => 23,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'phpseclib3\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/phpseclib/phpseclib/phpseclib',
+        ),
         'UnzerSDK\\examples\\' => 
         array (
             0 => __DIR__ . '/..' . '/unzerdev/php-sdk/examples',
@@ -22,6 +38,10 @@ class ComposerStaticInit798b3a25198002669f69117ca3c6edee
         'UnzerSDK\\' => 
         array (
             0 => __DIR__ . '/..' . '/unzerdev/php-sdk/src',
+        ),
+        'ParagonIE\\ConstantTime\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/paragonie/constant_time_encoding/src',
         ),
     );
 

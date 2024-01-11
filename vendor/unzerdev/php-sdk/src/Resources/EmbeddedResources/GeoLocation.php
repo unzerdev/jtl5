@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Resources\EmbeddedResources
  */
+
 namespace UnzerSDK\Resources\EmbeddedResources;
 
 use UnzerSDK\Resources\AbstractUnzerResource;
@@ -33,8 +32,6 @@ class GeoLocation extends AbstractUnzerResource
 
     /** @var string|null $countryCode */
     private $countryCode;
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string|null
@@ -49,7 +46,7 @@ class GeoLocation extends AbstractUnzerResource
      *
      * @return GeoLocation
      */
-    protected function setClientIp($clientIp): GeoLocation
+    protected function setClientIp(?string $clientIp): GeoLocation
     {
         $this->clientIp = $clientIp;
         return $this;
@@ -68,7 +65,7 @@ class GeoLocation extends AbstractUnzerResource
      *
      * @return GeoLocation
      */
-    protected function setCountryCode($countryCode): GeoLocation
+    protected function setCountryCode(?string $countryCode): GeoLocation
     {
         $this->countryCode = $countryCode;
         return $this;
@@ -79,10 +76,8 @@ class GeoLocation extends AbstractUnzerResource
      *
      * @return GeoLocation
      */
-    protected function setCountryIsoA2($countryCode): GeoLocation
+    protected function setCountryIsoA2(?string $countryCode): GeoLocation
     {
         return $this->setCountryCode($countryCode);
     }
-
-    //</editor-fold>
 }

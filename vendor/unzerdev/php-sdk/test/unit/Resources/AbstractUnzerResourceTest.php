@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Resources;
 
 use DateTime;
@@ -83,6 +83,8 @@ class AbstractUnzerResourceTest extends BasePaymentTest
 
         $customer->setFetchedAt(new DateTime('2018-12-03'));
         $this->assertEquals(new DateTime('2018-12-03'), $customer->getFetchedAt());
+
+        $this->assertEquals(Unzer::API_VERSION, $customer->getApiVersion());
     }
 
     /**
@@ -188,7 +190,7 @@ class AbstractUnzerResourceTest extends BasePaymentTest
 
     /**
      * Verify that installment plans use the correct path for fetching. Special case, fetching Instalmentplans contains
-     * hinstallment-secured as parent resource that should appear in resource path.
+     * Installment-secured as parent resource that should appear in resource path.
      *
      * @test
      */
@@ -493,8 +495,8 @@ class AbstractUnzerResourceTest extends BasePaymentTest
             'Webhooks' => [new Webhook(), 'parent/resource/path/webhooks'],
             'Recurring' => [new Recurring('s-crd-123', ''), 'parent/resource/path/types/s-crd-123/recurring'],
             'Payout' => [new Payout(), 'parent/resource/path/payouts'],
-            'PayPage charge' => [new Paypage(123.4567, 'EUR', 'url'), 'parent/resource/path/paypage/charge'],
-            'PayPage authorize' => [(new Paypage(123.4567, 'EUR', 'url'))->setAction(TransactionTypes::AUTHORIZATION), 'parent/resource/path/paypage/authorize'],
+            'PayPage charge' => [new Paypage(123.4567, 'EUR', 'url'), 'parent/resource/path/paypage'],
+            'PayPage authorize' => [(new Paypage(123.4567, 'EUR', 'url'))->setAction(TransactionTypes::AUTHORIZATION), 'parent/resource/path/paypage'],
         ];
     }
 }

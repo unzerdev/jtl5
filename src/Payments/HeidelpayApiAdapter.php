@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
@@ -8,14 +10,19 @@ use UnzerSDK\Resources\Payment;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use JTL\Cart\Cart;
+use JTL\Checkout\Bestellung;
 use JTL\Helpers\Text;
-use Plugin\s360_unzer_shop5\src\Utils\Config;
+use JTL\Session\Frontend;
+use JTL\Shop;
+use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairService;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
 
 /**
  * Heidelpay API Adapter for JTL Shop.
@@ -33,38 +40,36 @@ class HeidelpayApiAdapter
         InvoiceSecured::class,
         InstallmentSecured::class // Note: shipment docu says no, hdd says yes
     ];
+    public const SHOULD_CHARGE_BEFORE_SHIPPING = [
+        PaylaterInvoice::class,
+        PaylaterInstallment::class
+    ];
 
     /**
      * @var Unzer
+     * @deprecated
      */
     private $api;
 
-    /**
-     * @var Config
-     */
-    private $config;
+    private SessionHelper $session;
+    private JtlLinkHelper $linkHelper;
 
-    /**
-     * @var SessionHelper
-     */
-    private $session;
+    private array $connections = [];
+    private ?Unzer $currentConnection = null;
+    private ?Unzer $defaultConnection = null;
+    private KeyPairService $keypairService;
 
-    /**
-     * @var JtlLinkHelper
-     */
-    private $linkHelper;
-
-    /**
-     * @param Config $config
-     * @param SessionHelper $session
-     * @param JtlLinkHelper $linkHelper
-     */
-    public function __construct(Config $config, SessionHelper $session, JtlLinkHelper $linkHelper)
+    public function __construct(KeyPairService $keyPairService, SessionHelper $session, JtlLinkHelper $linkHelper)
     {
-        $this->config = $config;
+        $this->keypairService = $keyPairService;
         $this->session = $session;
         $this->linkHelper = $linkHelper;
-        $this->createApiClient();
+        $this->setCurrentConnection();
+    }
+
+    public function getKeypairService(): KeyPairService
+    {
+        return $this->keypairService;
     }
 
     /**
@@ -72,19 +77,87 @@ class HeidelpayApiAdapter
      *
      * @return Unzer
      */
-    public function createApiClient(): Unzer
+    public function setCurrentConnection(?bool $isB2B = null, ?int $currency = null, ?int $paymentMethod = null): Unzer
     {
-        $this->api = new Unzer(
-            $this->config->get(Config::PRIVATE_KEY),
-            $this->mapToLocale($this->session->getFrontendSession()->getLanguage()->cISOSprache ?? 'eng')
+        // TODO: Try to load defaults from session?
+        if ($isB2B === null || $currency === null || $paymentMethod === null) {
+            $this->currentConnection = $this->getDefaultConnection();
+            return $this->currentConnection;
+        }
+
+        // If no private key exists for the combination use the default connection as the current connection
+        $privateKey = $this->keypairService->getPrivateKey($isB2B, $currency, $paymentMethod);
+        if (empty($privateKey)) {
+            $this->currentConnection = $this->getDefaultConnection();
+            return $this->currentConnection;
+        }
+
+        // Setup connection
+        $key = (int) $isB2B . ":{$currency}:{$paymentMethod}";
+        $this->connections[$key] = new Unzer(
+            $privateKey,
+            $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
         );
 
-        return $this->getApi();
+        $this->currentConnection = $this->connections[$key];
+
+        return $this->currentConnection;
+    }
+
+    public function getCurrentConnection(): Unzer
+    {
+        return $this->currentConnection ?? $this->getDefaultConnection();
+    }
+
+    public function getDefaultConnection(): Unzer
+    {
+        if (empty($this->defaultConnection)) {
+            $this->defaultConnection = new Unzer(
+                $this->keypairService->getDefaultPrivateKey(),
+                $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
+            );
+        }
+
+        return $this->defaultConnection;
+    }
+
+    public function getConnectionForOrder(Bestellung $order): Unzer
+    {
+        return $this->setCurrentConnection(
+            (isset($order->oKunde->cFirma) && strlen(trim($order->oKunde->cFirma)) > 0) || (isset($order->oRechnungsadresse->cFirma) && strlen(trim($order->oRechnungsadresse->cFirma))),
+            (int) $order->kWaehrung,
+            (int) $order->kZahlungsart
+        );
+    }
+
+    public function getConnectionForSession(): Unzer
+    {
+        return $this->setCurrentConnection(
+            isset(Frontend::getCustomer()->cFirma) && strlen(trim(Frontend::getCustomer()->cFirma)) > 0,
+            (int) Frontend::getCurrency()->getID(),
+            (int) Frontend::get('AktiveZahlungsart')
+        );
+    }
+
+    public function getConnectionForPublicKey(string $publicKey): Unzer
+    {
+        $privateKey = $this->keypairService->getPrivateFromPublic($publicKey);
+
+        if (empty($privateKey)) {
+            return $this->getDefaultConnection();
+        }
+
+        $this->currentConnection = new Unzer(
+            $privateKey,
+            $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
+        );
+
+        return $this->currentConnection;
     }
 
     /**
      * Get Api instance.
-     *
+     * @deprecated
      * @return Unzer
      */
     public function getApi(): Unzer
@@ -101,11 +174,14 @@ class HeidelpayApiAdapter
      */
     public function fetchCustomerId()
     {
-        if (!$this->session->has(SessionHelper::KEY_CUSTOMER_ID)) {
+        if (
+            !$this->session->has(SessionHelper::KEY_CUSTOMER_ID) &&
+            $this->session->getFrontendSession()->getCustomer()->isLoggedIn()
+        ) {
             // Try to fetch the heidelpay customer by its shop id (kKunde).
             try {
-                $customer = $this->getApi()->fetchCustomerByExtCustomerId(
-                    $this->session->getFrontendSession()->getCustomer()->kKunde
+                $customer = $this->getCurrentConnection()->fetchCustomerByExtCustomerId(
+                    (string) $this->session->getFrontendSession()->getCustomer()->getID()
                 );
 
                 $this->session->set(SessionHelper::KEY_CUSTOMER_ID, $customer->getId());
@@ -132,7 +208,7 @@ class HeidelpayApiAdapter
             $paymentId = $this->session->get(SessionHelper::KEY_PAYMENT_ID);
         }
 
-        return $this->api->fetchPayment($paymentId);
+        return $this->getCurrentConnection()->fetchPayment($paymentId);
     }
 
     /**
@@ -169,7 +245,7 @@ class HeidelpayApiAdapter
             );
         }
 
-        return $this->api->fetchPaymentType($paymentTypeId);
+        return $this->getCurrentConnection()->fetchPaymentType($paymentTypeId);
     }
 
     /**
@@ -184,15 +260,31 @@ class HeidelpayApiAdapter
     }
 
     /**
+     * Checks if a payment method should do a full charge before the shipment call.
+     *
+     * @param BasePaymentType $paymentType
+     * @return bool
+     */
+    public function shouldChargeBeforeShipping(BasePaymentType $paymentType): bool
+    {
+        return in_array(get_class($paymentType), self::SHOULD_CHARGE_BEFORE_SHIPPING);
+    }
+
+    /**
      * Redirect transaction to external payment provider.
      *
      * @SuppressWarnings(PHPMD.ExitExpression)
      * @param AbstractTransactionType $transaction
+     * @param Bestellung $order
      * @param array $postData
      * @return void
      */
-    public function redirectTransaction(AbstractTransactionType $transaction, array $postData = []): void
-    {
+    public function redirectTransaction(
+        AbstractTransactionType $transaction,
+        Bestellung $order,
+        array $postData = []
+    ): void {
+        $this->session->set(SessionHelper::KEY_ORDER_ID, $order->cBestellNr);
         $this->session->set(SessionHelper::KEY_PAYMENT_ID, $transaction->getPaymentId());
         $this->session->set(SessionHelper::KEY_SHORT_ID, $transaction->getShortId());
         $this->session->set(SessionHelper::KEY_CONFIRM_POST_ARRAY, $postData);
@@ -214,11 +306,20 @@ class HeidelpayApiAdapter
      */
     public function mapToLocale(string $iso): string
     {
-        switch ($iso) {
-            case 'ger':
-                return 'de-DE';
-            default:
-                return 'en-GB';
-        }
+        $mapping = [
+            'ger' => 'de-DE',
+            'dut' => 'nl-NL',
+            'fin' => 'fi',
+            'dan' => 'da',
+            'fre' => 'fr-FR',
+            'ita' => 'it-IT',
+            'spa' => 'es-ES',
+            'por' => 'pt-PT',
+            'slo' => 'sk-SK',
+            'cze' => 'cs-CZ',
+            'pol' => 'pl-PL',
+        ];
+
+        return $mapping[$iso] ?? 'en-GB';
     }
 }

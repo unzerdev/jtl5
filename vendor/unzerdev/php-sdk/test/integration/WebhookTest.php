@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test\integration;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -31,6 +31,7 @@ use UnzerSDK\Constants\WebhookEvents;
 use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\Webhook;
 use UnzerSDK\test\BaseIntegrationTest;
+
 use function count;
 use function in_array;
 
@@ -186,6 +187,7 @@ class WebhookTest extends BaseIntegrationTest
      * Verify setting multiple events at once.
      *
      * @test
+     *
      * @depends allWebhooksShouldBeRemovableAtOnce
      */
     public function bulkSettingWebhookEventsShouldBePossible(): void
@@ -249,7 +251,7 @@ class WebhookTest extends BaseIntegrationTest
     /**
      * Returns true if the given Webhook exists in the given array.
      *
-     * @param $webhooksArray
+     * @param         $webhooksArray
      * @param Webhook $webhook
      *
      * @return bool

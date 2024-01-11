@@ -1,10 +1,13 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Controllers;
 
 use JTL\Helpers\Request;
 use JTL\Plugin\Payment\Method;
 use JTL\Shop;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInstallment;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepReviewOrderInterface;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
@@ -33,6 +36,23 @@ class PaymentController extends Controller
         $session = Shop::Container()->get(SessionHelper::class);
         $payment = $session->getFrontendSession()->get('Zahlungsart');
 
+        // Clear session if the user changed the currency otherwise we might use the wrong IDs for a new keypair
+        if (Request::verifyGPDataString('curr')) {
+            $session->clearCheckoutSession();
+            $session->clear(SessionHelper::KEY_CUSTOMER_ID);
+        }
+
+        // Clear Payment Data if the customer wants to change his payment or shipping method
+        if (
+            Shop::getPageType() === \PAGE_BESTELLVORGANG &&
+            (Request::verifyGPCDataInt('editZahlungsart') > 0 || Request::verifyGPCDataInt('editVersandart') > 0)
+        ) {
+            $session->clearCheckoutSession();
+
+            // clear ids to avoid using ids for other keypairs in which they might not exist
+            $session->clear(SessionHelper::KEY_CUSTOMER_ID);
+        }
+
         if (Shop::getPageType() === \PAGE_BESTELLVORGANG && $payment) {
             $checkoutSession = $session->get(SessionHelper::KEY_CHECKOUT_SESSION);
             $paymentMethod = Method::create($payment->cModulId);
@@ -40,6 +60,20 @@ class PaymentController extends Controller
             // Not a heidelpay method, abort!
             if (!$paymentMethod instanceof HeidelpayPaymentMethod) {
                 return self::STATE_ABORT;
+            }
+
+            // Instalment Info
+            if ($paymentMethod instanceof UnzerPaylaterInstallment) {
+                $method = $this->config->get(Config::PQ_METHOD_INSTALMENT_INFO, 'after');
+                $data = [
+                    'info' => $this->plugin->getLocalization()->getTranslation(Config::LANG_INSTLAMENT_INFO)
+                ];
+
+                pq(
+                    $this->config->get(Config::PQ_SELECTOR_INSTALMENT_INFO, '#complete-order-button')
+                )->{$method}(
+                    $this->view('template/instalment_info', $data),
+                );
             }
 
             // Review Order => plugin session contains checkoutSession
@@ -60,11 +94,14 @@ class PaymentController extends Controller
             }
         }
 
-        // Clear Payment Data if the customer wants to change his payment or shipping method
-        if (Shop::getPageType() === \PAGE_BESTELLVORGANG &&
-            (Request::verifyGPCDataInt('editZahlungsart') > 0 || Request::verifyGPCDataInt('editVersandart') > 0)
-        ) {
-            $session->clearCheckoutSession();
+        // HP-121: Clear Plugin Session on the order status page in case that a user aborted its payment process,
+        // otherwise the existing plugin session would mess things up
+        if (Shop::getPageType() === \PAGE_BESTELLSTATUS || Shop::getPageType() === \PAGE_BESTELLABSCHLUSS) {
+            $session->clear();
+
+            // clear ids to avoid using ids for other keypairs in which they might not exist
+            $session->clear(SessionHelper::KEY_CUSTOMER_ID);
+            $session->clear(SessionHelper::KEY_ORDER_ID);
         }
 
         return self::STATE_ABORT;

@@ -18,15 +18,17 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\PaymentTypes
  */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use UnzerSDK\Traits\CanDirectChargeWithCustomer;
 use UnzerSDK\Traits\IsInvoiceType;
 
+/**
+ * @deprecated since 1.2.0.0 Please use PaylaterInvoice instead.
+ */
 class InvoiceSecured extends BasePaymentType
 {
     use CanDirectChargeWithCustomer;

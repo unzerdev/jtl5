@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -65,6 +65,7 @@ class EPSTest extends BaseIntegrationTest
      * @test
      *
      * @param EPS $eps
+     *
      * @depends epsShouldBeCreatable
      */
     public function epsShouldThrowExceptionOnAuthorize(EPS $eps): void
@@ -79,6 +80,7 @@ class EPSTest extends BaseIntegrationTest
      * Verify that eps payment type is chargeable.
      *
      * @test
+     *
      * @depends epsShouldBeCreatable
      *
      * @param EPS $eps
@@ -93,13 +95,14 @@ class EPSTest extends BaseIntegrationTest
         $this->assertTrue($charge->getPayment()->isPending());
 
         $fetchCharge = $this->unzer->fetchChargeById($charge->getPayment()->getId(), $charge->getId());
-        $this->assertEquals($charge->expose(), $fetchCharge->expose());
+        $this->assertEquals($charge->setCard3ds(false)->expose(), $fetchCharge->expose());
     }
 
     /**
      * Verify eps payment type can be fetched.
      *
      * @test
+     *
      * @depends epsShouldBeCreatable
      *
      * @param EPS $eps

@@ -20,13 +20,13 @@ msgid "Unzer Lastschrift (secured)"
 msgstr "Unzer Direct Debit (secured)"
 
 msgid "Unzer Rechnung"
-msgstr "Unzer Invoice"
+msgstr "(Deprecated) Unzer Invoice"
 
 msgid "Unzer Rechnung (guaranteed)"
-msgstr "Unzer Ivoice (secured)"
+msgstr "(Deprecated) Unzer Invoice Secured"
 
 msgid "Unzer Rechnung (secured)"
-msgstr "Unzer Ivoice (secured)"
+msgstr "(Deprecated) Unzer Invoice Secured"
 
 msgid "Unzer Fakturierung von Rechnungen"
 msgstr "Unzer Invoice Factoring"
@@ -78,6 +78,12 @@ msgstr "Unzer Instalment"
 
 msgid "Unzer Ratenkauf"
 msgstr "Unzer Instalment"
+
+msgid "Unzer Rechnung (Jetzt kaufen, Später bezahlen)"
+msgstr "Unzer Invoice"
+
+msgid "Unzer Ratenzahlung (Paylater)"
+msgstr "Unzer Installment"
 
 msgid "hpError"
 msgstr "Error"
@@ -220,8 +226,17 @@ msgstr "iDEAL"
 msgid "hpPaymentmethodHirePurchaseDirectDebit"
 msgstr "Instalment"
 
+msgid "paylater-invoice"
+msgstr "Invoice (Paylater)"
+
+msgid "paylater-installment"
+msgstr "Installment (Paylater)"
+
 msgid "hpOpenInPortal"
 msgstr "Open Order in Insight Portal"
+
+msgid "hpOpenInPaylaterPortal"
+msgstr "Open in Unzer Pay Later - Merchant Portal"
 
 msgid "hpDelivieryAddress"
 msgstr "Deliviery Address"
@@ -408,3 +423,137 @@ msgstr "The payment method \"%s\" is not usable before order completion."
 
 msgid "hpPaymentMethodNotConfiguredNotification"
 msgstr "The payment method \"%s\" is not configured!"
+
+msgid "hpWarningWebhookUrlChanged"
+msgstr "The URL of the Unzer Webhook Handling page has changed, so the plugin can no longer process incoming payments correctly. See the <a href=\"https://redirect.solution360.de/?r=docsunzerjtl5#Warum-erhalte-ich-die-Nachricht,-dass-sich-die-URL-des-Webhook-oder-des-Workflows-ge%C3%A4ndert-hat?\" target=\"_blank\">documentation</a> to find out how to fix the error"
+
+msgid "hpWarningSyncWorkflowUrlChanged"
+msgstr "The URL of the Unzer WaWi Workflow Handling page has changed, so the plugin can no longer activate invoices correctly. See the <a href=\"https://redirect.solution360.de/?r=docsunzerjtl5#Warum-erhalte-ich-die-Nachricht,-dass-sich-die-URL-des-Webhook-oder-des-Workflows-ge%C3%A4ndert-hat?\" target=\"_blank\">documentation</a> to find out how to fix the error"
+
+msgid "hpApplePayRefreshCert"
+msgstr "Refresh"
+
+msgid "hpApplePayDownloadCert"
+msgstr "Download CSR"
+
+msgid "hpApplePayUploadCert"
+msgstr "Upload Certificate"
+
+msgid "hpApplePayUpload"
+msgstr "Browse"
+
+msgid "hpApplePayPaymentGeneral"
+msgstr "Allgemein"
+
+msgid "hpApplePayPaymentGeneralMerchantId"
+msgstr "Merchant Identifier"
+
+msgid "hpApplePayPaymentGeneralMerchantIdHelp"
+msgstr "The merchant identifier created in the Apple Developer Account."
+
+msgid "hpApplePayPaymentGeneralMerchantDomain"
+msgstr "Merchant Domain"
+
+msgid "hpApplePayPaymentGeneralMerchantDomainHelp"
+msgstr "The merchant/shop URL that was saved in the Apple Developer Account to use with the merchant ID."
+
+msgid "hpApplePayPaymentProcessingCertificate"
+msgstr "Payment Processing Certificate"
+
+msgid "hpApplePayPaymentProcessingCertificateCSR"
+msgstr "Certificate Signing Request (CSR)"
+
+msgid "hpApplePayPaymentProcessingCertificateCSRHelp"
+msgstr "The Certificate Signing Request (CSR) file to create the Apple Pay Payment Processing certificate."
+
+msgid "hpApplePayPaymentProcessingCertificateApple"
+msgstr "Apple Pay Certificate"
+
+msgid "hpApplePayPaymentProcessingCertificateAppleHelp"
+msgstr "The Payment Processing Certificate created by Apple."
+
+msgid "hpApplePayMerchantIdentityCertificate"
+msgstr "Merchant Identity Certificate"
+
+msgid "hpApplePayMerchantIdentityCertificateCSR"
+msgstr "Certificate Signing Request (CSR)"
+
+msgid "hpApplePayMerchantIdentityCertificateCSRHelp"
+msgstr "The Certificate Signing Request (CSR) file to create the Apple Pay Merchant Identity certificate."
+
+msgid "hpApplePayMerchantIdentityCertificateApple"
+msgstr "Apple Pay Certificate"
+
+msgid "hpApplePayMerchantIdentityCertificateAppleHelp"
+msgstr "The Merchant Indentity Certificate created by Apple."
+
+msgid "hpApplePayUnzerIDs"
+msgstr "Unzer Payment Processing Certificate IDs"
+
+msgid "hpApplePayUpdateCert"
+msgstr "Activate Certificate"
+
+msgid "CERTIFICATE_TRANSFORMATION_ERROR"
+msgstr "Certificate could not be converted to text"
+
+msgid "ERROR_ID_LOAD_ERROR"
+msgstr "Certificate could not be loaded. Please check if the certificate is valid."
+
+msgid "hpSettingsActive"
+msgstr "active"
+
+msgid "hpSettingsAddIncomingPayments"
+msgstr "Add Incoming Payments"
+
+msgid "hpSettingsAddIncomingPaymentsHelp"
+msgstr "Controls whether the plugin sets incoming payments automatically for JTL-Wawi.<br/>You should only ever deactivate this option if you set your incoming payments in JTL-Wawi in a different way <em>(e.g. manually or via the payment synchronisation module.)</em>"
+
+msgid "hpDeprecationPaymentMethodTitle"
+msgstr "DEPRECATION: %s"
+
+msgid "hpDeprecationInvoiceNotice"
+msgstr ""
+"You are using the payment method `%s`, note that this method is now deprecated by Unzer. It is currently supported, but there are no further developments planned for it.\n"
+"\n"
+"The replacement for this payment method is the new `Unzer Invoice (Buy Now Pay Later)` payment method..\n"
+"\n"
+"If you want to migrate, please get in touch with your contact person at Unzer!"
+
+msgid "Ungültiger Private Key."
+msgstr "Invalid private key."
+
+msgid "Ungültiger Public Key. Bitte stellen Sie sicher, dass sie hier Ihren Public Key und nicht Ihren Private Key angeben!"
+msgstr "Invalid public key. Please make sure that you enter your public key here and not your private key!"
+
+msgid "Die Webhooks wurden erfolgreich gespeichert."
+msgstr "The webhooks have been saved successfully."
+
+msgid "Key Pairs"
+msgstr "Key Pairs"
+
+msgid "hpKeyPairEdit"
+msgstr "Edit Key Pair"
+
+msgid "hpKeypairIsB2B"
+msgstr "B2B"
+
+msgid "hpKeypairIsB2BHelp"
+msgstr "Specifies whether the key pair is to be used only for B2B clients."
+
+msgid "hpKeypairCurrencyHelp"
+msgstr "Specifies for which currency the key pair is to be used."
+
+msgid "hpKeypairPaymentMethodsHelp"
+msgstr "Specifies for which payment type the key pair is to be used."
+
+msgid "hpSettingsPqSelectorInstallmentInfo"
+msgstr "PQ-Selector for instalment information on the order confirm page"
+
+msgid "hpSettingsPqSelectorInstallmentInfoHelp"
+msgstr "The PHP Query Selector for the injection of the instalment information on the order confirm page"
+
+msgid "hpSettingsPqMethodInstallmentInfo"
+msgstr "PQ-Method for instalment information on the order confirm page"
+
+msgid "hpSettingsPqMethodInstallmentInfoHelp"
+msgstr "The PHP Query Method for the injection of the instalment information on the order confirm page"

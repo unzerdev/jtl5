@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,15 +21,16 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test\integration;
 
 use UnzerSDK\Constants\CancelReasonCodes;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
+use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
 use UnzerSDK\test\BaseIntegrationTest;
+use UnzerSDK\test\Helper\TestEnvironmentService;
 
 class PaymentCancelTest extends BaseIntegrationTest
 {
@@ -65,6 +67,7 @@ class PaymentCancelTest extends BaseIntegrationTest
      */
     public function cancelOnChargeAndDoubleCancel(): void
     {
+        $this->useLegacyKey();
         $charge = $this->createCharge(123.44);
         $payment = $this->unzer->fetchPayment($charge->getPaymentId());
         $this->assertTrue($payment->isCompleted());
@@ -123,6 +126,7 @@ class PaymentCancelTest extends BaseIntegrationTest
      */
     public function partialCancelAndFullCancelOnSingleCharge(): void
     {
+        $this->useLegacyKey();
         $charge = $this->createCharge(222.33);
         $payment = $this->unzer->fetchPayment($charge->getPaymentId());
         $this->assertTrue($payment->isCompleted());
@@ -143,6 +147,7 @@ class PaymentCancelTest extends BaseIntegrationTest
      * PHPLIB-228 - Case 4 + 5
      *
      * @test
+     *
      * @dataProvider partCancelDataProvider
      *
      * @param float $amount
@@ -174,6 +179,7 @@ class PaymentCancelTest extends BaseIntegrationTest
      * PHPLIB-228 - Case 6
      *
      * @test
+     *
      * @dataProvider fullCancelDataProvider
      *
      * @param float $amount
@@ -223,6 +229,7 @@ class PaymentCancelTest extends BaseIntegrationTest
      * PHPLIB-228 - Case 8
      *
      * @test
+     *
      * @dataProvider fullCancelDataProvider
      *
      * @param float $amount The amount to be cancelled.
@@ -249,6 +256,7 @@ class PaymentCancelTest extends BaseIntegrationTest
      * PHPLIB-228 - Case 9
      *
      * @test
+     *
      * @dataProvider fullCancelDataProvider
      *
      * @param $amount
@@ -339,12 +347,14 @@ class PaymentCancelTest extends BaseIntegrationTest
      * PHPLIB-228 - Case 13
      *
      * @test
+     *
      * @dataProvider fullCancelDataProvider
      *
      * @param float $amount
      */
     public function fullCancelOnInitialInvoiceCharge($amount): void
     {
+        $this->getUnzerObject()->setKey(TestEnvironmentService::getLegacyTestPrivateKey());
         /** @var Invoice $invoice */
         $invoice = $this->unzer->createPaymentType(new Invoice());
         $charge = $invoice->charge(100.0, 'EUR', self::RETURN_URL);
@@ -365,6 +375,7 @@ class PaymentCancelTest extends BaseIntegrationTest
      */
     public function partCancelOnInitialInvoiceChargeShouldBePossible(): void
     {
+        $this->getUnzerObject()->setKey(TestEnvironmentService::getLegacyTestPrivateKey());
         /** @var Invoice $invoice */
         $invoice = $this->unzer->createPaymentType(new Invoice());
         $charge = $invoice->charge(100.0, 'EUR', self::RETURN_URL);
@@ -378,6 +389,81 @@ class PaymentCancelTest extends BaseIntegrationTest
     }
 
     /**
+     * Verify part cancel on initial ivs charge (reversal)
+     *
+     * @test
+     */
+    public function partCancelOnInitialInvoiceSecuredChargeShouldCancelMaxUnpaidAmount(): void
+    {
+        $this->getUnzerObject()->setKey(TestEnvironmentService::getLegacyTestPrivateKey());
+        /** @var InvoiceSecured $invoiceSecured */
+        $invoiceSecured = $this->unzer->createPaymentType(new InvoiceSecured());
+
+        $customer = $this->getMaximumCustomer();
+        $customer->setShippingAddress($customer->getBillingAddress());
+
+        $basket = $this->createBasket();
+        $invoiceId = 'i' . self::generateRandomId();
+        $charge = $invoiceSecured->charge(100.0, 'EUR', self::RETURN_URL, $customer, $basket->getOrderId(), null, $basket, null, $invoiceId);
+        $charge->getPayment()->ship();
+        $paymentId = $charge->getPaymentId();
+
+        $this->assertTrue($charge->isPending()); // Set your break point here.
+        $payment = $this->unzer->fetchPayment($charge->getPaymentId());
+        if (count($payment->getCharges()) !== 2) {
+            $testDescription = 'This test needs assistance:
+            To perform this test properly, first set a breakpoint after charge, before the payment gets fetched.
+            Then perform a receipt manually over 60€ on the "reservation".
+            After that this test can be continued';
+            $this->markTestSkipped($testDescription);
+        }
+        $this->assertTrue($payment->isCompleted());
+        $this->assertAmounts($payment, 0, 100, 100.0, 0);
+
+        $this->assertCount(2, $payment->cancelAmount(50.0));
+        $this->assertTrue($payment->isCompleted());
+        $this->assertAmounts($payment, 0, 50.0, 100.0, 50.0);
+    }
+
+    /**
+     * Verify skip cancel on initial ivs charge
+     *
+     * @test
+     */
+    public function fullCancelOnPaidInvoiceSecuredPaymentShouldBePossible(): void
+    {
+        $this->getUnzerObject()->setKey(TestEnvironmentService::getLegacyTestPrivateKey());
+        /** @var InvoiceSecured $invoiceSecured */
+        $invoiceSecured = $this->unzer->createPaymentType(new InvoiceSecured());
+
+        $customer = $this->getMaximumCustomer();
+        $customer->setShippingAddress($customer->getBillingAddress());
+
+        $basket = $this->createBasket();
+        $invoiceId = 'i' . self::generateRandomId();
+        $charge = $invoiceSecured->charge(100.0, 'EUR', self::RETURN_URL, $customer, $basket->getOrderId(), null, $basket, null, $invoiceId);
+        $charge->getPayment()->ship();
+        $paymentId = $charge->getPaymentId();
+
+        $this->assertTrue($charge->isPending()); // Set your break point here.
+        $payment = $this->unzer->fetchPayment($charge->getPaymentId());
+        if (count($payment->getCharges()) !== 2) {
+            $testDescription = 'This test needs assistance:
+            To perform this test properly, first set a breakpoint after charge, before the payment gets fetched.
+            Then perform a receipt manually over 100€ on the "reservation".
+            After that this test can be continued';
+            $this->markTestSkipped($testDescription);
+        }
+        $this->assertTrue($payment->isCompleted());
+        $this->assertAmounts($payment, 0, 100.0, 100.0, 0);
+
+        $cancellations = $payment->cancelAmount();
+        $this->assertCount(1, $cancellations);
+        $this->assertTrue($payment->isCompleted());
+        $this->assertAmounts($payment, 0, 0, 100.0, 100.0);
+    }
+
+    /**
      * Verify cancelling more than was charged.
      * PHPLIB-228 - Case 15
      *
@@ -385,6 +471,7 @@ class PaymentCancelTest extends BaseIntegrationTest
      */
     public function cancelMoreThanWasCharged(): void
     {
+        $this->useLegacyKey();
         $charge = $this->createCharge(50.0);
         $payment = $this->unzer->fetchPayment($charge->getPaymentId());
         $this->assertTrue($payment->isCompleted());

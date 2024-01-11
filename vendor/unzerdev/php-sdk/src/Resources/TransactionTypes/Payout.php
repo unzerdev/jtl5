@@ -18,19 +18,15 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\TransactionTypes
  */
+
 namespace UnzerSDK\Resources\TransactionTypes;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
-use UnzerSDK\Traits\HasInvoiceId;
 
 class Payout extends AbstractTransactionType
 {
-    use HasInvoiceId;
-
     /** @var float|null $amount */
     protected $amount;
 
@@ -46,18 +42,16 @@ class Payout extends AbstractTransactionType
     /**
      * Payout constructor.
      *
-     * @param float  $amount
-     * @param string $currency
-     * @param null   $returnUrl
+     * @param float|null  $amount
+     * @param string|null $currency
+     * @param null        $returnUrl
      */
-    public function __construct($amount = null, $currency = null, $returnUrl = null)
+    public function __construct(float $amount = null, string $currency = null, $returnUrl = null)
     {
         $this->setAmount($amount);
         $this->setCurrency($currency);
         $this->setReturnUrl($returnUrl);
     }
-
-    //<editor-fold desc="Setters/Getters">
 
     /**
      * @return float|null
@@ -68,11 +62,11 @@ class Payout extends AbstractTransactionType
     }
 
     /**
-     * @param float $amount
+     * @param float|null $amount
      *
      * @return self
      */
-    public function setAmount($amount): self
+    public function setAmount(?float $amount): self
     {
         $this->amount = $amount !== null ? round($amount, 4) : null;
         return $this;
@@ -87,11 +81,11 @@ class Payout extends AbstractTransactionType
     }
 
     /**
-     * @param string $currency
+     * @param string|null $currency
      *
      * @return self
      */
-    public function setCurrency($currency): self
+    public function setCurrency(?string $currency): self
     {
         $this->currency = $currency;
         return $this;
@@ -110,7 +104,7 @@ class Payout extends AbstractTransactionType
      *
      * @return Payout
      */
-    public function setReturnUrl($returnUrl): Payout
+    public function setReturnUrl(?string $returnUrl): Payout
     {
         $this->returnUrl = $returnUrl;
         return $this;
@@ -135,17 +129,11 @@ class Payout extends AbstractTransactionType
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable Methods">
-
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return 'payouts';
     }
-
-    //</editor-fold>
 }

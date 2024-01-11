@@ -18,8 +18,6 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\examples
  */
 
@@ -36,8 +34,9 @@ require_once __DIR__ . '/../../../../autoload.php';
 <head>
     <meta charset="UTF-8">
     <title>Unzer UI Examples</title>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
-            integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+            integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="https://static.unzer.com/v1/unzer.css" />
     <script type="text/javascript" src="https://static.unzer.com/v1/unzer.js"></script>
@@ -46,14 +45,14 @@ require_once __DIR__ . '/../../../../autoload.php';
 <body style="margin: 70px 70px 0;">
 <h3>Example data:</h3>
 <ul>
-    <li>Username: paypal-customer@heidelpay.de</li>
-    <li>Password: heidelpay</li>
+    <li>Username: paypal-buyer@unzer.com</li>
+    <li>Password: unzer1234</li>
 </ul>
 <strong>Attention:</strong> We recommend to create your own PayPal test account <a href="https://developer.paypal.com" target="_blank">here</a>.
 
 <p><a href="https://docs.unzer.com/reference/test-data" target="_blank">Click here to open our test data in new tab.</a></p>
 
-<form id="payment-form" class="unzerUI form" novalidate>
+<form id="payment-form" class="unzerUI" novalidate>
     <!-- This is just for the example - Start -->
     <div class="fields inline">
         <label for="transaction_type">Chose the transaction type you want to test:</label>
@@ -70,29 +69,55 @@ require_once __DIR__ . '/../../../../autoload.php';
             </div>
         </div>
     </div>
-    <!-- This is just for the example - End -->
 
+    <!-- This is just for the example - End -->
+    <h3>PayPal</h3>
     <div id="container-example-paypal"></div>
     <div class="field" id="error-holder" style="color: #9f3a38"> </div>
-    <button class="unzerUI primary button fluid" id="submit-button" type="submit">Pay</button>
+    <div class="field">
+        <button class="unzerUI primary button fluid" id="submit-button" type="submit">Pay</button>
+    </div>
+
+    <h3>PayPal Express</h3>
+    <div id="container-example-paypal-express"></div>
 </form>
 
 <script>
     // Create an Unzer instance with your public key
     let unzerInstance = new unzer('<?php echo UNZER_PAPI_PUBLIC_KEY; ?>');
 
-    // Create an Paypal instance
-    let Paypal = unzerInstance.Paypal();
-    Paypal.create('email', {
+    // Create a normal Paypal instance
+    let paypalInstance = unzerInstance.Paypal();
+    paypalInstance.create('email', {
         containerId: 'container-example-paypal'
+    })
+
+    // Create a Paypal Express instance
+    let paypalExpress = unzerInstance.PaypalExpress();
+    paypalExpress.create({
+        containerId: 'container-example-paypal-express',
+        color: 'gold'
     })
 
     // Handle payment form submission
     let form = document.getElementById('payment-form');
     form.addEventListener('submit', function(event) {
         event.preventDefault();
-        // Creating a Paypal resource
-        Paypal.createResource()
+
+        // If the express button submitted the form use the PaypalExpress instance.
+        if (event.submitter.id === 'pay-button') {
+            paypalInstance = paypalExpress;
+
+            // Create an additional input so that backend can set the checkout type for the transaction.
+            let expressCheckout = document.createElement('input');
+            expressCheckout.setAttribute('type', 'hidden');
+            expressCheckout.setAttribute('name', 'express-checkout');
+            expressCheckout.setAttribute('value', "1");
+            form.appendChild(expressCheckout);
+        }
+
+        // Creating a PayPal or PayPal express resource
+        paypalInstance.createResource()
             .then(function(result) {
                 let hiddenInput = document.createElement('input');
                 hiddenInput.setAttribute('type', 'hidden');

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,17 +21,18 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Services;
 
 use DateTime;
+use PHPUnit\Framework\MockObject\MockObject;
+use RuntimeException;
+use stdClass;
 use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Exceptions\UnzerApiException;
-use UnzerSDK\Unzer;
 use UnzerSDK\Interfaces\ResourceServiceInterface;
 use UnzerSDK\Resources\AbstractUnzerResource;
 use UnzerSDK\Resources\Basket;
@@ -44,12 +46,16 @@ use UnzerSDK\Resources\PaymentTypes\Bancontact;
 use UnzerSDK\Resources\PaymentTypes\Card;
 use UnzerSDK\Resources\PaymentTypes\EPS;
 use UnzerSDK\Resources\PaymentTypes\Giropay;
-use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\Ideal;
+use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\Klarna;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\Resources\PaymentTypes\PIS;
+use UnzerSDK\Resources\PaymentTypes\PostFinanceCard;
+use UnzerSDK\Resources\PaymentTypes\PostFinanceEfinance;
 use UnzerSDK\Resources\PaymentTypes\Prepayment;
 use UnzerSDK\Resources\PaymentTypes\Przelewy24;
 use UnzerSDK\Resources\PaymentTypes\SepaDirectDebit;
@@ -68,9 +74,7 @@ use UnzerSDK\Services\ResourceService;
 use UnzerSDK\test\BasePaymentTest;
 use UnzerSDK\test\unit\DummyResource;
 use UnzerSDK\test\unit\Traits\TraitDummyCanRecur;
-use PHPUnit\Framework\MockObject\MockObject;
-use RuntimeException;
-use stdClass;
+use UnzerSDK\Unzer;
 
 class ResourceServiceTest extends BasePaymentTest
 {
@@ -96,6 +100,7 @@ class ResourceServiceTest extends BasePaymentTest
      * Verify send will call send on httpService.
      *
      * @test
+     *
      * @dataProvider sendShouldCallSendOnHttpServiceDP
      *
      * @param string $method
@@ -131,6 +136,7 @@ class ResourceServiceTest extends BasePaymentTest
      * Verify getResourceIdFromUrl works correctly.
      *
      * @test
+     *
      * @dataProvider urlIdStringProvider
      *
      * @param string $expected
@@ -149,6 +155,7 @@ class ResourceServiceTest extends BasePaymentTest
      * Verify getResourceIdFromUrl throws exception if the id cannot be found.
      *
      * @test
+     *
      * @dataProvider failingUrlIdStringProvider
      *
      * @param mixed $uri
@@ -168,6 +175,7 @@ class ResourceServiceTest extends BasePaymentTest
      * Verify fetchResource calls fetch if its id is set and it has never been fetched before.
      *
      * @test
+     *
      * @dataProvider fetchResourceFetchCallDP
      *
      * @param $resource
@@ -253,6 +261,28 @@ class ResourceServiceTest extends BasePaymentTest
     }
 
     /**
+     * Verify patch method will call send method and call the resources handleResponse method with the response.
+     *
+     * @test
+     */
+    public function patchShouldCallSendAndThenHandleResponseWithTheResponseData(): void
+    {
+        $response = new stdClass();
+
+        /** @var Customer|MockObject $testResource */
+        $testResource = $this->getMockBuilder(Charge::class)->setMethods(['handleResponse'])->getMock();
+        /** @noinspection PhpParamsInspection */
+        $testResource->expects($this->once())->method('handleResponse')->with($response, HttpAdapterInterface::REQUEST_PATCH);
+
+        /** @var ResourceService|MockObject $resourceServiceMock */
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)->setMethods(['send'])->disableOriginalConstructor()->getMock();
+        /** @noinspection PhpParamsInspection */
+        $resourceServiceMock->expects($this->once())->method('send')->with($testResource, HttpAdapterInterface::REQUEST_PATCH)->willReturn($response);
+
+        $this->assertSame($testResource, $resourceServiceMock->patchResource($testResource));
+    }
+
+    /**
      * Verify update does not handle response with error.
      *
      * @test
@@ -279,12 +309,12 @@ class ResourceServiceTest extends BasePaymentTest
     public function deleteShouldCallSendAndThenSetTheResourceNull(): void
     {
         /** @var Customer|MockObject $testResource */
-        $testResource = $this->getMockBuilder(Customer::class)->getMock();
+        $testResource = $this->getMockBuilder(Customer::class)->setMethods(['getApVersion'])->getMock();
 
         /** @var ResourceService|MockObject $resourceServiceMock */
         $resourceServiceMock = $this->getMockBuilder(ResourceService::class)->setMethods(['send'])->disableOriginalConstructor()->getMock();
         /** @noinspection PhpParamsInspection */
-        $resourceServiceMock->expects($this->once())->method('send')->with($testResource, HttpAdapterInterface::REQUEST_DELETE)->willReturn(new stdClass());
+        $resourceServiceMock->expects($this->once())->method('send')->with($testResource, HttpAdapterInterface::REQUEST_DELETE, Unzer::API_VERSION)->willReturn(new stdClass());
 
         $this->assertNull($resourceServiceMock->deleteResource($testResource));
         $this->assertNull($testResource);
@@ -298,7 +328,7 @@ class ResourceServiceTest extends BasePaymentTest
     public function deleteShouldNotDeleteObjectOnResponseWithError(): void
     {
         /** @var Customer|MockObject $testResource */
-        $testResource = $this->getMockBuilder(Customer::class)->getMock();
+        $testResource = $this->getMockBuilder(Customer::class)->setMethods(['send'])->getMock();
 
         /** @var ResourceService|MockObject $resourceServiceMock */
         $resourceServiceMock = $this->getMockBuilder(ResourceService::class)->setMethods(['send'])->disableOriginalConstructor()->getMock();
@@ -343,6 +373,7 @@ class ResourceServiceTest extends BasePaymentTest
      * Verify fetchResourceByUrl calls fetch for the desired resource.
      *
      * @test
+     *
      * @dataProvider fetchResourceByUrlShouldFetchTheDesiredResourceDP
      *
      * @param string $fetchMethod
@@ -363,6 +394,7 @@ class ResourceServiceTest extends BasePaymentTest
      * Verify fetchResourceByUrl calls fetch for the desired resource.
      *
      * @test
+     *
      * @dataProvider fetchResourceByUrlForAPaymentTypeShouldCallFetchPaymentTypeDP
      *
      * @param string $paymentTypeId
@@ -396,6 +428,7 @@ class ResourceServiceTest extends BasePaymentTest
      * Verify fetchPayment method will fetch the passed payment object.
      *
      * @test
+     *
      * @dataProvider fetchShouldCallFetchResourceDP
      *
      * @param string $fetchMethod
@@ -453,6 +486,7 @@ class ResourceServiceTest extends BasePaymentTest
      * Verify fetchPaymentType will throw exception if the id does not fit any type or is invalid.
      *
      * @test
+     *
      * @dataProvider paymentTypeIdProviderInvalid
      *
      * @param string $typeId
@@ -989,12 +1023,114 @@ class ResourceServiceTest extends BasePaymentTest
         $this->assertEquals($unzer, $basket->getUnzerObject());
     }
 
+    /**
+     * Verify fetchBasket will use the v2 endpoint end then the v1 endpoint if basket wasn't found initially.
+     *
+     * @test
+     */
+    public function fetchBasketShouldCallV1EnpointIfBasketWasNotFound(): void
+    {
+        $unzer = new Unzer('s-priv-123');
+        $basket = (new Basket())->setId('s-bsk-testbasket');
+
+        /** @var ResourceServiceInterface|MockObject $resourceServiceMock */
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)
+            ->setConstructorArgs([$unzer])
+            ->setMethods(['fetchResource'])->getMock();
+
+        $resourceServiceMock->expects(self::exactly(2))
+            ->method('fetchResource')
+            ->withConsecutive([$basket, BasePaymentTest::API_VERSION_2], [$basket, Unzer::API_VERSION])
+            ->will($this->returnCallback(function ($basket, $version) {
+                if ($version === BasePaymentTest::API_VERSION_2) {
+                    throw new UnzerApiException(null, null, ApiResponseCodes::API_ERROR_BASKET_NOT_FOUND);
+                }
+                return $basket;
+            }));
+
+        $resourceServiceMock->fetchBasket($basket);
+    }
+
+    /**
+     * Verify fetchBasket will call FetchResource max two time, if the basket was not found.
+     * Exception should be thrown.
+     *
+     * @test
+     */
+    public function fetchBasketShouldCallFetchResourceMaxTwoTimes(): void
+    {
+        $unzer = new Unzer('s-priv-123');
+        $basket = (new Basket())->setId('s-bsk-testbasket');
+
+        /** @var ResourceServiceInterface|MockObject $resourceServiceMock */
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)
+            ->setConstructorArgs([$unzer])
+            ->setMethods(['fetchResource'])->getMock();
+
+        $resourceServiceMock->expects(self::exactly(2))
+            ->method('fetchResource')
+            ->withConsecutive([$basket, BasePaymentTest::API_VERSION_2], [$basket, Unzer::API_VERSION])
+            ->willThrowException(new UnzerApiException(null, null, ApiResponseCodes::API_ERROR_BASKET_NOT_FOUND));
+
+        $this->expectException(UnzerApiException::class);
+        $resourceServiceMock->fetchBasket($basket);
+    }
+
+    /**
+     * Verify fetchBasket call fetchResource only once with v2 parameter, when basket was returned.
+     *
+     * @test
+     */
+    public function fetchBasketShouldCallFetchResourceOnlyOnceIfNoExceptionOccurs(): void
+    {
+        $unzer = new Unzer('s-priv-123');
+        $basket = (new Basket())->setId('s-bsk-testbasket');
+
+        /** @var ResourceServiceInterface|MockObject $resourceServiceMock */
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)
+            ->setConstructorArgs([$unzer])
+            ->setMethods(['fetchResource'])->getMock();
+
+        $resourceServiceMock->expects(self::once())
+            ->method('fetchResource')
+            ->with($basket, BasePaymentTest::API_VERSION_2)
+            ->willReturn($basket);
+
+        $resourceServiceMock->fetchBasket($basket);
+    }
+
+    /**
+     * Verify fetchBasket will call fetchResource only once if Exception ist not "API_ERROR_BASKET_NOT_FOUND" exception.
+     * Exception should be thrown.
+     *
+     * @test
+     */
+    public function fetchBasketShouldNotCallFetchResourcheMethodIfAnyOtherExceptionIsThrown(): void
+    {
+        $unzer = new Unzer('s-priv-123');
+        $basket = (new Basket())->setId('s-bsk-testbasket');
+
+        /** @var ResourceServiceInterface|MockObject $resourceServiceMock */
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)
+            ->setConstructorArgs([$unzer])
+            ->setMethods(['fetchResource'])->getMock();
+
+        $resourceServiceMock->expects(self::once())
+            ->method('fetchResource')
+            ->with($basket, BasePaymentTest::API_VERSION_2)
+            ->willThrowException(new UnzerApiException(null, null, ApiResponseCodes::API_ERROR_BASKET_ITEM_IMAGE_INVALID_URL));
+
+        $this->expectException(UnzerApiException::class);
+        $resourceServiceMock->fetchBasket($basket);
+    }
+
     //</editor-fold>
 
     //<editor-fold desc="Recurring">
 
     /**
      * Verify createRecurring calls fetch for the payment type if it is given the id.
+     *
      *
      * @test
      */
@@ -1018,6 +1154,7 @@ class ResourceServiceTest extends BasePaymentTest
     /**
      * Verify createRecurring does not call fetch for the payment type if it is given the object itself.
      *
+     *
      * @test
      */
     public function createRecurringShouldNotFetchThePaymentTypeByObject(): void
@@ -1037,6 +1174,8 @@ class ResourceServiceTest extends BasePaymentTest
 
     /**
      * Verify createRecurring throws exception if it is called with a payment type which does not support recurring payment.
+     *
+     * @deprecated since 1.2.1.0 Get removed with `activateRecurring` method.
      *
      * @test
      */
@@ -1109,7 +1248,6 @@ class ResourceServiceTest extends BasePaymentTest
             ['p-crd12345678abc'],
             ['pcrd12345678abc'],
             ['myId'],
-            [null],
             ['']
         ];
     }
@@ -1126,11 +1264,14 @@ class ResourceServiceTest extends BasePaymentTest
             'Charge'        => ['fetchChargeById', ['s-pay-100798', 's-chg-1'], 'https://api.unzer.com/v1/payments/s-pay-100798/charges/s-chg-1/'],
             'Shipment'      => ['fetchShipment', ['s-pay-100801', 's-shp-1'], 'https://api.unzer.com/v1/payments/s-pay-100801/shipments/s-shp-1/'],
             'Refund'        => ['fetchRefundById', ['s-pay-100802', 's-chg-1', 's-cnl-1'], 'https://api.unzer.com/v1/payments/s-pay-100802/charges/s-chg-1/cancels/s-cnl-1/'],
+            'Payment Refund' => ['fetchPaymentRefund', ['s-pay-100802', 's-cnl-1'], 'https://api.unzer.com/v1/payments/s-pay-100802/charges/cancels/s-cnl-1/'],
             'Reversal'      => ['fetchReversal', ['s-pay-100803', 's-cnl-1'], 'https://api.unzer.com/v1/payments/s-pay-100803/authorize/s-aut-1/cancels/s-cnl-1/'],
+            'Payment Reversal' => ['fetchPaymentReversal', ['s-pay-100803', 's-cnl-1'], 'https://api.unzer.com/v1/payments/s-pay-100803/authorize/cancels/s-cnl-1/'],
             'Payment'       => ['fetchPayment', ['s-pay-100801'], 'https://api.unzer.com/v1/payments/s-pay-100801'],
             'Metadata'      => ['fetchMetadata', ['s-mtd-6glqv9axjpnc'], 'https://api.unzer.com/v1/metadata/s-mtd-6glqv9axjpnc/'],
             'Customer'      => ['fetchCustomer', ['s-cst-50c14d49e2fe'], 'https://api.unzer.com/v1/customers/s-cst-50c14d49e2fe'],
-            'Basket'        => ['fetchBasket', ['s-bsk-1254'], 'https://api.unzer.com/v1/baskets/s-bsk-1254/'],
+            'v1Basket'        => ['fetchBasket', ['s-bsk-1254'], 'https://api.unzer.com/v1/baskets/s-bsk-1254/'],
+            'v2Basket'        => ['fetchBasket', ['s-bsk-1254'], 'https://api.unzer.com/v2/baskets/s-bsk-1254/'],
             'Payout'        => ['fetchPayout', ['s-pay-100746'], 'https://api.unzer.com/v1/payments/s-pay-100746/payout/s-out-1/']
         ];
     }
@@ -1156,8 +1297,11 @@ class ResourceServiceTest extends BasePaymentTest
             'INVOICE_GUARANTEED'           => ['s-ivg-xen2ybcovn56', 'https://api.unzer.com/v1/types/invoice-guaranteed/s-ivg-xen2ybcovn56/'],
             'INVOICE_SECURED'              => ['s-ivs-xen2ybcovn56', 'https://api.unzer.com/v1/types/invoice-secured/s-ivs-xen2ybcovn56/'],
             'Installment_SECURED'          => ['s-ins-xen2ybcovn56', 'https://api.unzer.com/v1/types/installment-secured/s-ins-xen2ybcovn56/'],
+            'PAYLATER_INVOICE'             => ['s-piv-xen2ybcovn56', 'https://api.unzer.com/v1/types/paylater-invoice/s-piv-xen2ybcovn56/'],
             'PAYPAL'                       => ['s-ppl-xen2ybcovn56', 'https://api.unzer.com/v1/types/paypal/s-ppl-xen2ybcovn56/'],
             'PIS'                          => ['s-pis-xen2ybcovn56', 'https://api.unzer.com/v1/types/pis/s-pis-xen2ybcovn56/'],
+            'POST_FINANCE_EFINANCE'        => ['s-pfe-xen2ybcovn56', 'https://api.unzer.com/v1/types/pfe/s-pfe-xen2ybcovn56/'],
+            'POST_FINANCE_CARD'            => ['s-pfc-xen2ybcovn56', 'https://api.unzer.com/v1/types/pfc/s-pfc-xen2ybcovn56/'],
             'PREPAYMENT'                   => ['s-ppy-xen2ybcovn56', 'https://api.unzer.com/v1/types/prepayment/s-ppy-xen2ybcovn56/'],
             'PRZELEWY24'                   => ['s-p24-xen2ybcovn56', 'https://api.unzer.com/v1/types/przelewy24/s-p24-xen2ybcovn56/'],
             'SEPA_DIRECT_DEBIT'            => ['s-sdd-xen2ybcovn56', 'https://api.unzer.com/v1/types/direct-debit/s-sdd-xen2ybcovn56/'],
@@ -1174,6 +1318,7 @@ class ResourceServiceTest extends BasePaymentTest
     {
         return [
             HttpAdapterInterface::REQUEST_GET    => [HttpAdapterInterface::REQUEST_GET, '/my/get/uri', true],
+            HttpAdapterInterface::REQUEST_PATCH   => [HttpAdapterInterface::REQUEST_PATCH, '/my/patch/uri', true],
             HttpAdapterInterface::REQUEST_POST   => [HttpAdapterInterface::REQUEST_POST, '/my/post/uri', false],
             HttpAdapterInterface::REQUEST_PUT    => [HttpAdapterInterface::REQUEST_PUT, '/my/put/uri', true],
             HttpAdapterInterface::REQUEST_DELETE => [HttpAdapterInterface::REQUEST_DELETE, '/my/delete/uri', true],
@@ -1228,7 +1373,9 @@ class ResourceServiceTest extends BasePaymentTest
             'PaymentType InvoiceGuaranteed sandbox' => ['fetchPaymentType', ['s-ivg-12345678'], $getPaymentTypeCB(InvoiceSecured::class)],
             'PaymentType InvoiceSecured sandbox' => ['fetchPaymentType', ['s-ivs-12345678'], $getPaymentTypeCB(InvoiceSecured::class)],
             'PaymentType Invoie factoring sandbox' => ['fetchPaymentType', ['s-ivf-12345678'], $getPaymentTypeCB(InvoiceSecured::class)],
+            'PaymentType Klarna' => ['fetchPaymentType', ['s-kla-12345678'], $getPaymentTypeCB(Klarna::class)],
             'PaymentType Paypal sandbox' => ['fetchPaymentType', ['s-ppl-12345678'], $getPaymentTypeCB(Paypal::class)],
+            'PaymentType Paylater-Invoice sandbox' => ['fetchPaymentType', ['s-piv-12345678'], $getPaymentTypeCB(PaylaterInvoice::class)],
             'PaymentType Prepayment sandbox' => ['fetchPaymentType', ['s-ppy-12345678'], $getPaymentTypeCB(Prepayment::class)],
             'PaymentType Przelewy24 sandbox' => ['fetchPaymentType', ['s-p24-12345678'], $getPaymentTypeCB(Przelewy24::class)],
             'PaymentType SepaDirectDebit sandbox' => ['fetchPaymentType', ['s-sdd-12345678'], $getPaymentTypeCB(SepaDirectDebit::class)],
@@ -1236,31 +1383,36 @@ class ResourceServiceTest extends BasePaymentTest
             'PaymentType SepaDirectDebitSecured sandbox' => ['fetchPaymentType', ['s-dds-12345678'], $getPaymentTypeCB(SepaDirectDebitSecured::class)],
             'PaymentType Sofort sandbox' => ['fetchPaymentType', ['s-sft-12345678'], $getPaymentTypeCB(Sofort::class)],
             'PaymentType PIS sandbox' => ['fetchPaymentType', ['s-pis-12345678'], $getPaymentTypeCB(PIS::class)],
+            'PaymentType PFC sandbox' => ['fetchPaymentType', ['s-pfc-12345678'], $getPaymentTypeCB(PostFinanceCard::class)],
+            'PaymentType PFE sandbox' => ['fetchPaymentType', ['s-pfe-12345678'], $getPaymentTypeCB(PostFinanceEfinance::class)],
             'PaymentType EPS sandbox' => ['fetchPaymentType', ['s-eps-12345678'], $getPaymentTypeCB(EPS::class)],
             'PaymentType Alipay sandbox' => ['fetchPaymentType', ['s-ali-12345678'], $getPaymentTypeCB(Alipay::class)],
             'PaymentType Wechatpay sandbox' => ['fetchPaymentType', ['s-wcp-12345678'], $getPaymentTypeCB(Wechatpay::class)],
             'PaymentType HirePurchaseDirectDebit sandbox' => ['fetchPaymentType', ['s-hdd-12345678'], $getPaymentTypeCB(InstallmentSecured::class)],
             'PaymentType InstallmentSecured sandbox' => ['fetchPaymentType', ['s-ins-12345678'], $getPaymentTypeCB(InstallmentSecured::class)],
             'PaymentType Bancontact sandbox' => ['fetchPaymentType', ['s-bct-12345678'], $getPaymentTypeCB(Bancontact::class)],
+            'PaymentType Alipay production' => ['fetchPaymentType', ['p-ali-12345678'], $getPaymentTypeCB(Alipay::class)],
+            'PaymentType Bancontact production' => ['fetchPaymentType', ['p-bct-12345678'], $getPaymentTypeCB(Bancontact::class)],
             'PaymentType Card production' => ['fetchPaymentType', ['p-crd-12345678'], $getPaymentTypeCB(Card::class)],
+            'PaymentType EPS production' => ['fetchPaymentType', ['p-eps-12345678'], $getPaymentTypeCB(EPS::class)],
             'PaymentType Giropay production' => ['fetchPaymentType', ['p-gro-12345678'], $getPaymentTypeCB(Giropay::class)],
+            'PaymentType HirePurchaseDirectDebit production' => ['fetchPaymentType', ['p-hdd-12345678'], $getPaymentTypeCB(InstallmentSecured::class)],
             'PaymentType Ideal production' => ['fetchPaymentType', ['p-idl-12345678'], $getPaymentTypeCB(Ideal::class)],
+            'PaymentType InstallmentSecured production' => ['fetchPaymentType', ['p-hdd-12345678'], $getPaymentTypeCB(InstallmentSecured::class)],
+            'PaymentType Invoice factoring production' => ['fetchPaymentType', ['p-ivf-12345678'], $getPaymentTypeCB(InvoiceSecured::class)],
             'PaymentType Invoice production' => ['fetchPaymentType', ['p-ivc-12345678'], $getPaymentTypeCB(Invoice::class)],
             'PaymentType InvoiceGuaranteed production' => ['fetchPaymentType', ['p-ivg-12345678'], $getPaymentTypeCB(InvoiceSecured::class)],
-            'PaymentType Invoice factoring production' => ['fetchPaymentType', ['p-ivf-12345678'], $getPaymentTypeCB(InvoiceSecured::class)],
+            'PaymentType Paylater-Invoice production' => ['fetchPaymentType', ['p-piv-12345678'], $getPaymentTypeCB(PaylaterInvoice::class)],
             'PaymentType Paypal production' => ['fetchPaymentType', ['p-ppl-12345678'], $getPaymentTypeCB(Paypal::class)],
+            'PaymentType PFC production' => ['fetchPaymentType', ['p-pfc-12345678'], $getPaymentTypeCB(PostFinanceCard::class)],
+            'PaymentType PFE production' => ['fetchPaymentType', ['p-pfe-12345678'], $getPaymentTypeCB(PostFinanceEfinance::class)],
             'PaymentType Prepayment production' => ['fetchPaymentType', ['p-ppy-12345678'], $getPaymentTypeCB(Prepayment::class)],
             'PaymentType Przelewy24 production' => ['fetchPaymentType', ['p-p24-12345678'], $getPaymentTypeCB(Przelewy24::class)],
             'PaymentType SepaDirectDebit production' => ['fetchPaymentType', ['p-sdd-12345678'], $getPaymentTypeCB(SepaDirectDebit::class)],
             'PaymentType SepaDirectDebitGuaranteed production' => ['fetchPaymentType', ['p-ddg-12345678'], $getPaymentTypeCB(SepaDirectDebitSecured::class)],
             'PaymentType SepaDirectDebitSecured production' => ['fetchPaymentType', ['p-dds-12345678'], $getPaymentTypeCB(SepaDirectDebitSecured::class)],
             'PaymentType Sofort production' => ['fetchPaymentType', ['p-sft-12345678'], $getPaymentTypeCB(Sofort::class)],
-            'PaymentType EPS production' => ['fetchPaymentType', ['p-eps-12345678'], $getPaymentTypeCB(EPS::class)],
-            'PaymentType Alipay production' => ['fetchPaymentType', ['p-ali-12345678'], $getPaymentTypeCB(Alipay::class)],
             'PaymentType Wechatpay production' => ['fetchPaymentType', ['p-wcp-12345678'], $getPaymentTypeCB(Wechatpay::class)],
-            'PaymentType HirePurchaseDirectDebit production' => ['fetchPaymentType', ['p-hdd-12345678'], $getPaymentTypeCB(InstallmentSecured::class)],
-            'PaymentType InstallmentSecured production' => ['fetchPaymentType', ['p-hdd-12345678'], $getPaymentTypeCB(InstallmentSecured::class)],
-            'PaymentType Bancontact production' => ['fetchPaymentType', ['p-bct-12345678'], $getPaymentTypeCB(Bancontact::class)],
         ];
     }
 

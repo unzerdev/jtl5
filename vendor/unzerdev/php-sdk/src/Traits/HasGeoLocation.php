@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Traits
  */
+
 namespace UnzerSDK\Traits;
 
 use UnzerSDK\Resources\EmbeddedResources\GeoLocation;
@@ -30,8 +29,6 @@ trait HasGeoLocation
 {
     /** @var GeoLocation $geoLocation */
     private $geoLocation;
-
-    //<editor-fold desc="Setters/Getters">
 
     /**
      * @return GeoLocation
@@ -54,6 +51,4 @@ trait HasGeoLocation
         $this->geoLocation = $geoLocation;
         return $this;
     }
-
-    //</editor-fold>
 }

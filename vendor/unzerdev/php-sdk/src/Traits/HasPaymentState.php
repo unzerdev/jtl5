@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Traits
  */
+
 namespace UnzerSDK\Traits;
 
 use UnzerSDK\Constants\PaymentState;
@@ -31,8 +30,6 @@ trait HasPaymentState
 {
     /** @var int */
     private $state = 0;
-
-    //<editor-fold desc="Check for States">
 
     /**
      * Return true if the state is pending.
@@ -94,9 +91,15 @@ trait HasPaymentState
         return $this->getState() === PaymentState::STATE_CHARGEBACK;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Getters/Setters">
+    /**
+     * Return true if the state is create.
+     *
+     * @return bool
+     */
+    public function isCreate(): bool
+    {
+        return $this->getState() === PaymentState::STATE_CREATE;
+    }
 
     /**
      * Returns the current state code (ref. Constants/PaymentState).
@@ -132,6 +135,4 @@ trait HasPaymentState
         $this->state = $state;
         return $this;
     }
-
-    //</editor-fold>
 }

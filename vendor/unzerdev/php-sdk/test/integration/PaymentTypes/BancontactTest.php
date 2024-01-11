@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,12 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  David Owusu <development@unzer.com>
- * @author  Florian Evertz <development@unzer.com>
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\integration\PaymentTypes
+ @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -64,7 +62,7 @@ class BancontactTest extends BaseIntegrationTest
         $bancontact = $this->unzer->createPaymentType(new Bancontact());
         $this->unzer->authorize(100.0, 'EUR', $bancontact, self::RETURN_URL);
     }
-    
+
     /**
      * Verify that Bancontact is chargeable
      *

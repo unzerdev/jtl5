@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Traits
  */
+
 namespace UnzerSDK\Traits;
 
 use UnzerSDK\Exceptions\UnzerApiException;
@@ -34,8 +33,6 @@ trait HasCancellations
 {
     /** @var array $cancellations */
     private $cancellations = [];
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return array
@@ -81,7 +78,7 @@ trait HasCancellations
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      */
-    public function getCancellation($cancellationId, $lazy = false): ?Cancellation
+    public function getCancellation(string $cancellationId, bool $lazy = false): ?Cancellation
     {
         /** @var Cancellation $cancellation */
         foreach ($this->cancellations as $cancellation) {
@@ -95,6 +92,4 @@ trait HasCancellations
         }
         return null;
     }
-
-    //</editor-fold>
 }

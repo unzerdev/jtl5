@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Resources\TransactionTypes;
 
 use UnzerSDK\Constants\RecurrenceTypes;
@@ -80,18 +80,16 @@ class ChargeTest extends BasePaymentTest
     }
 
     /**
-     * Setting recurrence type without a payment type Should raise Exception.
+     * Setting recurrence type without a payment type does not raise exception.
      *
      * @test
      */
-    public function SetRecurrenceTypeShouldRaiseExceptionWOPaymentType()
+    public function recurrenceTypeCanBeSetWithoutTypeParameter()
     {
         $charge = new Charge();
 
         $this->assertEmpty($charge->getAdditionalTransactionData());
         $this->assertEmpty($charge->getRecurrenceType());
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Payment type can not be determined. Set it first or provide it via parameter $paymentType.');
 
         $charge->setRecurrenceType(RecurrenceTypes::ONE_CLICK);
     }
@@ -211,11 +209,19 @@ class ChargeTest extends BasePaymentTest
         $charge = new Charge(123.4, 'myCurrency', 'https://my-return-url.test');
         $this->assertEquals(0.0, $charge->getCancelledAmount());
 
-        $cancellation1 = new Cancellation(10.0);
+        $cancellationJson = '{
+            "type": "cancel-charge",
+            "status": "success",
+            "amount": "10"
+        }';
+
+        $cancellation1 = new Cancellation();
+        $cancellation1->handleResponse(json_decode($cancellationJson));
         $charge->addCancellation($cancellation1);
         $this->assertEquals(10.0, $charge->getCancelledAmount());
 
-        $cancellation2 = new Cancellation(10.0);
+        $cancellation2 = new Cancellation();
+        $cancellation2->handleResponse(json_decode($cancellationJson));
         $charge->addCancellation($cancellation2);
         $this->assertEquals(20.0, $charge->getCancelledAmount());
     }

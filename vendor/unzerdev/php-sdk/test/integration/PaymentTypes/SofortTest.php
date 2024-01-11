@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -21,10 +22,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -52,6 +52,7 @@ class SofortTest extends BaseIntegrationTest
         $fetchedSofort = $this->unzer->fetchPaymentType($sofort->getId());
         $this->assertInstanceOf(Sofort::class, $fetchedSofort);
         $this->assertEquals($sofort->expose(), $fetchedSofort->expose());
+        $this->assertNotEmpty($fetchedSofort->getGeoLocation()->getClientIp());
 
         return $fetchedSofort;
     }
@@ -64,6 +65,7 @@ class SofortTest extends BaseIntegrationTest
      * @param Sofort $sofort
      *
      * @return Charge
+     *
      * @depends sofortShouldBeCreatableAndFetchable
      */
     public function sofortShouldBeAbleToCharge(Sofort $sofort): Charge
@@ -82,6 +84,7 @@ class SofortTest extends BaseIntegrationTest
      * @test
      *
      * @param Sofort $sofort
+     *
      * @depends sofortShouldBeCreatableAndFetchable
      */
     public function sofortShouldNotBeAuthorizable(Sofort $sofort): void

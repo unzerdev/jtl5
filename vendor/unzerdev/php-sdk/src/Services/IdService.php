@@ -18,14 +18,14 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Services
  */
+
 namespace UnzerSDK\Services;
 
-use function count;
 use RuntimeException;
+
+use function count;
 
 class IdService
 {
@@ -43,10 +43,10 @@ class IdService
      *
      * @throws RuntimeException
      */
-    public static function getResourceIdFromUrl($url, $idString, $onlyLast = false): string
+    public static function getResourceIdFromUrl(string $url, string $idString, bool $onlyLast = false): string
     {
         $matches = [];
-        $pattern = '/\/([s|p]{1}-' . $idString . '-[a-z\d]+)\/?' . ($onlyLast ? '$':'') . '/';
+        $pattern = '/\/([s|p]{1}-' . $idString . '-[a-z\d]+)\/?' . ($onlyLast ? '$' : '') . '/';
         preg_match($pattern, $url, $matches);
 
         if (count($matches) < 2) {
@@ -54,6 +54,36 @@ class IdService
         }
 
         return $matches[1];
+    }
+
+    /**
+     * Determine base on the cancellation URL if the transaction refers directly to the payment or not.
+     *
+     * @param string $url
+     *
+     * @return string
+     *
+     * @throws RuntimeException
+     */
+    public static function isPaymentCancellation(string $url): string
+    {
+        $pattern = '/\/payments\/[s|p]{1}-pay-[a-z\d]+\/(charges|authorize)\/cancels\/[s|p]{1}-cnl-[a-z\d]+/';
+        return preg_match($pattern, $url) === 1;
+    }
+
+    /**
+     * Determine base on the chargeback URL if the transaction refers directly to the payment or not.
+     *
+     * @param string $url
+     *
+     * @return string
+     *
+     * @throws RuntimeException
+     */
+    public static function isPaymentChargeback(string $url): string
+    {
+        $pattern = '/\/payments\/[s|p]{1}-pay-[a-z\d]+\/(charges|authorize)\/chargebacks\/[s|p]{1}-cbk-[a-z\d]+/';
+        return preg_match($pattern, $url) === 1;
     }
 
     /**
@@ -65,7 +95,7 @@ class IdService
      *
      * @return string|null
      */
-    public static function getResourceIdOrNullFromUrl($url, $idString, $onlyLast = false): ?string
+    public static function getResourceIdOrNullFromUrl(string $url, string $idString, bool $onlyLast = false): ?string
     {
         try {
             return self::getResourceIdFromUrl($url, $idString, $onlyLast);
@@ -79,17 +109,17 @@ class IdService
      *
      * @return string|null
      */
-    public static function getLastResourceIdFromUrlString($url): ?string
+    public static function getLastResourceIdFromUrlString(string $url): ?string
     {
         return self::getResourceIdOrNullFromUrl($url, '([a-z]{3}|p24)', true);
     }
 
     /**
-     * @param $typeId
+     * @param string $typeId
      *
      * @return string|null
      */
-    public static function getResourceTypeFromIdString($typeId): ?string
+    public static function getResourceTypeFromIdString(string $typeId): ?string
     {
         $typeIdString = null;
 

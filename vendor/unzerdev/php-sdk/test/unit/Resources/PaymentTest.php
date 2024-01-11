@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,32 +21,34 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Resources;
 
+use PHPUnit\Framework\MockObject\MockObject;
+use RuntimeException;
+use stdClass;
 use UnzerSDK\Constants\PaymentState;
-use UnzerSDK\Unzer;
 use UnzerSDK\Resources\Basket;
 use UnzerSDK\Resources\Customer;
 use UnzerSDK\Resources\CustomerFactory;
 use UnzerSDK\Resources\EmbeddedResources\Amount;
 use UnzerSDK\Resources\Metadata;
 use UnzerSDK\Resources\Payment;
+use UnzerSDK\Resources\PaymentTypes\Paypage;
 use UnzerSDK\Resources\PaymentTypes\Sofort;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\Resources\TransactionTypes\Charge;
+use UnzerSDK\Resources\TransactionTypes\Chargeback;
 use UnzerSDK\Resources\TransactionTypes\Payout;
 use UnzerSDK\Resources\TransactionTypes\Shipment;
 use UnzerSDK\Services\ResourceService;
 use UnzerSDK\test\BasePaymentTest;
-use PHPUnit\Framework\MockObject\MockObject;
-use RuntimeException;
-use stdClass;
+use UnzerSDK\test\Fixtures\JsonProvider;
+use UnzerSDK\Unzer;
 
 class PaymentTest extends BasePaymentTest
 {
@@ -63,6 +66,9 @@ class PaymentTest extends BasePaymentTest
         /** @noinspection UnnecessaryAssertionInspection */
         $this->assertInstanceOf(Amount::class, $payment->getAmount());
         $this->assertNull($payment->getTraceId());
+        $this->assertNull($payment->getAuthorization());
+        $this->assertIsEmptyArray($payment->getReversals());
+        $this->assertIsEmptyArray($payment->getRefunds());
 
         // update
         $ids = (object)['traceId' => 'myTraceId'];
@@ -77,6 +83,81 @@ class PaymentTest extends BasePaymentTest
         $this->assertSame($authorize, $payment->getAuthorization(true));
         $this->assertSame($payout, $payment->getPayout(true));
         $this->assertSame('myTraceId', $payment->getTraceId());
+    }
+
+    /**
+     * Verify that direct payment cancellations are handled correctly.
+     *
+     * @test
+     */
+    public function PaymentCancellationsShouldBeHandledAsExpected()
+    {
+        $payment = (new Payment())->setParentResource(new Unzer('s-priv-1234'));
+
+        $this->assertIsEmptyArray($payment->getReversals());
+        $this->assertIsEmptyArray($payment->getRefunds());
+
+        $transactions = [
+            (object)[
+                "date" => "2022-05-13 08:04:29",
+                "type" => "authorize",
+                "status" => "success",
+                "url" => "https://api.unzer.com/v1/payments/s-pay-777/authorize/s-aut-1",
+                "amount" => "99.9900"
+            ],
+            (object)[
+                "date" => "2022-05-13 08:04:30",
+                "type" => "charge",
+                "status" => "success",
+                "url" => "https://api.unzer.com/v1/payments/s-pay-777/charges/s-chg-1",
+                "amount" => "99.9900"
+            ],
+            (object)[
+                "date" => "2022-05-13 08:04:31",
+                "type" => "cancel-authorize",
+                "status" => "success",
+                "url" => "https://api.unzer.com/v1/payments/s-pay-777/authorize/cancels/s-cnl-1",
+                "amount" => "22.2200"
+            ],
+            (object)[
+                "date" => "2022-05-13 08:04:31",
+                "type" => "cancel-charge",
+                "status" => "success",
+                "url" => "https://api.unzer.com/v1/payments/s-pay-777/charges/cancels/s-cnl-1",
+                "amount" => "22.2200"
+            ]
+        ];
+
+        $payment->handleResponse((object)['transactions' => $transactions]);
+
+        $this->assertCount(1, $payment->getReversals());
+        $this->assertCount(1, $payment->getRefunds());
+        $this->assertCount(2, $payment->getCancellations());
+    }
+
+    /**
+     * Verify that adding refunds/reversals to the payment happens as expected
+     *
+     * @test
+     */
+    public function verifyAddingCancelationsWorksProperly()
+    {
+        $payment = (new Payment())->setParentResource(new Unzer('s-priv-1234'));
+        $this->assertIsEmptyArray($payment->getReversals());
+        $this->assertIsEmptyArray($payment->getRefunds());
+        $reversal1 = (new Cancellation())->setId('s-cnl-1')->setAmount(99.99);
+        $reversal2 = (new Cancellation())->setId('s-cnl-2')->setAmount(99.99);
+        $reversal3 = (new Cancellation())->setId('s-cnl-2')->setAmount(33.33);
+
+        $payment->addReversal($reversal1);
+        $payment->addReversal($reversal2);
+        $this->assertCount(2, $payment->getReversals());
+
+        // update existing transaction.
+        $payment->addReversal($reversal3);
+        $this->assertCount(2, $payment->getReversals());
+
+        $this->assertEquals(33.33, $payment->getReversals()['s-cnl-2']->getAmount());
     }
 
     /**
@@ -468,6 +549,8 @@ class PaymentTest extends BasePaymentTest
     /**
      * Verify getCancellation calls getCancellations and returns null if cancellation does not exist.
      *
+     * @deprecated To be removed with Payment::getCancellation()
+     *
      * @test
      */
     public function getCancellationShouldCallGetCancellationsAndReturnNullIfNoCancellationExists(): void
@@ -481,6 +564,8 @@ class PaymentTest extends BasePaymentTest
 
     /**
      * Verify getCancellation returns cancellation if it exists.
+     *
+     * @deprecated To be removed with Payment::getCancellation()
      *
      * @test
      */
@@ -500,6 +585,8 @@ class PaymentTest extends BasePaymentTest
 
     /**
      * Verify getCancellation fetches cancellation if it exists and lazy loading is false.
+     *
+     * @deprecated To be removed with Payment::getCancellation()
      *
      * @test
      */
@@ -595,12 +682,60 @@ class PaymentTest extends BasePaymentTest
         $this->assertEquals('MyTestGetCurrency', $payment->getCurrency());
     }
 
+    /**
+     * Verify that a payment that contains a cancel-authorize transaction can be fetched, even though no authorize
+     * transaction exists. Can occur when canceling via Insights.
+     *
+     * @test
+     */
+    public function cancelAuthorizeOnInvoiceShouldBeHandledCorrectly(): void
+    {
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)
+            ->disableOriginalConstructor()->setMethods(['getResource'])->getMock();
+        /** @noinspection PhpParamsInspection */
+
+        /** @var ResourceService $resourceServiceMock */
+        $unzerObj = (new Unzer('s-priv-123'))->setResourceService($resourceServiceMock);
+        $payment = new Payment();
+        $payment->setParentResource($unzerObj);
+
+        $response = (object)[
+            "id" => "s-pay-666",
+            "state" => (object)["id" => 1, "name" => "completed"],
+            "currency" => "EUR",
+            "transactions" => [
+                (object)["date" => "2021-11-17 11:47:07",
+                    "type" => "charge",
+                    "status" => "pending",
+                    "url" => "https://api.unzer.com/v1/payments/s-pay-666/charges/s-chg-1", "amount" => "14.9900"
+                ],
+                (object)[
+                    "date" => "2021-11-17 11:48:52",
+                    "type" => "shipment", "status" => "success",
+                    "url" => "https://api.unzer.com/v1/payments/s-pay-666/shipments/s-shp-1",
+                    "amount" => "14.9900"],
+                (object)["date" => "2021-11-17 11:48:52",
+                    "type" => "cancel-authorize",
+                    "status" => "success",
+                    "url" => "https://api.unzer.com/v1/payments/s-pay-666/charges/s-chg-1/cancels/s-cnl-1",
+                    "amount" => "10.0000"]
+            ]
+        ];
+        $payment->handleResponse($response);
+        $this->assertNull($payment->getAuthorization());
+        /** @var Charge $initialCharge */
+        $initialCharge = $payment->getCharges()[0];
+
+        $this->assertCount(1, $initialCharge->getCancellations());
+    }
+
     //<editor-fold desc="Handle Response Tests">
 
     /**
      * Verify handleResponse will update stateId.
      *
      * @test
+     *
      * @dataProvider stateDataProvider
      *
      * @param integer $state
@@ -687,6 +822,32 @@ class PaymentTest extends BasePaymentTest
     }
 
     /**
+     * Verify handleResponse updates payPage if it set.
+     *
+     * @test
+     */
+    public function handleResponseShouldFetchAndUpdatePayPageIfItIsAlreadySet(): void
+    {
+        $payment = (new Payment())->setId('myPaymentId');
+        $payPage = (new Paypage(0, '', ''))->setId('payPageId');
+
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)
+            ->disableOriginalConstructor()->setMethods(['fetchResource'])->getMock();
+        /** @noinspection PhpParamsInspection */
+        $resourceServiceMock->expects($this->never())->method('fetchResource')->with($payPage);
+
+        /** @var ResourceService $resourceServiceMock */
+        $unzerObj = (new Unzer('s-priv-123'))->setResourceService($resourceServiceMock);
+        $payment->setParentResource($unzerObj);
+        $payment->setpayPage($payPage);
+
+        $response = new stdClass();
+        $response->resources = new stdClass();
+        $response->resources->payPageId = 'payPageId';
+        $payment->handleResponse($response);
+    }
+
+    /**
      * Verify handleResponse updates paymentType.
      *
      * @test
@@ -758,6 +919,7 @@ class PaymentTest extends BasePaymentTest
      */
     public function handleResponseShouldUpdateChargeTransactions(): void
     {
+        /** @var Payment $payment */
         $payment = (new Payment())->setId('MyPaymentId');
         $this->assertIsEmptyArray($payment->getCharges());
         $this->assertIsEmptyArray($payment->getShipments());
@@ -771,6 +933,8 @@ class PaymentTest extends BasePaymentTest
         $this->assertIsEmptyArray($payment->getCharges());
         $this->assertIsEmptyArray($payment->getShipments());
         $this->assertIsEmptyArray($payment->getCancellations());
+        $this->assertIsEmptyArray($payment->getChargebacks());
+        $this->assertNull($payment->getPayout());
         $this->assertNull($payment->getAuthorization());
     }
 
@@ -801,6 +965,90 @@ class PaymentTest extends BasePaymentTest
         $authorization = $payment->getAuthorization(true);
         $this->assertInstanceOf(Authorization::class, $authorization);
         $this->assertEquals(10.321, $authorization->getAmount());
+    }
+
+    /**
+     * Verify handleResponse updates existing chargebacks from response.
+     *
+     * @test
+     */
+    public function handleResponseShouldUpdateChargebackFromResponse(): void
+    {
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)
+            ->disableOriginalConstructor()->onlyMethods(['getResource'])->getMock();
+
+        $unzer = (new Unzer('s-priv-123'))->setResourceService($resourceServiceMock);
+        $payment = (new Payment())
+            ->setParentResource($unzer)
+            ->setId('MyPaymentId');
+
+        $paymentJson = JsonProvider::getJsonFromFile('paymentWithMultipleChargebacks.json');
+        $response = new stdClass();
+
+        $payment->handleResponse(json_decode($paymentJson));
+
+        $chargebacks = $payment->getChargebacks(true);
+        $charges = $payment->getCharges();
+        $this->assertCount(2, $charges);
+        $this->assertCount(2, $chargebacks);
+
+        $chargeback1 = $chargebacks[0];
+        $this->assertInstanceOf(Chargeback::class, $chargeback1);
+        $this->assertInstanceOf(Charge::class, $chargeback1->getParentResource());
+        $this->assertEquals(0.5, $chargeback1->getAmount());
+
+        $chargeback2 = $chargebacks[1];
+        $this->assertInstanceOf(Chargeback::class, $chargeback2);
+        $this->assertInstanceOf(Charge::class, $chargeback2->getParentResource());
+        $this->assertEquals(0.5, $chargeback2->getAmount());
+
+        // Charges contain chargeback reference.
+        $charge1 = $charges[0];
+        $this->assertCount(1, $charge1->getChargebacks());
+
+        $charge2 = $charges[1];
+        $this->assertCount(1, $charge1->getChargebacks());
+    }
+
+    /**
+     * Verify handleResponse updates existing chargebacks from response.
+     *
+     * @test
+     */
+    public function chargebackOnPaymentShouldBeHandledProperly(): void
+    {
+        $resourceServiceMock = $this->getMockBuilder(ResourceService::class)
+            ->disableOriginalConstructor()->onlyMethods(['getResource', 'fetchResource'])->getMock();
+
+        $unzer = (new Unzer('s-priv-123'))->setResourceService($resourceServiceMock);
+        $payment = (new Payment())
+            ->setParentResource($unzer)
+            ->setId('MyPaymentId');
+
+        $paymentResponse = JsonProvider::getJsonFromFile('paymentWithDirectChargeback.json');
+        $payment->handleResponse(json_decode($paymentResponse, false));
+
+        $chargebacks = $payment->getChargebacks(true);
+        $charges = $payment->getCharges();
+        $this->assertCount(2, $charges);
+        $this->assertCount(2, $chargebacks);
+
+        $chargeback1 = $chargebacks[0];
+        $this->assertInstanceOf(Chargeback::class, $chargeback1);
+        $this->assertInstanceOf(Payment::class, $chargeback1->getParentResource());
+        $this->assertEquals(0.5, $chargeback1->getAmount());
+
+        $chargeback2 = $chargebacks[1];
+        $this->assertInstanceOf(Chargeback::class, $chargeback2);
+        $this->assertInstanceOf(Payment::class, $chargeback2->getParentResource());
+        $this->assertEquals(0.5, $chargeback2->getAmount());
+
+        // Charges contain chargeback reference.
+        $charge1 = $charges[0];
+        $this->assertCount(0, $charge1->getChargebacks());
+
+        $charge2 = $charges[1];
+        $this->assertCount(0, $charge2->getChargebacks());
     }
 
     /**
@@ -976,7 +1224,7 @@ class PaymentTest extends BasePaymentTest
         $response->transactions = [$cancellation];
 
         $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('The Authorization object can not be found.');
+        $this->expectExceptionMessage('The initial transaction object (Authorize or Charge) can not be found.');
         $payment->handleResponse($response);
     }
 
@@ -1193,13 +1441,13 @@ class PaymentTest extends BasePaymentTest
             ->withConsecutive(
                 [$payment, null, null],
                 [$payment, 1.1, null],
-                [$payment, 2.2, 'MyCurrency']
+                [$payment, 2.2]
             )->willReturn(new Charge());
         $payment->setParentResource($unzerMock);
 
         $payment->charge();
         $payment->charge(1.1);
-        $payment->charge(2.2, 'MyCurrency');
+        $payment->charge(2.2);
     }
 
     /**
@@ -1271,7 +1519,7 @@ class PaymentTest extends BasePaymentTest
 
         // when
         /** @noinspection PhpParamsInspection */
-        $payment->setMetadata('test');
+        $payment->setMetadata(null);
 
         // then
         $this->assertNull($payment->getMetadata());
@@ -1303,7 +1551,8 @@ class PaymentTest extends BasePaymentTest
                 static function ($object) use ($basket, $unzer) {
                     /** @var Basket $object */
                     return $object === $basket && $object->getParentResource() === $unzer;
-                })
+                }
+            )
         );
 
         $payment = new Payment($unzer);
@@ -1376,6 +1625,7 @@ class PaymentTest extends BasePaymentTest
      * Autofetch is disabled due to missing transactionIds.
      *
      * @test
+     *
      * @dataProvider initialTransactionDP
      *
      * @param AbstractTransactionType $expected

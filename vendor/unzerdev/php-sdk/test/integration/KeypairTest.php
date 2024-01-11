@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test\integration;
 
 use UnzerSDK\Unzer;
@@ -36,6 +36,7 @@ class KeypairTest extends BaseIntegrationTest
      * Validate valid keys are accepted.
      *
      * @test
+     *
      * @dataProvider validKeysDataProvider
      *
      * @param string $key
@@ -50,6 +51,7 @@ class KeypairTest extends BaseIntegrationTest
      * Validate invalid keys are revoked.
      *
      * @test
+     *
      * @dataProvider invalidKeysDataProvider
      *
      * @param string $key

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Resources\TransactionTypes;
 
 use UnzerSDK\Unzer;
@@ -35,6 +35,7 @@ use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\test\BasePaymentTest;
 use RuntimeException;
+
 use function Webmozart\Assert\Tests\StaticAnalysis\object;
 
 class AuthorizationTest extends BasePaymentTest
@@ -175,6 +176,7 @@ class AuthorizationTest extends BasePaymentTest
      * Verify charge throws exception if payment is not set.
      *
      * @test
+     *
      * @dataProvider chargeValueProvider
      *
      * @param float|null $value

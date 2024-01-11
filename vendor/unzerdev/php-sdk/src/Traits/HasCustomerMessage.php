@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Traits
  */
+
 namespace UnzerSDK\Traits;
 
 use UnzerSDK\Resources\EmbeddedResources\Message;
@@ -30,8 +29,6 @@ trait HasCustomerMessage
 {
     /** @var Message $message */
     private $message;
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return Message
@@ -44,6 +41,4 @@ trait HasCustomerMessage
 
         return $this->message;
     }
-
-    //</editor-fold>
 }

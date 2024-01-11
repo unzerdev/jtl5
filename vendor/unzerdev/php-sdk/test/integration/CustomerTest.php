@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -21,10 +22,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test\integration;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -33,6 +33,7 @@ use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\Customer;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\test\BaseIntegrationTest;
+
 use function microtime;
 
 class CustomerTest extends BaseIntegrationTest
@@ -90,8 +91,25 @@ class CustomerTest extends BaseIntegrationTest
     }
 
     /**
+     * Verify shipping type can be set for shipping address of customer resource.
+     *
+     * @test
+     */
+    public function customerWithShippingTypeCanBeCreatedAndFetched()
+    {
+        $customer   = $this->getMaximumCustomerInclShippingAddress();
+        $customer->getShippingAddress()->setShippingType('shippingType');
+
+        $this->unzer->createCustomer($customer);
+        $fetchedCustomer = $this->unzer->fetchCustomer($customer->getId());
+        $this->assertEquals('shippingType', $fetchedCustomer->getShippingAddress()->getShippingType());
+    }
+
+    /**
      * @param Customer $customer
+     *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedById(Customer $customer): void
@@ -102,6 +120,7 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedByCustomerId(): void
@@ -116,7 +135,9 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @param Customer $customer
+     *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedByObject(Customer $customer): void
@@ -128,7 +149,9 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @param Customer $customer
+     *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedByObjectWithData(Customer $customer): void
@@ -210,6 +233,7 @@ class CustomerTest extends BaseIntegrationTest
      * Customer can be updated.
      *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      *
      * @param Customer $customer
@@ -230,6 +254,7 @@ class CustomerTest extends BaseIntegrationTest
      * Customer can be deleted.
      *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      *
      * @param Customer $customer
@@ -421,6 +446,22 @@ class CustomerTest extends BaseIntegrationTest
 
         $fetchedCustomer = $this->unzer->fetchCustomer($customer->getId());
         $this->assertEquals($customer->expose(), $fetchedCustomer->expose());
+    }
+
+    /**
+     * Customer should contain clientIp set via header.
+     *
+     * @test
+     */
+    public function customerShouldContainClientIpSetViaHeader()
+    {
+        $customer = $this->getMinimalCustomer();
+        $clientIp = '123.123.123.123';
+        $this->unzer->setClientIp($clientIp);
+        $this->unzer->createCustomer($customer);
+
+        $fetchedCustomer = $this->unzer->fetchCustomer($customer->getId());
+        $this->assertEquals($clientIp, $fetchedCustomer->getGeoLocation()->getClientIp());
     }
 
     //</editor-fold>

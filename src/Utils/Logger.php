@@ -1,8 +1,11 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Utils;
 
+use JTL\Exceptions\CircularReferenceException;
+use JTL\Exceptions\ServiceNotFoundException;
 use JTL\Shop;
 
 /**
@@ -23,7 +26,7 @@ class Logger
      */
     public static function debug(string $message, array $context = []): void
     {
-        Shop::Container()->getLogService()->debug(self::LOG_PREFIX . $message, $context);
+        self::log($message, LOGLEVEL_DEBUG, $context);
     }
 
     /**
@@ -35,7 +38,7 @@ class Logger
      */
     public static function notice(string $message, array $context = []): void
     {
-        Shop::Container()->getLogService()->notice(self::LOG_PREFIX . $message, $context);
+        self::log($message, LOGLEVEL_NOTICE, $context);
     }
 
     /**
@@ -47,6 +50,28 @@ class Logger
      */
     public static function error(string $message, array $context = []): void
     {
-        Shop::Container()->getLogService()->error(self::LOG_PREFIX . $message, $context);
+        self::log($message, LOGLEVEL_ERROR, $context);
+    }
+
+    public static function log(string $message, int $level, array $context = []): void
+    {
+        try {
+            // fallback for shop versions < 5.3.0
+            $logger = Shop::Container()->getLogService();
+
+            if (Compatibility::isShopAtLeast53()) {
+                /** @var Logger $logger */
+                $logger = Shop::Container()->get(Config::PLUGIN_ID)->getLogger();
+            }
+
+            if ($logger->isHandling($level)) {
+                $logger->addRecord($level, self::LOG_PREFIX . $message, $context);
+            }
+        } catch (ServiceNotFoundException $ex) {
+            // Too bad, no logging service exists. We cannot log this - ignore it.
+        } catch (CircularReferenceException $ex) {
+            // This should not be possible, unless this trait is used within a Logging service.
+            // We cannot log this - ignore it.
+        }
     }
 }

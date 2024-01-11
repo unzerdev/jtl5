@@ -20,10 +20,13 @@ msgid "Unzer Lastschrift (secured)"
 msgstr "Unzer Lastschrift (secured)"
 
 msgid "Unzer Rechnung"
-msgstr "Unzer Rechnung"
+msgstr "(Veraltet) Unzer Rechnungskauf"
 
 msgid "Unzer Rechnung (guaranteed)"
-msgstr "Unzer Rechnung (secured)"
+msgstr "(Veraltet) Unzer Rechnungskauf Gesichert"
+
+msgid "Unzer Rechnung (secured)"
+msgstr "(Veraltet) Unzer Rechnungskauf Gesichert"
 
 msgid "Unzer Fakturierung von Rechnungen"
 msgstr "Unzer Fakturierung von Rechnungen"
@@ -68,6 +71,12 @@ msgid "Unzer FlexiPay Installment (Hire Purchase)"
 msgstr "Unzer FlexiPay Instalment (Hire Purchase)"
 
 msgid "Unzer Instalment"
+msgstr "Unzer Ratenkauf"
+
+msgid "Unzer Rechnung (Jetzt kaufen, Später bezahlen)"
+msgstr "Unzer Rechnungskauf"
+
+msgid "Unzer Ratenzahlung (Paylater)"
 msgstr "Unzer Ratenkauf"
 
 msgid "hpError"
@@ -213,6 +222,9 @@ msgstr "Ratenkauf"
 
 msgid "hpOpenInPortal"
 msgstr "Bestellung im Insight-Portal anzeigen"
+
+msgid "hpOpenInPaylaterPortal"
+msgstr "Im Unzer Pay Later - Merchant Portal anzeigen"
 
 msgid "hpDelivieryAddress"
 msgstr "Lieferadresse"
@@ -399,3 +411,128 @@ msgstr "Die Zahlungsart \"%s\" ist vor Abschluss der Bestellung nicht verwendbar
 
 msgid "hpPaymentMethodNotConfiguredNotification"
 msgstr "Die Zahlungsart \"%s\" ist nicht konfiguriert!"
+
+msgid "hpWarningWebhookUrlChanged"
+msgstr "Die URL der Unzer Webhook-Verarbeitung hat sich geändert, dadurch kann das Plugin die Zahlungseingänge nicht mehr richtig verarbeiten. Schaue in die <a href=\"https://redirect.solution360.de/?r=docsunzerjtl5#Warum-erhalte-ich-die-Nachricht,-dass-sich-die-URL-des-Webhook-oder-des-Workflows-ge%C3%A4ndert-hat?\" target=\"_blank\">Dokumentation</a>, um zu erfahren wie der Fehler behoben werden kann."
+
+msgid "hpWarningSyncWorkflowUrlChanged"
+msgstr "Die URL der Unzer WaWi Workflow-Verarbeitung hat sich geändert, dadurch kann das Plugin Rechnungen nicht mehr richtig aktivieren. Schaue in die <a href=\"https://redirect.solution360.de/?r=docsunzerjtl5#Warum-erhalte-ich-die-Nachricht,-dass-sich-die-URL-des-Webhook-oder-des-Workflows-ge%C3%A4ndert-hat?\" target=\"_blank\">Dokumentation</a>, um zu erfahren wie der Fehler behoben werden kann."
+
+msgid "hpApplePayRefreshCert"
+msgstr "Erneuern"
+
+msgid "hpApplePayDownloadCert"
+msgstr "CSR herunterladen"
+
+msgid "hpApplePayUploadCert"
+msgstr "Zertifikat hochladen"
+
+msgid "hpApplePayUpload"
+msgstr "Auswählen"
+
+msgid "hpApplePayPaymentGeneral"
+msgstr "Allgemein"
+
+msgid "hpApplePayPaymentGeneralMerchantId"
+msgstr "Händlerkennung"
+
+msgid "hpApplePayPaymentGeneralMerchantIdHelp"
+msgstr "Die Händlerkennung (Merchant Identifier) welche im Apple Developer Account erstellt wurde."
+
+msgid "hpApplePayPaymentGeneralMerchantDomain"
+msgstr "Händler/Shop-URL"
+
+msgid "hpApplePayPaymentGeneralMerchantDomainHelp"
+msgstr "Die Händler/Shop-URL welche im Apple Developer Account für die Händlerkennung hinterlegt wurde."
+
+msgid "hpApplePayPaymentProcessingCertificate"
+msgstr "Payment Processing Zertifikat"
+
+msgid "hpApplePayPaymentProcessingCertificateCSR"
+msgstr "Certificate Signing Request (CSR)"
+
+msgid "hpApplePayPaymentProcessingCertificateCSRHelp"
+msgstr "Die Certificate Signing Request (CSR) Datei zum erstellte des Apple Pay Payment Processing Zertifikat."
+
+msgid "hpApplePayPaymentProcessingCertificateApple"
+msgstr "Apple Pay Zertifikat"
+
+msgid "hpApplePayPaymentProcessingCertificateAppleHelp"
+msgstr "Das von Apple erstellte Payment Processing Zertifikat."
+
+msgid "hpApplePayMerchantIdentityCertificate"
+msgstr "Merchant Identity Zertifikat"
+
+msgid "hpApplePayMerchantIdentityCertificateCSR"
+msgstr "Certificate Signing Request (CSR)"
+
+msgid "hpApplePayMerchantIdentityCertificateCSRHelp"
+msgstr "Die Certificate Signing Request (CSR) Datei zum erstellte des Apple Pay Merchant Identity Zertifikat."
+
+msgid "hpApplePayMerchantIdentityCertificateApple"
+msgstr "Apple Pay Zertifikat"
+
+msgid "hpApplePayMerchantIdentityCertificateAppleHelp"
+msgstr "Das von Apple erstellte Merchant Identity Zertifikat."
+
+msgid "hpApplePayUnzerIDs"
+msgstr "Unzer Payment Processing Zertifikat IDs"
+
+msgid "hpApplePayUpdateCert"
+msgstr "Zertifikat aktivieren"
+
+msgid "CERTIFICATE_TRANSFORMATION_ERROR"
+msgstr "Zertifikat konnte nicht in Text konvertiert werden"
+
+msgid "ERROR_ID_LOAD_ERROR"
+msgstr "Zertifikat konnte nicht geladen werden. Bitte überprüfen Sie, ob das Zertifikat gültig ist."
+
+msgid "hpSettingsActive"
+msgstr "aktiv"
+
+msgid "hpSettingsAddIncomingPayments"
+msgstr "Zahlungseingänge automatisch setzen"
+
+msgid "hpSettingsAddIncomingPaymentsHelp"
+msgstr "Steuert, ob das Plugin automatisch Zahlungseingänge für die JTL-Wawi setzt.<br/>Deaktivieren Sie diese Option nur, wenn Sie die Zahlungseingänge auf andere Art in der JTL-Wawi setzen. <em>(Zum Beispiel per Zahlungsabgleich oder manuell.)</em>"
+
+msgid "hpDeprecationPaymentMethodTitle"
+msgstr "ABSCHAFFUNG: %s"
+
+msgid "hpDeprecationInvoiceNotice"
+msgstr ""
+"Sie verwenden die Zahlungsmethode `%s`. Beachten Sie, dass diese Methode von Unzer abgeschafft wird. Sie wird derzeit noch unterstützt, aber es sind keine weiteren Entwicklungen dafür geplant.\n"
+"\n"
+"Der Ersatz für diese Zahlart ist die neue Zahlart `Unzer Rechnung (Jetzt kaufen, später bezahlen)`.\n"
+"\n"
+"Wenn Sie migrieren möchten, wenden Sie sich bitte an Ihren Ansprechpartner bei Unzer!"
+
+msgid "Key Pairs"
+msgstr "Schlüsselpaare"
+
+msgid "hpKeyPairEdit"
+msgstr "Schlüsselpaar bearbeiten"
+
+msgid "hpKeypairIsB2B"
+msgstr "B2B"
+
+msgid "hpKeypairIsB2BHelp"
+msgstr "Gibt an, ob das Schlüsselpaar nur für B2B Kunden benutzt werden soll."
+
+msgid "hpKeypairCurrencyHelp"
+msgstr "Gibt an für welche Währung das Schlüsselpaar verwendet werden soll."
+
+msgid "hpKeypairPaymentMethodsHelp"
+msgstr "Gibt an für welche Zahlungsart das Schlüsselpaar verwendet werden soll."
+
+msgid "hpSettingsPqSelectorInstalmentInfo"
+msgstr "PQ-Selector für den Ratenzahlungshinweis auf Bestellbestätigungsseite"
+
+msgid "hpSettingsPqSelectorInstalmentInfoHelp"
+msgstr "Der PHP-Query-Selektor für das Einhängen des Ratenzahlungshinweis auf der Bestellbestätigungsseite"
+
+msgid "hpSettingsPqMethodInstalmentInfo"
+msgstr "PQ-Einfügemethode für den Ratenzahlungshinweis auf Bestellbestätigungsseite"
+
+msgid "hpSettingsPqMethodInstalmentInfoHelp"
+msgstr "Die PHP-Query-Einfügemethode für das Einhängen des Ratenzahlungshinweis auf der Bestellbestätigungsseite"

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit;
 
 use DateTime;
@@ -82,7 +82,9 @@ class UnzerTest extends BasePaymentTest
     {
         $unzer = new Unzer('s-priv-1234');
         $unzer->setLocale('myLocale');
+        $unzer->setClientIp('myIpAddress');
         $this->assertEquals('myLocale', $unzer->getLocale());
+        $this->assertEquals('myIpAddress', $unzer->getClientIp());
 
         try {
             $unzer->setKey('this is not a valid key');
@@ -126,6 +128,7 @@ class UnzerTest extends BasePaymentTest
      * Verify Unzer propagates resource actions to the resource service.
      *
      * @test
+     *
      * @dataProvider resourceServiceDP
      *
      * @param string $unzerMethod
@@ -151,6 +154,7 @@ class UnzerTest extends BasePaymentTest
      * Verify Unzer propagates payment actions to the payment service.
      *
      * @test
+     *
      * @dataProvider paymentServiceDP
      *
      * @param string $unzerMethod
@@ -176,6 +180,7 @@ class UnzerTest extends BasePaymentTest
      * Verify Unzer propagates webhook actions to the webhook service.
      *
      * @test
+     *
      * @dataProvider UnzerShouldForwardWebhookActionCallsToTheWebhookServiceDP
      *
      * @param string $unzerMethod
@@ -201,6 +206,7 @@ class UnzerTest extends BasePaymentTest
      * Verify Unzer propagates cancel actions to the cancel service.
      *
      * @test
+     *
      * @dataProvider cancelServiceDP
      *
      * @param string $unzerMethod
@@ -321,7 +327,7 @@ class UnzerTest extends BasePaymentTest
             'chargePayment'          => ['chargePayment', [$payment, 1.234, 'ALL'], 'chargePayment', [$payment, 1.234, 'ALL']],
             'chargePaymentAlt'       => ['chargePayment', [$payment], 'chargePayment', [$payment]],
             'ship'                   => ['ship', [$payment], 'ship', [$payment]],
-            'payout'                 => ['payout', [123, 'EUR', $paymentTypeId, 'url', $customer, $orderId, $metadata, 'basketId'], 'payout', [123, 'EUR', $paymentTypeId, 'url', $customer, $orderId, $metadata, 'basketId']],
+            'payout'                 => ['payout', [123, 'EUR', $paymentTypeId, 'url', $customer, $orderId, $metadata, $basket], 'payout', [123, 'EUR', $paymentTypeId, 'url', $customer, $orderId, $metadata, $basket]],
             'initPayPageCharge'      => ['initPayPageCharge', [$paypage, $customer, $basket, $metadata], 'initPayPageCharge', [$paypage, $customer, $basket, $metadata]],
             'initPayPageAuthorize'   => ['initPayPageAuthorize', [$paypage, $customer, $basket, $metadata], 'initPayPageAuthorize', [$paypage, $customer, $basket, $metadata]],
             'fetchDDInstalmentPlans' => ['fetchInstallmentPlans', [123.4567, 'EUR', 4.99, $today], 'fetchInstallmentPlans', [123.4567, 'EUR', 4.99, $today]]

@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Controllers\Admin;
 
@@ -7,6 +9,7 @@ use UnzerSDK\Validators\PrivateKeyValidator;
 use UnzerSDK\Validators\PublicKeyValidator;
 use JTL\Helpers\Request;
 use JTL\Shop;
+use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairModel;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
@@ -54,13 +57,13 @@ class AdminSettingsController extends AdminController
             $this->registerWebhooks($adapter);
         }
 
-        $settings = $this->smarty->get_template_vars('hpSettings');
+        $settings = $this->smarty->getTemplateVars('hpSettings');
         $settings['config'] = $this->config->all();
 
         try {
             /** @var HeidelpayApiAdapter $adapter */
             $adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
-            $webhooks = $adapter->getApi()->fetchAllWebhooks();
+            $webhooks = $adapter->getCurrentConnection()->fetchAllWebhooks();
             $settings['webhooks'] = \count($webhooks);
         } catch (\Exception $exc) {
             $settings['webhooks'] = false;
@@ -76,8 +79,15 @@ class AdminSettingsController extends AdminController
      */
     protected function handleSaveRequest(): void
     {
+        // If private key is hashed -> no new user input -> use existing one
+        $privateKey = Request::postVar('privateKey');
+        $info = password_get_info($privateKey);
+        if (!empty($info) && $info['algo'] > 0) {
+            $privateKey = $this->config->get(Config::PRIVATE_KEY);
+        }
+
         // Set Config
-        $this->config->set(Config::PRIVATE_KEY, Request::postVar('privateKey'));
+        $this->config->set(Config::PRIVATE_KEY, $privateKey);
         $this->config->set(Config::PUBLIC_KEY, Request::postVar('publicKey'));
         $this->config->set(Config::MERCHANT_ID, Request::postVar('merchantId'));
         $this->config->set(Config::FONT_SIZE, Request::postVar('fontSize'));
@@ -100,22 +110,31 @@ class AdminSettingsController extends AdminController
             Config::PQ_METHOD_PAYMENT_INFORMATION,
             Request::postVar('pqMethodPaymentInformation')
         );
+        $this->config->set(
+            Config::PQ_SELECTOR_INSTALMENT_INFO,
+            Request::postVar('pqSelectorInstalmentInfo')
+        );
+        $this->config->set(
+            Config::PQ_METHOD_INSTALMENT_INFO,
+            Request::postVar('pqMethodInstalmentInfo')
+        );
         $this->config->set(Config::PQ_SELECTOR_ERRORS, Request::postVar('pqSelectorErrors'));
         $this->config->set(Config::PQ_METHOD_ERRORS, Request::postVar('pqMethodErrors'));
         $this->config->set(Config::PQ_SELECTOR_REVIEW_STEP, Request::postVar('pqSelectorReviewStep'));
         $this->config->set(Config::PQ_METHOD_REVIEW_STEP, Request::postVar('pqMethodReviewStep'));
+        $this->config->set(Config::ADD_INCOMING_PAYMENTS, Request::postVar('addIncomingPayments', false));
 
         // Validate
         $valid = true;
-        if (empty(Request::postVar('privateKey')) || !PrivateKeyValidator::validate(Request::postVar('privateKey'))) {
-            $this->addError('Ungültiger Private Key.');
+
+        if (empty($privateKey) || !PrivateKeyValidator::validate($privateKey)) {
+            $this->addError(__('Ungültiger Private Key.'));
             $valid = false;
         }
 
         if (empty(Request::postVar('publicKey')) || !PublicKeyValidator::validate(Request::postVar('publicKey'))) {
             $this->addError(
-                'Ungültiger Public Key. Bitte stellen Sie sicher,
-                 dass sie hier Ihren Public Key und nicht Ihren Private Key angeben!'
+                __('Ungültiger Public Key. Bitte stellen Sie sicher, dass sie hier Ihren Public Key und nicht Ihren Private Key angeben!')
             );
             $valid = false;
         }
@@ -123,7 +142,7 @@ class AdminSettingsController extends AdminController
         // If config is valid, save it in DB
         if ($valid) {
             $this->config->save();
-            $this->addSuccess('Die Einstellungen wurden erfolgreich gespeichert.');
+            $this->addSuccess(__('Die Einstellungen wurden erfolgreich gespeichert.'));
 
             // Register Webhooks Event Handlers if needed
             /** @var HeidelpayApiAdapter $adapter */
@@ -142,21 +161,36 @@ class AdminSettingsController extends AdminController
     {
         $newEvents = array_keys(PaymentEventSubscriber::getSubscribedEvents());
 
-        if (!empty($newEvents)) {
-            /** @var JtlLinkHelper $linkHelper */
-            $linkHelper = new JtlLinkHelper();
+        if (empty($newEvents)) {
+            return;
+        }
 
-            try {
-                $adapter->getApi()->registerMultipleWebhooks(
+        // Register for all keyparis + default
+        try {
+            $linkHelper = new JtlLinkHelper();
+            $model = new KeyPairModel(Shop::Container()->getDB());
+            $keypairs = $model->all();
+
+            foreach ($keypairs as $keypair) {
+                $adapter->setCurrentConnection(
+                    $keypair->isB2B(),
+                    $keypair->getCurrencyId(),
+                    $keypair->getPaymentMethodId()
+                )->registerMultipleWebhooks(
                     $linkHelper->getFullFrontendFileUrl(JtlLinkHelper::FRONTEND_FILE_WEBHOOKS),
                     $newEvents
                 );
-            } catch (Exception $exc) {
-                $this->errorLog('Could not register webhook: ' . $exc->getMessage(), static::class);
             }
 
-            $this->debugLog('Registered the following new webhooks: ' . implode(', ', $newEvents), static::class);
-            $this->addSuccess('Die Webhooks wurden erfolgreich gespeichert.');
+            $adapter->getDefaultConnection()->registerMultipleWebhooks(
+                $linkHelper->getFullFrontendFileUrl(JtlLinkHelper::FRONTEND_FILE_WEBHOOKS),
+                $newEvents
+            );
+        } catch (Exception $exc) {
+            $this->errorLog('Could not register webhook: ' . $exc->getMessage(), static::class);
         }
+
+        $this->debugLog('Registered the following new webhooks: ' . implode(', ', $newEvents), static::class);
+        $this->addSuccess(__('Die Webhooks wurden erfolgreich gespeichert.'));
     }
 }

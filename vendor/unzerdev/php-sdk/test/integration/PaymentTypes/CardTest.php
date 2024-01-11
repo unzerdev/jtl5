@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -21,17 +22,19 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
+use UnzerSDK\Constants\ExemptionType;
 use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\Resources\EmbeddedResources\CardTransactionData;
 use UnzerSDK\Resources\EmbeddedResources\CardDetails;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Card;
+use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\Services\ValueService;
 use UnzerSDK\test\BaseIntegrationTest;
 
@@ -88,13 +91,14 @@ class CardTest extends BaseIntegrationTest
     public function cardShouldUseEmail($email, $expected)
     {
         // when.
-        /** @var Card $card */
         $card = $this->createCardObject('4711100000000000');
         $this->assertNull($card->getId());
         $this->assertNull($card->getEmail()); // default value is set.
 
         // then.
         $card->setEmail($email); // override email.
+
+        /** @var Card $card */
         $card = $this->unzer->createPaymentType($card);
         $this->assertNotNull($card->getId());
         $this->assertEquals($email, $card->getEmail());
@@ -112,15 +116,19 @@ class CardTest extends BaseIntegrationTest
      *
      * @dataProvider supportedRecurrenceTypesDP
      *
-     * @param $recurrenceType
+     * @param       $recurrenceType
+     * @param mixed $isrecurring
      *
      * @throws UnzerApiException
      */
-    public function cardShouldBeChargeableWithRecurrenceType($recurrenceType): void
+    public function cardShouldBeChargeableWithRecurrenceType($recurrenceType, $isrecurring): void
     {
+        $this->useNon3dsKey();
         $card = $this->createCardObject('4711100000000000');
         /** @var Card $card */
         $card = $this->unzer->createPaymentType($card);
+        $this->assertNotTrue($card->isRecurring());
+
         $chargeResponse = $card->charge('99.99', 'EUR', 'https://unzer.com', null, null, null, null, null, null, null, $recurrenceType);
         $this->assertEquals($recurrenceType, $chargeResponse->getRecurrenceType());
         $fetchedCharge = $this->unzer->fetchChargeById($chargeResponse->getPaymentId(), $chargeResponse->getId());
@@ -129,6 +137,9 @@ class CardTest extends BaseIntegrationTest
             $this->assertNotNull($fetchedCharge->getAdditionalTransactionData());
         }
         $this->assertEquals($recurrenceType, $fetchedCharge->getRecurrenceType());
+
+        $fetchedCard = $this->getUnzerObject()->fetchPaymentType($card->getId());
+        $this->assertTrue($fetchedCard->isRecurring());
     }
 
     /**
@@ -149,6 +160,21 @@ class CardTest extends BaseIntegrationTest
         $card = $this->unzer->createPaymentType($card);
         $this->expectException(UnzerApiException::class);
         $card->charge('99.99', 'EUR', 'https://unzer.com', null, null, null, null, null, null, null, $recurrenceType);
+    }
+
+    /**
+     * Invalid expiry date should throw API exception.
+     *
+     * @test
+     */
+    public function invalidExpiryDateShouldThrowApiException(): void
+    {
+        $card = $this->createCardObject('4711100000000000');
+        $card->setExpiryDate('01/2001');
+
+        /** @var Card $card */
+        $this->expectException(UnzerApiException::class);
+        $this->unzer->createPaymentType($card);
     }
 
     /**
@@ -176,7 +202,7 @@ class CardTest extends BaseIntegrationTest
         }
         $this->assertEquals($recurrenceType, $fetchedCharge->getRecurrenceType());
     }
-    
+
     /**
      * Verify that an invalid email cause an UnzerApiException.
      *
@@ -224,7 +250,7 @@ class CardTest extends BaseIntegrationTest
         // then
         /** @var Card $updatedCard */
         $updatedCard = $this->unzer->fetchPaymentType($fetchedCard->getId());
-        $this->assertRegExp('/0000$/', $updatedCard->getNumber());
+        $this->assertMatchesRegularExpression('/0000$/', $updatedCard->getNumber());
         $this->assertEquals('test2@test.com', $updatedCard->getEmail());
     }
 
@@ -242,6 +268,57 @@ class CardTest extends BaseIntegrationTest
 
         $charge = $card->charge(12.34, 'EUR', 'https://docs.unzer.com');
         $this->assertFalse($charge->isCard3ds());
+    }
+
+    /**
+     * Verfify card transaction can be used with exemptionType
+     *
+     * @test
+     */
+    public function cardTransactionAcceptsExemptionType(): void
+    {
+        $card = $this->createCardObject();
+        /** @var Card $card */
+        $card = $this->unzer->createPaymentType($card);
+        $charge = new Charge(12.34, 'EUR', 'https://docs.unzer.com');
+        $cardTransactionData = (new CardTransactionData())
+            ->setExemptionType(ExemptionType::LOW_VALUE_PAYMENT);
+
+        $charge->setCardTransactionData($cardTransactionData);
+        $this->getUnzerObject()->performCharge($charge, $card);
+
+        // Verify lvp value gets mapped from response
+        $fetchedCharge = $this->unzer->fetchChargeById($charge->getPaymentId(), $charge->getId());
+        $this->assertEquals(ExemptionType::LOW_VALUE_PAYMENT, $fetchedCharge->getCardTransactionData()->getExemptionType());
+    }
+
+    /**
+     * Verify card transaction returns Liability Shift Indicator.
+     *
+     * @test
+     *
+     * @dataProvider cardTransactionReturnsLiabilityIndicatorDP()
+     *
+     * @param mixed $pan
+     */
+    public function cardTransactionReturnsLiabilityIndicator($pan): void
+    {
+        $this->markTestSkipped('Requires a special config for card.');
+        $card = $this->createCardObject()->setNumber($pan)->set3ds(false);
+        /** @var Card $card */
+        $card = $this->unzer->createPaymentType($card);
+        $charge = $card->charge(12.34, 'EUR', 'https://docs.unzer.com');
+
+        // Verify Liability Indicator in response.
+        $this->assertNotNull($charge->getAdditionalTransactionData());
+        $this->assertNotNull($charge->getAdditionalTransactionData()->card->liability);
+
+        // Verify Liability Indicator In payment response.
+        $fetchedPayment = $this->unzer->fetchPayment($charge->getPaymentId());
+        $paymentCharge = $fetchedPayment->getCharge('s-chg-1', true);
+        $this->assertNotNull($paymentCharge->getAdditionalTransactionData()->card->liability);
+
+        $this->getUnzerObject()->fetchCharge($charge);
     }
 
     /**
@@ -593,11 +670,11 @@ class CardTest extends BaseIntegrationTest
     {
         $cardDetailsA = new CardDetails();
         $cardDetailsAObj          = (object)[
-            'cardType'          => 'CLASSIC',
-            'account'           => 'CREDIT',
-            'countryIsoA2'      => 'RU',
-            'countryName'       => 'RUSSIAN FEDERATION',
-            'issuerName'        => '',
+            'cardType'          => 'STANDARD',
+            'account'           => 'DEBIT',
+            'countryIsoA2'      => 'BE',
+            'countryName'       => 'BELGIUM',
+            'issuerName'        => 'MASTERCARD EUROPE',
             'issuerUrl'         => '',
             'issuerPhoneNumber' => ''
         ];
@@ -616,7 +693,7 @@ class CardTest extends BaseIntegrationTest
         $cardDetailsB->handleResponse($cardDetailsBObj);
 
         return [
-            'card type set'   => ['4012001037461114', $cardDetailsA],
+            'card type set'   => ['6799851000000032', $cardDetailsA],
             'issuer data set' => ['5453010000059543', $cardDetailsB]
         ];
     }
@@ -634,19 +711,29 @@ class CardTest extends BaseIntegrationTest
     public function supportedRecurrenceTypesDP(): array
     {
         return [
-            'null' => [null],
-            'oneclick' => ['oneclick'],
-            'scheduled' => ['scheduled'],
-            'unscheduled' => ['unscheduled']
+            'null' => [null, false],
+            'empty string' => ['', false],
+            'oneclick' => ['oneclick', false],
+            'scheduled' => ['scheduled', true],
+            'unscheduled' => ['unscheduled', true]
         ];
     }
 
     public function invalidRecurrenceTypesDP(): array
     {
         return [
-            'empty' => [''],
             'invalid string' => ['invalid recurrence Type'],
             'number' => [42],
+        ];
+    }
+
+    public function cardTransactionReturnsLiabilityIndicatorDP()
+    {
+        return [
+            '6799851000000032' => ['6799851000000032'],
+            '5453010000059543' => ['5453010000059543'],
+            '4711100000000000' => ['4711100000000000'],
+            '4012001037461114' => ['4012001037461114']
         ];
     }
 }

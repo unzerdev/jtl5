@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Traits
  */
+
 namespace UnzerSDK\Traits;
 
 use UnzerSDK\Exceptions\UnzerApiException;
@@ -36,7 +35,7 @@ trait CanPayout
 {
     /**
      * Credit the given amount with the given currency to this payment type.
-     * Throws UnzerApiException if the transaction could not be performed (e. g. increased risk etc.).
+     * Throws UnzerApiException if the transaction could not be performed (e.g. increased risk etc.).
      *
      * @param float                $amount
      * @param string               $currency
@@ -56,15 +55,15 @@ trait CanPayout
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
     public function payout(
-        $amount,
-        $currency,
-        $returnUrl,
+        float  $amount,
+        string $currency,
+        string $returnUrl,
         $customer = null,
-        $orderId = null,
+        string $orderId = null,
         $metadata = null,
-        $basket = null,
-        $invoiceId = null,
-        $paymentReference = null
+        Basket $basket = null,
+        string $invoiceId = null,
+        string $paymentReference = null
     ): Payout {
         if ($this instanceof UnzerParentInterface) {
             return $this->getUnzerObject()->payout(

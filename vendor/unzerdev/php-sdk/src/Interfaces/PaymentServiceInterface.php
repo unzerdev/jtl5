@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Interfaces
  */
+
 namespace UnzerSDK\Interfaces;
 
 use DateTime;
@@ -29,8 +28,10 @@ use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\AbstractUnzerResource;
 use UnzerSDK\Resources\Basket;
 use UnzerSDK\Resources\Customer;
+use UnzerSDK\Resources\EmbeddedResources\Paylater\InstallmentPlansQuery;
 use UnzerSDK\Resources\InstalmentPlans;
 use UnzerSDK\Resources\Metadata;
+use UnzerSDK\Resources\PaylaterInstallmentPlans;
 use UnzerSDK\Resources\Payment;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Paypage;
@@ -42,6 +43,45 @@ use RuntimeException;
 
 interface PaymentServiceInterface
 {
+    /**
+     * Performs an Authorization transaction and returns the resulting Authorization resource.
+     *
+     * @param Authorization          $authorization The Authorization object containing transaction specific information.
+     * @param BasePaymentType|string $paymentType   The PaymentType object or the id of the PaymentType to use.
+     * @param Customer|string|null   $customer      The Customer object or the id of the customer resource to reference.
+     * @param Metadata|null          $metadata      The Metadata object containing custom information for the payment.
+     * @param Basket|null            $basket        The Basket object corresponding to the payment.
+     *                                              The Basket object will be created automatically if it does not exist
+     *                                              yet (i.e. has no id).
+     *
+     * @return Authorization The resulting object of the Authorization resource.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    public function performAuthorization(
+        Authorization $authorization,
+        $paymentType,
+        $customer = null,
+        Metadata      $metadata = null,
+        Basket        $basket = null
+    ): Authorization;
+
+    /**
+     * Update an Authorization transaction with PATCH method and returns the resulting Authorization resource.
+     *
+     * @param Payment|string $payment       The Payment object or ID the transaction belongs to.
+     * @param Authorization  $authorization The Authorization object containing transaction specific information.
+     *                                      The Basket object will be created automatically if it does not exist
+     *                                      yet (i.e. has no id).
+     *
+     * @return Authorization The resulting object of the Authorization resource.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    public function updateAuthorization($payment, Authorization $authorization): Authorization;
+
     /**
      * Performs an Authorization transaction and returns the resulting Authorization resource.
      *
@@ -65,6 +105,10 @@ interface PaymentServiceInterface
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     *
+     * @deprecated since 1.2.0.0 please use performAuthorization() instead.
+     * @see performAuthorization
+     *
      */
     public function authorize(
         $amount,
@@ -80,6 +124,45 @@ interface PaymentServiceInterface
         $referenceText = null,
         $recurrenceType = null
     ): Authorization;
+
+    /**
+     * Performs a Charge transaction and returns the resulting Charge resource.
+     *
+     * @param Charge                 $charge      The Charge object containing transaction specific information.
+     * @param string|BasePaymentType $paymentType The PaymentType object or the id of the PaymentType to use.
+     * @param Customer|string|null   $customer    The Customer object or the id of the customer resource to reference.
+     * @param Metadata|null          $metadata    The Metadata object containing custom information for the payment.
+     * @param Basket|null            $basket      The Basket object corresponding to the payment.
+     *                                            The Basket object will be created automatically if it does not exist
+     *                                            yet (i.e. has no id).
+     *
+     * @return Charge The resulting object of the Charge resource.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    public function performCharge(
+        Charge   $charge,
+        $paymentType,
+        $customer = null,
+        Metadata $metadata = null,
+        Basket   $basket = null
+    ): Charge;
+
+    /**
+     * Update a Charge transaction with PATCH method and returns the resulting Charge resource.
+     *
+     * @param Payment|string $payment The Payment object or ID the transaction belongs to.
+     * @param Charge         $charge  The Charge object containing transaction specific information.
+     *                                The Basket object will be created automatically if it does not exist
+     *                                yet (i.e. has no id).
+     *
+     * @return Charge The resulting object of the Charge resource.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    public function updateCharge($payment, Charge $charge): Charge;
 
     /**
      * Performs a Charge transaction and returns the resulting Charge resource.
@@ -105,6 +188,10 @@ interface PaymentServiceInterface
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     *
+     * @deprecated since 1.2.0.0 please use performCharge() instead.
+     * @see performCharge
+     *
      */
     public function charge(
         $amount,
@@ -122,6 +209,23 @@ interface PaymentServiceInterface
     ): Charge;
 
     /**
+     * Performs a Charge transaction for a previously authorized payment.
+     * To perform a full charge of the authorized amount leave the amount null.
+     *
+     * @param string|Payment $payment The Payment object the Authorization to charge belongs to.
+     * @param Charge         $charge  The Charge object containing transaction specific information.
+     *
+     * @return Charge The resulting object of the Charge resource.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    public function performChargeOnPayment(
+        $payment,
+        Charge $charge
+    ): Charge;
+
+    /**
      * Performs a Charge transaction for the Authorization of the given Payment object.
      * To perform a full charge of the authorized amount leave the amount null.
      *
@@ -134,6 +238,9 @@ interface PaymentServiceInterface
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     *
+     * @deprecated since 1.2.0.0 please use performChargeOnPayment() instead.
+     *
      */
     public function chargeAuthorization(
         $payment,
@@ -147,7 +254,6 @@ interface PaymentServiceInterface
      *
      * @param Payment|string $payment   The Payment object to be charged.
      * @param float|null     $amount    The amount to charge.
-     * @param string|null    $currency  The Currency of the charged amount.
      * @param string|null    $orderId   The order id from the shop.
      * @param string|null    $invoiceId The invoice id from the shop.
      *
@@ -155,11 +261,13 @@ interface PaymentServiceInterface
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     *
+     * @deprecated since 1.2.0.0 please use performChargeOnPayment() instead.
+     *
      */
     public function chargePayment(
         $payment,
         float $amount = null,
-        string $currency = null,
         string $orderId = null,
         string $invoiceId = null
     ): Charge;
@@ -186,16 +294,16 @@ interface PaymentServiceInterface
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
     public function payout(
-        $amount,
-        $currency,
+        float    $amount,
+        string   $currency,
         $paymentType,
-        $returnUrl,
+        string   $returnUrl,
         $customer = null,
-        $orderId = null,
-        $metadata = null,
-        $basket = null,
-        $invoiceId = null,
-        $referenceText = null
+        string   $orderId = null,
+        Metadata $metadata = null,
+        Basket   $basket = null,
+        string   $invoiceId = null,
+        string   $referenceText = null
     ): Payout;
 
     /**
@@ -234,9 +342,9 @@ interface PaymentServiceInterface
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
     public function initPayPageCharge(
-        Paypage $paypage,
+        Paypage  $paypage,
         Customer $customer = null,
-        Basket $basket = null,
+        Basket   $basket = null,
         Metadata $metadata = null
     ): Paypage;
 
@@ -262,9 +370,9 @@ interface PaymentServiceInterface
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
     public function initPayPageAuthorize(
-        Paypage $paypage,
+        Paypage  $paypage,
         Customer $customer = null,
-        Basket $basket = null,
+        Basket   $basket = null,
         Metadata $metadata = null
     ): Paypage;
 
@@ -282,9 +390,18 @@ interface PaymentServiceInterface
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
     public function fetchInstallmentPlans(
-        $amount,
-        $currency,
-        $effectiveInterest,
+        float    $amount,
+        string   $currency,
+        float    $effectiveInterest,
         DateTime $orderDate = null
     ): InstalmentPlans;
+
+    /**
+     * Returns an InstallmentPlans object containing all available instalment plan options.
+     *
+     * @param InstallmentPlansQuery $plansRequest
+     *
+     * @return PaylaterInstallmentPlans
+     */
+    public function fetchPaylaterInstallmentPlans(InstallmentPlansQuery $plansRequest): PaylaterInstallmentPlans;
 }

@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Constants
  */
+
 namespace UnzerSDK\Constants;
 
 class IdStrings
@@ -32,6 +31,7 @@ class IdStrings
     public const CHARGE = 'chg';
     public const PAYOUT = 'out';
     public const SHIPMENT = 'shp';
+    public const CHARGEBACK = 'cbk';
 
     // Payment Types
     public const ALIPAY = 'ali';
@@ -47,8 +47,14 @@ class IdStrings
     public const INVOICE_FACTORING = 'ivf';
     public const INVOICE_GUARANTEED = 'ivg';
     public const INVOICE_SECURED = 'ivs';
+    public const KLARNA = 'kla';
+    public const PAYLATER_INVOICE = 'piv';
+    public const PAYLATER_INSTALLMENT = 'pit';
     public const PAYMENT_PAGE = 'ppg';
     public const PAYPAL = 'ppl';
+    public const PAYU = 'pyu';
+    public const POST_FINANCE_CARD = 'pfc';
+    public const POST_FINANCE_EFINANCE = 'pfe';
     public const PIS = 'pis';
     public const PREPAYMENT = 'ppy';
     public const PRZELEWY24 = 'p24';
@@ -79,8 +85,13 @@ class IdStrings
         self::INVOICE_FACTORING,
         self::INVOICE_GUARANTEED,
         self::INVOICE_SECURED,
+        self::KLARNA,
+        self::PAYLATER_INVOICE,
         self::PAYMENT_PAGE,
         self::PAYPAL,
+        self::PAYU,
+        self::POST_FINANCE_CARD,
+        self::POST_FINANCE_EFINANCE,
         self::PIS,
         self::PREPAYMENT,
         self::PRZELEWY24,

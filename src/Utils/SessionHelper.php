@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Utils;
 
@@ -19,18 +20,16 @@ class SessionHelper
 {
     use JtlLoggerTrait;
 
+    public const KEY_ORDER_ID = 'orderId';
     public const KEY_RESOURCE_ID = 'resourceId';
     public const KEY_CART_CHECKSUM = 'cartChecksum';
+    public const KEY_CART_CURRENCY = 'cartCurrency';
     public const KEY_CHECKOUT_SESSION = 'checkoutSession';
     public const KEY_CONFIRM_POST_ARRAY = 'confirmPostArray';
     public const KEY_SHORT_ID = 'shortId';
     public const KEY_PAYMENT_ID = 'paymentId';
     public const KEY_CUSTOMER_ID = 'customerId';
-
-    /**
-     * @var Frontend
-     */
-    private $session;
+    public const KEY_THREAT_METRIX_ID = 'threatMetrixId';
 
     /**
      * @var AlertServiceInterface
@@ -57,7 +56,6 @@ class SessionHelper
             }
         }
 
-        $this->session = Frontend::getInstance();
         $this->alerts = Shop::Container()->getAlertService();
     }
 
@@ -91,7 +89,7 @@ class SessionHelper
      */
     public function set(string $key, $value): void
     {
-        $this->session->set(
+        Frontend::getInstance()->set(
             $this->buildSessionKey([Config::PLUGIN_SESSION, $key]),
             $value
         );
@@ -106,7 +104,7 @@ class SessionHelper
      */
     public function get(string $key, $default = null)
     {
-        return $this->session->get(
+        return Frontend::getInstance()->get(
             $this->buildSessionKey([Config::PLUGIN_SESSION, $key]),
             $default
         );
@@ -170,7 +168,7 @@ class SessionHelper
      */
     public function getFrontendSession(): Frontend
     {
-        return $this->session;
+        return Frontend::getInstance();
     }
 
     /**
@@ -263,5 +261,25 @@ class SessionHelper
         }
 
         $this->alerts->addAlert(Alert::TYPE_ERROR, $message, $errorKey);
+    }
+
+    /**
+     * Generate a new threat metrix id if there is not already one in the session.
+     *
+     * @return string
+     */
+    public function generateThreatMetrixId(): string
+    {
+        if ($this->get(SessionHelper::KEY_THREAT_METRIX_ID)) {
+            return $this->get(SessionHelper::KEY_THREAT_METRIX_ID);
+        }
+
+        $merchantId = pathinfo(Shop::getURL(), PATHINFO_FILENAME);
+        $merchantId = preg_replace('/[^a-z0-9_-]/i', '', $merchantId);
+
+        $id = $merchantId . '-' . bin2hex(openssl_random_pseudo_bytes(16));
+        $this->set(SessionHelper::KEY_THREAT_METRIX_ID, $id);
+
+        return $id;
     }
 }

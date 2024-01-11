@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,19 +21,24 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
 use UnzerSDK\test\BaseIntegrationTest;
+use UnzerSDK\test\Helper\TestEnvironmentService;
 
 class InvoiceTest extends BaseIntegrationTest
 {
+    protected function setUp(): void
+    {
+        $this->getUnzerObject(TestEnvironmentService::getLegacyTestPrivateKey());
+    }
+
     /**
      * Verifies invoice payment type can be created.
      *

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpComposerExtensionStubsInspection */
 /**
  * This is a wrapper for the default http adapter (CURL).
@@ -19,17 +20,17 @@
  *
  * @link https://dev.unzer.com/
  *
- * @author Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Adapter
  */
+
 namespace UnzerSDK\Adapter;
 
 use UnzerSDK\Unzer;
 use UnzerSDK\Services\EnvironmentService;
-use function extension_loaded;
 use UnzerSDK\Exceptions\UnzerApiException;
 use RuntimeException;
+
+use function extension_loaded;
 use function in_array;
 
 class CurlAdapter implements HttpAdapterInterface
@@ -51,7 +52,7 @@ class CurlAdapter implements HttpAdapterInterface
     /**
      * {@inheritDoc}
      */
-    public function init($url, $payload = null, $httpMethod = HttpAdapterInterface::REQUEST_GET): void
+    public function init(string $url, string $payload = null, string $httpMethod = HttpAdapterInterface::REQUEST_GET): void
     {
         $timeout = EnvironmentService::getTimeout();
         $curlVerbose = EnvironmentService::isCurlVerbose();
@@ -69,7 +70,12 @@ class CurlAdapter implements HttpAdapterInterface
         $this->setOption(CURLOPT_VERBOSE, $curlVerbose);
         $this->setOption(CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
 
-        if (in_array($httpMethod, [HttpAdapterInterface::REQUEST_POST, HttpAdapterInterface::REQUEST_PUT], true)) {
+        $postFieldMethods = [
+            HttpAdapterInterface::REQUEST_POST,
+            HttpAdapterInterface::REQUEST_PUT,
+            HttpAdapterInterface::REQUEST_PATCH
+        ];
+        if (in_array($httpMethod, $postFieldMethods, true)) {
             $this->setOption(CURLOPT_POSTFIELDS, $payload);
         }
     }

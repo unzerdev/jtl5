@@ -2,6 +2,7 @@
 
 namespace Plugin\s360_unzer_shop5\src\Controllers\Admin;
 
+use JTL\Link\Link;
 use JTL\Plugin\PluginInterface;
 use Plugin\s360_unzer_shop5\src\Controllers\Controller;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
@@ -63,6 +64,24 @@ abstract class AdminController extends Controller
             'adminUrl'          => $linkHelper->getFullAdminUrl(),
             'pluginVersion'     => (string) $this->plugin->getCurrentVersion()
         ];
+
+        // Check for correct seo urls of frontend links
+        foreach ($this->plugin->getLinks()->getLinks() as $link) {
+            /** @var Link $link */
+            switch ($link->getHandler()) {
+                case 'sync-workflow.php':
+                    if (!in_array('unzer-sync-workflow', $link->getSEOs())) {
+                        $this->addWarning(__('hpWarningSyncWorkflowUrlChanged'));
+                    }
+                    break;
+
+                case 'webhook.php':
+                    if (!in_array('unzer-webhook', $link->getSEOs())) {
+                        $this->addWarning(__('hpWarningWebhookUrlChanged'));
+                    }
+                    break;
+            }
+        }
 
         $this->smarty->assign('hpAdmin', $data);
     }

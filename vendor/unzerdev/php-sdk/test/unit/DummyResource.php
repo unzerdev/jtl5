@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
@@ -63,7 +63,7 @@ class DummyResource extends AbstractUnzerResource
         return '{"dummyResource": "JsonSerialized"}';
     }
 
-    public function getUri($appendId = true, $httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    public function getUri(bool $appendId = true, string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return '/my/uri' . ($appendId ? '/123' : '');
     }

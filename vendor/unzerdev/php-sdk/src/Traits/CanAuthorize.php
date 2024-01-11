@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Traits
  */
+
 namespace UnzerSDK\Traits;
 
 use UnzerSDK\Exceptions\UnzerApiException;
@@ -36,7 +35,7 @@ trait CanAuthorize
 {
     /**
      * Authorize an amount with the given currency.
-     * Throws UnzerApiException if the transaction could not be performed (e. g. increased risk etc.).
+     * Throws UnzerApiException if the transaction could not be performed (e.g. increased risk etc.).
      *
      * @param float                $amount
      * @param string               $currency

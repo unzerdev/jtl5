@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,8 +21,6 @@
  *
  * @link     https://docs.unzer.com/
  *
- * @author   Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
 
@@ -31,6 +30,8 @@ use DateTime;
 use PHPUnit\Framework\MockObject\MockObject;
 use stdClass;
 use UnzerSDK\Adapter\HttpAdapterInterface;
+use UnzerSDK\Constants\LiabilityShiftIndicator;
+use UnzerSDK\Constants\TransactionStatus;
 use UnzerSDK\Resources\Payment;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Services\ResourceService;
@@ -96,11 +97,64 @@ class AbstractTransactionTypeTest extends BasePaymentTest
         $this->assertSame('myUniqueId', $transactionType->getUniqueId());
         $this->assertSame('myTraceId', $transactionType->getTraceId());
         $this->assertNotNull($transactionType->getAdditionalTransactionData());
-        $this->assertObjectHasAttribute('someDataKey', $transactionType->getAdditionalTransactionData());
+        $this->assertTrue(property_exists($transactionType->getAdditionalTransactionData(), 'someDataKey'));
 
         $message = $transactionType->getMessage();
         $this->assertSame('1234', $message->getCode());
         $this->assertSame('Customer message!', $message->getCustomer());
+    }
+
+    /**
+     * Set status should set state flags correctly.
+     *
+     * @test
+     */
+    public function setStatusShouldSetStateFlagsCorrectly(): void
+    {
+        $transactionType = new DummyTransactionType();
+
+        // Initial checks.
+        $this->assertFalse($transactionType->isSuccess());
+        $this->assertFalse($transactionType->isPending());
+        $this->assertFalse($transactionType->isError());
+        $this->assertFalse($transactionType->isResumed());
+
+        $responseArray = ['status' => TransactionStatus::STATUS_ERROR];
+        $transactionType->handleResponse((object)$responseArray);
+
+        $this->assertFalse($transactionType->isSuccess());
+        $this->assertFalse($transactionType->isPending());
+        $this->assertTrue($transactionType->isError());
+        $this->assertFalse($transactionType->isResumed());
+
+        $responseArray['status'] = TransactionStatus::STATUS_SUCCESS;
+        $transactionType->handleResponse((object)$responseArray);
+
+        $this->assertTrue($transactionType->isSuccess());
+        $this->assertFalse($transactionType->isPending());
+        $this->assertFalse($transactionType->isError());
+        $this->assertFalse($transactionType->isResumed());
+
+        $responseArray['status'] = TransactionStatus::STATUS_PENDING;
+        $transactionType->handleResponse((object)$responseArray);
+
+        $this->assertFalse($transactionType->isSuccess());
+        $this->assertTrue($transactionType->isPending());
+        $this->assertFalse($transactionType->isError());
+        $this->assertFalse($transactionType->isResumed());
+
+        $responseArray['status'] = TransactionStatus::STATUS_RESUMED;
+        $transactionType->handleResponse((object)$responseArray);
+
+        $this->assertFalse($transactionType->isSuccess());
+        $this->assertFalse($transactionType->isPending());
+        $this->assertFalse($transactionType->isError());
+        $this->assertTrue($transactionType->isResumed());
+
+        $this->expectException(\RuntimeException::class);
+
+        $responseArray['status'] = 'Invalid status.';
+        $transactionType->handleResponse((object)$responseArray);
     }
 
     /**
@@ -179,6 +233,7 @@ class AbstractTransactionTypeTest extends BasePaymentTest
      * Verify fetchPayment is never called after a Get-Request.
      *
      * @test
+     *
      * @dataProvider updatePaymentDataProvider
      *
      * @param string  $method
@@ -213,6 +268,24 @@ class AbstractTransactionTypeTest extends BasePaymentTest
 
         $transactionType = (new DummyTransactionType())->setPayment($payment);
         $transactionType->fetchPayment();
+    }
+
+    /**
+     * Liability indicator response should stored in transaction
+     *
+     * @test
+     */
+    public function liabilityResponseShouldBeStroedInTransaction()
+    {
+        $jsonRespone = '{"additionalTransactionData":{"card":{"liability":"MERCHANT"}}}';
+
+        $transaction = new DummyTransactionType();
+        $transaction->handleResponse(json_decode($jsonRespone, false));
+        $this->assertEquals($transaction->getCardTransactionData()->getLiability(), LiabilityShiftIndicator::MERCHANT);
+
+        $jsonRespone = '{"additionalTransactionData":{"card":{"liability":"ISSUER"}}}';
+        $transaction->handleResponse(json_decode($jsonRespone, false));
+        $this->assertEquals($transaction->getCardTransactionData()->getLiability(), LiabilityShiftIndicator::ISSUER);
     }
 
     //<editor-fold desc="Data Providers">

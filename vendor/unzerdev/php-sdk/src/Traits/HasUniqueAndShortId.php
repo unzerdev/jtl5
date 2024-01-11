@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Traits
  */
+
 namespace UnzerSDK\Traits;
 
 trait HasUniqueAndShortId
@@ -31,8 +30,6 @@ trait HasUniqueAndShortId
 
     /** @var string $shortId */
     private $shortId;
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string|null
@@ -71,6 +68,4 @@ trait HasUniqueAndShortId
         $this->shortId = $shortId;
         return $this;
     }
-
-    //</editor-fold>
 }

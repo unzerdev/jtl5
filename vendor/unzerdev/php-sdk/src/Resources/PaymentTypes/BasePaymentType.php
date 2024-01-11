@@ -18,17 +18,22 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\PaymentTypes
  */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Resources\AbstractUnzerResource;
+use UnzerSDK\Traits\HasGeoLocation;
 
 abstract class BasePaymentType extends AbstractUnzerResource
 {
+    use HasGeoLocation;
+
+    /** @var bool  */
+    protected const SUPPORT_DIRECT_PAYMENT_CANCEL = false;
+
     /**
      * Return true for invoice types.
      * This enables you to handle the invoice workflow correctly.
@@ -43,12 +48,15 @@ abstract class BasePaymentType extends AbstractUnzerResource
         return false;
     }
 
-    //<editor-fold desc="Overridable Methods">
+    public function supportsDirectPaymentCancel(): bool
+    {
+        return static::SUPPORT_DIRECT_PAYMENT_CANCEL;
+    }
 
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         $path = 'types';
         if ($httpMethod !== HttpAdapterInterface::REQUEST_GET || $this->id === null) {
@@ -68,6 +76,4 @@ abstract class BasePaymentType extends AbstractUnzerResource
     {
         return [];
     }
-
-    //</editor-fold>
 }

@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Resources
  */
+
 namespace UnzerSDK\Resources;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
@@ -36,6 +35,7 @@ use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\Resources\TransactionTypes\Charge;
+use UnzerSDK\Resources\TransactionTypes\Chargeback;
 use UnzerSDK\Resources\TransactionTypes\Payout;
 use UnzerSDK\Resources\TransactionTypes\Shipment;
 use UnzerSDK\Services\IdService;
@@ -67,8 +67,27 @@ class Payment extends AbstractUnzerResource
     /** @var array $shipments */
     private $shipments = [];
 
-    /** @var array $charges */
+    /** @var Charge[] $charges */
     private $charges = [];
+
+    /** @var Chargeback[] $chargebacks */
+    private $chargebacks = [];
+
+
+    /**
+     * Associative array using the ID of the cancellations as the key.
+     *
+     * @var array $reversals
+     */
+    private $reversals = [];
+
+    /**
+     * Associative array using the ID of the cancellations as the key.
+     *
+     * @var array $refunds
+     */
+    private $refunds = [];
+
 
     /** @var Customer $customer */
     private $customer;
@@ -85,6 +104,9 @@ class Payment extends AbstractUnzerResource
     /** @var Basket $basket */
     private $basket;
 
+    /** @var Paypage $payPage */
+    private $payPage;
+
     /**
      * @param null $parent
      */
@@ -94,8 +116,6 @@ class Payment extends AbstractUnzerResource
 
         $this->setParentResource($parent);
     }
-
-    //<editor-fold desc="Setters/Getters">
 
     /**
      * Returns the redirectUrl set by the API.
@@ -114,10 +134,26 @@ class Payment extends AbstractUnzerResource
      *
      * @return Payment
      */
-    protected function setRedirectUrl($redirectUrl): Payment
+    protected function setRedirectUrl(?string $redirectUrl): Payment
     {
         $this->redirectUrl = $redirectUrl;
         return $this;
+    }
+
+    /**
+     * @return Chargeback[]
+     */
+    public function getChargebacks(): array
+    {
+        return $this->chargebacks;
+    }
+
+    /**
+     * @param array $chargebacks
+     */
+    public function setChargebacks(array $chargebacks): void
+    {
+        $this->chargebacks = $chargebacks;
     }
 
     /**
@@ -133,7 +169,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function getAuthorization($lazy = false)
+    public function getAuthorization(bool $lazy = false)
     {
         $authorization = $this->authorization;
         if (!$lazy && $authorization !== null) {
@@ -169,7 +205,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function getPayout($lazy = false)
+    public function getPayout(bool $lazy = false)
     {
         $payout = $this->payout;
         if (!$lazy && $payout !== null) {
@@ -217,6 +253,20 @@ class Payment extends AbstractUnzerResource
     }
 
     /**
+     * Adds a Charge object to this Payment and stores it in the charges array.
+     *
+     * @param Charge $chargeback
+     *
+     * @return $this
+     */
+    private function addChargeback(Chargeback $chargeback): self
+    {
+        $chargeback->setPayment($this);
+        $this->chargebacks[] = $chargeback;
+        return $this;
+    }
+
+    /**
      * Retrieves a Charge object from the charges array of this Payment object by its Id.
      * Fetches the Charge if it has not been fetched before and the lazy flag is not set.
      * Returns null if the Charge does not exist.
@@ -230,7 +280,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function getCharge($chargeId, $lazy = false): ?Charge
+    public function getCharge(string $chargeId, bool $lazy = false): ?Charge
     {
         /** @var Charge $charge */
         foreach ($this->charges as $charge) {
@@ -239,6 +289,38 @@ class Payment extends AbstractUnzerResource
                     $this->getResource($charge);
                 }
                 return $charge;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves a Chargeback object from the chargebacks array of this Payment object by its ID.
+     * Fetches the Charge if it has not been fetched before and the lazy flag is not set.
+     * Returns null if the Charge does not exist.
+     *
+     * @param string $chargeId The ID of the Charge to be retrieved.
+     * @param bool   $lazy     Enables lazy loading if set to true which results in the object not being updated via
+     *                         API and possibly containing just the meta data known from the Payment object response.
+     *
+     * @return Charge|null The retrieved Charge object or null if it does not exist.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    public function getChargeback(string $chargebackId, ?string $chargeId, bool $lazy = false): ?Chargeback
+    {
+        /** @var Chargeback $chargeback */
+        foreach ($this->chargebacks as $chargeback) {
+            $parentResource = $chargeback->getParentResource();
+            if ($chargeback->getId() === $chargebackId) {
+                if ($parentResource instanceof Charge && $parentResource->getId() !== $chargeId) {
+                    continue;
+                }
+                if (!$lazy) {
+                    $this->getResource($chargeback);
+                }
+                return $chargeback;
             }
         }
         return null;
@@ -258,7 +340,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function getChargeByIndex($index, $lazy = false)
+    public function getChargeByIndex(int $index, bool $lazy = false)
     {
         $resource = null;
         if (isset($this->getCharges()[$index])) {
@@ -317,6 +399,50 @@ class Payment extends AbstractUnzerResource
     }
 
     /**
+     * Reference this payment object to the passed PayPage resource.
+     * The PayPage resource can be passed as PayPage object or the Id of a PayPage resource.
+     * If the PayPage object has not been created yet via API this is done automatically.
+     *
+     * @param PayPage|string|null $payPage The PayPage object or the id of the PayPage to be referenced by the Payment.
+     *
+     * @return Payment This Payment object.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    public function setPayPage($payPage): Payment
+    {
+        if (empty($payPage)) {
+            return $this;
+        }
+
+        $unzer = $this->getUnzerObject();
+
+        /** @var PayPage $payPageObject */
+        $payPageObject = $payPage;
+
+        if (is_string($payPage)) {
+            $payPageObject = (new Paypage(0, '', ''))
+                ->setId($payPage)
+                ->setPayment($this);
+        }
+
+        $payPageObject->setParentResource($unzer);
+        $this->payPage = $payPageObject;
+        return $this;
+    }
+
+    /**
+     * Returns the PayPage object referenced by this Payment.
+     *
+     * @return PayPage|null The PayPage object referenced by this Payment or null if no PayPage could be found.
+     */
+    public function getPayPage(): ?PayPage
+    {
+        return $this->payPage;
+    }
+
+    /**
      * Returns the Payment Type object referenced by this Payment or throws a RuntimeException if none exists.
      *
      * @return BasePaymentType|null The PaymentType referenced by this Payment.
@@ -330,7 +456,7 @@ class Payment extends AbstractUnzerResource
      * Sets the Payments reference to the given PaymentType resource.
      * The PaymentType can be either a PaymentType object or the id of a PaymentType resource.
      *
-     * @param mixed $paymentType The PaymentType object or the id of the PaymentType to be referenced.
+     * @param BasePaymentType|string|null $paymentType The PaymentType object or the id of the PaymentType to be referenced.
      *
      * @return Payment This Payment object.
      *
@@ -375,7 +501,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function setMetadata($metadata): Payment
+    public function setMetadata(?Metadata $metadata): Payment
     {
         if (!$metadata instanceof Metadata) {
             return $this;
@@ -408,7 +534,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function setBasket($basket): Payment
+    public function setBasket(?Basket $basket): Payment
     {
         $this->basket = $basket;
 
@@ -439,8 +565,10 @@ class Payment extends AbstractUnzerResource
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     *
+     * @deprecated since 3.2.0 Please use getCancellation() method of a Charge or Authorization object instead.
      */
-    public function getCancellation($cancellationId, $lazy = false): ?Cancellation
+    public function getCancellation(string $cancellationId, bool $lazy = false): ?Cancellation
     {
         /** @var Cancellation $cancellation */
         foreach ($this->getCancellations() as $cancellation) {
@@ -466,6 +594,12 @@ class Payment extends AbstractUnzerResource
      */
     public function getCancellations(): array
     {
+        if (!empty($this->refunds) || !(empty($this->reversals))) {
+            return array_merge(
+                array_values($this->reversals),
+                array_values($this->refunds)
+            );
+        }
         $refunds = [];
 
         /** @var Charge $charge */
@@ -513,7 +647,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function getShipment($shipmentId, $lazy = false): ?Shipment
+    public function getShipment(string $shipmentId, bool $lazy = false): ?Shipment
     {
         /** @var Shipment $shipment */
         foreach ($this->getShipments() as $shipment) {
@@ -573,7 +707,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException
      * @throws RuntimeException
      */
-    public function getInitialTransaction($lazy = false): ?AbstractTransactionType
+    public function getInitialTransaction(bool $lazy = false): ?AbstractTransactionType
     {
         return $this->getAuthorization($lazy) ?? $this->getChargeByIndex(0, $lazy);
     }
@@ -591,14 +725,73 @@ class Payment extends AbstractUnzerResource
         return $this;
     }
 
-    //</editor-fold>
+    /**
+     * @return array Associative array with cancellation id as the key and the Cancellation object as value.
+     */
+    public function getRefunds(): array
+    {
+        return $this->refunds;
+    }
 
-    //<editor-fold desc="Overridable Methods">
+    /**
+     * @param array $refunds
+     *
+     * @return Payment
+     */
+    public function setRefunds(array $refunds): Payment
+    {
+        $this->refunds = $refunds;
+        return $this;
+    }
+
+    /**
+     * @param Cancellation $refund
+     *
+     * @return Payment
+     */
+    public function addRefund(Cancellation $refund): Payment
+    {
+        $this->refunds[$refund->getId()] = $refund;
+        return $this;
+    }
+
+    /**
+     * @return array Associative array with cancellation id as the key and the Cancellation object as value.
+     */
+    public function getReversals(): array
+    {
+        return $this->reversals;
+    }
+
+    /**
+     * @param array $reversals
+     *
+     * @return Payment
+     */
+    public function setReversals(array $reversals): Payment
+    {
+        $this->reversals = $reversals;
+        return $this;
+    }
+
+    /**
+     * Adds a Cancellation to the associative reversal array with the cancellation id as the key. If a cancellation with
+     * that ID already exists it will be overwritten.
+     *
+     * @param Cancellation $reversal
+     *
+     * @return Payment
+     */
+    public function addReversal(Cancellation $reversal): Payment
+    {
+        $this->reversals[$reversal->getId()] = $reversal;
+        return $this;
+    }
 
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return 'payments';
     }
@@ -609,7 +802,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 
@@ -634,10 +827,6 @@ class Payment extends AbstractUnzerResource
         return $this->getOrderId();
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Transactions">
-
     /**
      * Performs a Cancellation transaction on the Payment.
      * If no amount is given a full cancel will be performed i. e. all Charges and Authorizations will be cancelled.
@@ -655,11 +844,11 @@ class Payment extends AbstractUnzerResource
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
     public function cancelAmount(
-        float $amount = null,
-        $reasonCode = CancelReasonCodes::REASON_CODE_CANCEL,
-        string $paymentReference = null,
-        float $amountNet = null,
-        float $amountVat = null
+        float   $amount = null,
+        ?string $reasonCode = CancelReasonCodes::REASON_CODE_CANCEL,
+        string  $paymentReference = null,
+        float   $amountNet = null,
+        float   $amountVat = null
     ): array {
         return $this->getUnzerObject()->cancelPayment($this, $amount, $reasonCode, $paymentReference, $amountNet, $amountVat);
     }
@@ -684,17 +873,16 @@ class Payment extends AbstractUnzerResource
     /**
      * Performs a Charge transaction on the payment.
      *
-     * @param null $amount   The amount to be charged.
-     * @param null $currency The currency of the charged amount.
+     * @param float|null $amount The amount to be charged.
      *
      * @return Charge|AbstractUnzerResource The resulting Charge object.
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function charge($amount = null, $currency = null): Charge
+    public function charge(float $amount = null): Charge
     {
-        return $this->getUnzerObject()->chargePayment($this, $amount, $currency);
+        return $this->getUnzerObject()->chargePayment($this, $amount);
     }
 
     /**
@@ -708,14 +896,10 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function ship($invoiceId = null, $orderId = null)
+    public function ship(string $invoiceId = null, string $orderId = null)
     {
         return $this->getUnzerObject()->ship($this, $invoiceId, $orderId);
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Payment Update">
 
     /**
      * @param array $transactions
@@ -749,6 +933,9 @@ class Payment extends AbstractUnzerResource
                 case TransactionTypes::PAYOUT:
                     $this->updatePayoutTransaction($transaction);
                     break;
+                case TransactionTypes::CHARGEBACK:
+                    $this->updateChargebackTransaction($transaction);
+                    break;
                 default:
                     // skip
                     break;
@@ -759,12 +946,11 @@ class Payment extends AbstractUnzerResource
     /**
      * Handles the resources from a response and updates the payment object accordingly.
      *
-     * @param $resources
+     * @param stdClass $resources
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
-     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    private function updateResponseResources($resources): void
+    private function updateResponseResources(stdClass $resources): void
     {
         if (isset($resources->paymentId)) {
             $this->setId($resources->paymentId);
@@ -777,6 +963,11 @@ class Payment extends AbstractUnzerResource
             } else {
                 $this->customer = $this->getUnzerObject()->fetchCustomer($customerId);
             }
+        }
+
+        $payPageId = $resources->payPageId ?? null;
+        if (!empty($payPageId)) {
+            $this->setPayPage($payPageId);
         }
 
         if (isset($resources->typeId) && !empty($resources->typeId) && !$this->paymentType instanceof BasePaymentType) {
@@ -806,7 +997,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    private function updateAuthorizationTransaction($transaction): void
+    private function updateAuthorizationTransaction(stdClass $transaction): void
     {
         $transactionId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::AUTHORIZE);
         $authorization = $this->getAuthorization(true);
@@ -814,7 +1005,8 @@ class Payment extends AbstractUnzerResource
             $authorization = (new Authorization())->setPayment($this)->setId($transactionId);
             $this->setAuthorization($authorization);
         }
-        $authorization->setAmount($transaction->amount);
+
+        $authorization->handleResponse($transaction);
     }
 
     /**
@@ -826,7 +1018,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    private function updateChargeTransaction($transaction): void
+    private function updateChargeTransaction(stdClass $transaction): void
     {
         $transactionId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CHARGE);
         $charge        = $this->getCharge($transactionId, true);
@@ -834,7 +1026,8 @@ class Payment extends AbstractUnzerResource
             $charge = (new Charge())->setPayment($this)->setId($transactionId);
             $this->addCharge($charge);
         }
-        $charge->setAmount($transaction->amount);
+
+        $charge->handleResponse($transaction);
     }
 
     /**
@@ -846,20 +1039,28 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    private function updateReversalTransaction($transaction): void
+    private function updateReversalTransaction(stdClass $transaction): void
     {
         $transactionId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CANCEL);
-        $authorization = $this->getAuthorization(true);
-        if (!$authorization instanceof Authorization) {
-            throw new RuntimeException('The Authorization object can not be found.');
+
+        $isPaymentCancellation = IdService::isPaymentCancellation($transaction->url);
+        if ($isPaymentCancellation) {
+            $cancellation = (new Cancellation())->setPayment($this)->setId($transactionId);
+            $this->addReversal($cancellation);
+        } else {
+            $initialTransaction = $this->getInitialTransaction(true);
+            if (!$initialTransaction instanceof Authorization && !$initialTransaction instanceof Charge) {
+                throw new RuntimeException('The initial transaction object (Authorize or Charge) can not be found.');
+            }
+
+            $cancellation = $initialTransaction->getCancellation($transactionId, true);
+            if (!$cancellation instanceof Cancellation) {
+                $cancellation = (new Cancellation())->setPayment($this)->setId($transactionId);
+                $initialTransaction->addCancellation($cancellation);
+            }
         }
 
-        $cancellation = $authorization->getCancellation($transactionId, true);
-        if (!$cancellation instanceof Cancellation) {
-            $cancellation = (new Cancellation())->setPayment($this)->setId($transactionId);
-            $authorization->addCancellation($cancellation);
-        }
-        $cancellation->setAmount($transaction->amount);
+        $cancellation->handleResponse($transaction);
     }
 
     /**
@@ -871,22 +1072,30 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    private function updateRefundTransaction($transaction): void
+    private function updateRefundTransaction(stdClass $transaction): void
     {
         $refundId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CANCEL);
-        $chargeId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CHARGE);
-
-        $charge = $this->getCharge($chargeId, true);
-        if (!$charge instanceof Charge) {
-            throw new RuntimeException('The Charge object can not be found.');
-        }
-
-        $cancellation = $charge->getCancellation($refundId, true);
-        if (!$cancellation instanceof Cancellation) {
+        $isPaymentCancellation = IdService::isPaymentCancellation($transaction->url);
+        if ($isPaymentCancellation) {
             $cancellation = (new Cancellation())->setPayment($this)->setId($refundId);
-            $charge->addCancellation($cancellation);
+            $this->addRefund($cancellation);
         }
-        $cancellation->setAmount($transaction->amount);
+
+        if (!$isPaymentCancellation) {
+            $chargeId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CHARGE);
+            $charge = $this->getCharge($chargeId, true);
+            if (!$charge instanceof Charge) {
+                throw new RuntimeException('The Charge object can not be found.');
+            }
+            $cancellation = $charge->getCancellation($refundId, true);
+
+            if (!$cancellation instanceof Cancellation) {
+                $cancellation = (new Cancellation())->setPayment($this)->setId($refundId);
+                $charge->addCancellation($cancellation);
+            }
+        }
+
+        $cancellation->handleResponse($transaction);
     }
 
     /**
@@ -898,7 +1107,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    private function updateShipmentTransaction($transaction): void
+    private function updateShipmentTransaction(stdClass $transaction): void
     {
         $shipmentId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::SHIPMENT);
         $shipment   = $this->getShipment($shipmentId, true);
@@ -906,7 +1115,8 @@ class Payment extends AbstractUnzerResource
             $shipment = (new Shipment())->setId($shipmentId);
             $this->addShipment($shipment);
         }
-        $shipment->setAmount($transaction->amount);
+
+        $shipment->handleResponse($transaction);
     }
 
     /**
@@ -918,7 +1128,7 @@ class Payment extends AbstractUnzerResource
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    private function updatePayoutTransaction($transaction): void
+    private function updatePayoutTransaction(stdClass $transaction): void
     {
         $payoutId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::PAYOUT);
         $payout   = $this->getPayout(true);
@@ -926,8 +1136,50 @@ class Payment extends AbstractUnzerResource
             $payout = (new Payout())->setId($payoutId);
             $this->setPayout($payout);
         }
-        $payout->setAmount($transaction->amount);
+
+        $payout->handleResponse($transaction);
     }
 
-    //</editor-fold>
+    /**
+     * This updates the local chargeback object referenced by this Payment with the given chargeback transaction from the
+     * Payment response.
+     *
+     * @param stdClass $transaction The transaction from the Payment response containing the chargeback data.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    private function updateChargebackTransaction(stdClass $transaction): void
+    {
+        // does chargeback refer to a specific charge transaction
+        // Get/create charge instance, if yes.
+        // does chargeback already exist?
+        // Add chargeback to charge transaction
+        $isPaymentChargeback = IdService::isPaymentChargeback($transaction->url);
+        $chargebackId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CHARGEBACK);
+
+
+        if (!$isPaymentChargeback) {
+            $chargeId = IdService::getResourceIdFromUrl($transaction->url, IdStrings::CHARGE);
+            $chargeback = $this->getChargeback($chargebackId, $chargeId, true);
+            $charge = $this->getCharge($chargeId, true);
+            if (!$chargeback instanceof Chargeback) {
+                $chargeback = (new Chargeback())->setId($chargebackId);
+                $this->addChargeback($chargeback);
+
+                if ($charge instanceof Charge) {
+                    $charge->addChargeback($chargeback);
+                    $chargeback->setParentResource($charge);
+                }
+            }
+        } else {
+            $chargeback = $this->getChargeback($chargebackId, null, true);
+            if (!$chargeback instanceof Chargeback) {
+                $chargeback = (new Chargeback())->setId($chargebackId);
+                $this->addChargeback($chargeback);
+            }
+        }
+
+        $chargeback->handleResponse($transaction);
+    }
 }

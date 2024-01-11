@@ -18,22 +18,22 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Services
  */
+
 namespace UnzerSDK\Services;
 
+use RuntimeException;
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Constants\CancelReasonCodes;
 use UnzerSDK\Exceptions\UnzerApiException;
-use UnzerSDK\Unzer;
 use UnzerSDK\Interfaces\CancelServiceInterface;
 use UnzerSDK\Resources\Payment;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\Resources\TransactionTypes\Charge;
-use RuntimeException;
+use UnzerSDK\Unzer;
+
 use function in_array;
 use function is_string;
 
@@ -51,8 +51,6 @@ class CancelService implements CancelServiceInterface
     {
         $this->unzer = $unzer;
     }
-
-    //<editor-fold desc="Getters/Setters"
 
     /**
      * @return Unzer
@@ -81,10 +79,6 @@ class CancelService implements CancelServiceInterface
         return $this->getUnzer()->getResourceService();
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Authorization Cancel/Reversal transaction">
-
     /**
      * {@inheritDoc}
      */
@@ -106,10 +100,6 @@ class CancelService implements CancelServiceInterface
         $authorization = $this->getResourceService()->fetchAuthorization($payment);
         return $this->cancelAuthorization($authorization, $amount);
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Charge Cancel/Refund transaction">
 
     /**
      * {@inheritDoc}
@@ -151,17 +141,13 @@ class CancelService implements CancelServiceInterface
         return $cancellation;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Payment">
-
     /**
      * {@inheritDoc}
      */
     public function cancelPayment(
         $payment,
         float $amount = null,
-        $reasonCode = CancelReasonCodes::REASON_CODE_CANCEL,
+        ?string $reasonCode = CancelReasonCodes::REASON_CODE_CANCEL,
         string $referenceText = null,
         float $amountNet = null,
         float $amountVat = null
@@ -169,6 +155,11 @@ class CancelService implements CancelServiceInterface
         $paymentObject = $payment;
         if (is_string($payment)) {
             $paymentObject = $this->getResourceService()->fetchPayment($payment);
+        }
+        $paymentType = $paymentObject->getPaymentType();
+        if ($paymentType !== null && $paymentType->supportsDirectPaymentCancel()) {
+            $message = 'The used payment type is not supported by this cancel method. Please use Unzer::cancelAuthorizedPayment() or Unzer::cancelChargedPayment() instead.';
+            throw new RuntimeException($message);
         }
 
         if (!$paymentObject instanceof Payment) {
@@ -240,11 +231,11 @@ class CancelService implements CancelServiceInterface
 
     /**
      * @param Payment $payment
-     * @param string  $reasonCode
-     * @param string  $referenceText
-     * @param float   $amountNet
-     * @param float   $amountVat
-     * @param float   $remainingToCancel
+     * @param ?string $reasonCode
+     * @param ?string $referenceText
+     * @param ?float  $amountNet
+     * @param ?float  $amountVat
+     * @param ?float  $remainingToCancel
      *
      * @return array
      *
@@ -253,20 +244,36 @@ class CancelService implements CancelServiceInterface
      */
     public function cancelPaymentCharges(
         Payment $payment,
-        $reasonCode,
-        $referenceText,
-        $amountNet,
-        $amountVat,
-        float $remainingToCancel = null
+        ?string  $reasonCode,
+        ?string  $referenceText,
+        ?float   $amountNet,
+        ?float   $amountVat,
+        ?float   $remainingToCancel = null
     ): array {
         $cancellations = [];
         $cancelWholePayment = $remainingToCancel === null;
 
-        /** @var Charge $charge */
-        foreach ($payment->getCharges() as $charge) {
+        /** @var array $charge */
+        $charges = $payment->getCharges();
+        $receiptAmount = $this->calculateReceiptAmount($charges);
+        foreach ($charges as $index => $charge) {
             $cancelAmount = null;
             if (!$cancelWholePayment && $remainingToCancel <= $charge->getTotalAmount()) {
                 $cancelAmount = $remainingToCancel;
+            }
+
+            /** @var Charge $charge */
+            // Calculate the maximum cancel amount for initial transaction.
+            if ($index === 0 && $charge->isPending()) {
+                $maxReversalAmount = $this->calculateMaxReversalAmount($charge, $receiptAmount);
+                /* If canceled and charged amounts are equal or higher than the initial charge, skip it,
+                because there won't be anything left to cancel. */
+                if ($maxReversalAmount <= 0) {
+                    continue;
+                }
+                if ($maxReversalAmount < $cancelAmount) {
+                    $cancelAmount = $maxReversalAmount;
+                }
             }
 
             try {
@@ -290,14 +297,51 @@ class CancelService implements CancelServiceInterface
         return $cancellations;
     }
 
-    //</editor-fold>
+    /**
+     * {@inheritDoc}
+     */
+    public function cancelAuthorizedPayment($payment, ?Cancellation $cancellation = null): Cancellation
+    {
+        if ($cancellation === null) {
+            $cancellation = new Cancellation();
+        }
 
-    //<editor-fold desc="Helpers">
+        $paymentResource = $this->getResourceService()->getPaymentResource($payment);
+
+        // Authorization is required to build the proper resource path for the cancellation.
+        $authorization = (new Authorization())->setParentResource($paymentResource);
+        $cancellation->setPayment($paymentResource)
+            ->setParentResource($authorization);
+
+        /** @var Cancellation $cancellation */
+        $cancellation = $this->getResourceService()->createResource($cancellation);
+        return $cancellation;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function cancelChargedPayment($payment, ?Cancellation $cancellation = null): Cancellation
+    {
+        if ($cancellation === null) {
+            $cancellation = new Cancellation();
+        }
+        $paymentResource = $this->getResourceService()->getPaymentResource($payment);
+
+        // Charge is required to build the proper resource path for the cancellation.
+        $charge = (new Charge())->setParentResource($paymentResource);
+        $cancellation->setPayment($paymentResource)
+            ->setParentResource($charge);
+
+        /** @var Cancellation $cancellation */
+        $cancellation = $this->getResourceService()->createResource($cancellation);
+        return $cancellation;
+    }
 
     /**
      * Throws exception if the passed exception is not to be ignored while cancelling charges or authorization.
      *
-     * @param $exception
+     * @param UnzerApiException $exception
      *
      * @throws UnzerApiException
      */
@@ -324,14 +368,36 @@ class CancelService implements CancelServiceInterface
      *
      * @return float|null
      */
-    private function updateCancelAmount($remainingToCancel, float $amount): ?float
+    private function updateCancelAmount(?float $remainingToCancel, float $amount): ?float
     {
         $cancelWholePayment = $remainingToCancel === null;
         if (!$cancelWholePayment) {
-            $remainingToCancel -= $amount;
+            $remainingToCancel = round($remainingToCancel - $amount, 4);
         }
         return $remainingToCancel;
     }
 
-    //</editor-fold>
+    protected function calculateReceiptAmount(array $charges): float
+    {
+        $receiptAmount = 0;
+        // Sum up Amounts of all successful charges from the list.
+        foreach ($charges as $charge) {
+            if ($charge->isSuccess()) {
+                $receiptAmount += $charge->getAmount();
+            }
+        }
+        return $receiptAmount;
+    }
+
+    /** Calculate max reversal amount for a charge and round it to 4th digit.
+     *
+     * @param Charge $charge
+     * @param float  $receiptAmount
+     *
+     * @return float
+     */
+    private function calculateMaxReversalAmount(Charge $charge, float $receiptAmount): float
+    {
+        return round($charge->getAmount() - $receiptAmount - $charge->getCancelledAmount(), 4);
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Validators;
 
 use UnzerSDK\test\BasePaymentTest;
@@ -35,6 +35,7 @@ class PrivateKeyValidatorTest extends BasePaymentTest
      * Verify validate method behaves as expected.
      *
      * @test
+     *
      * @dataProvider validateShouldReturnTrueIfPrivateKeyHasCorrectFormatDP
      *
      * @param string $key

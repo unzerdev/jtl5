@@ -18,18 +18,15 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Traits
  */
+
 namespace UnzerSDK\Traits;
 
 trait HasOrderId
 {
     /** @var string $orderId */
     protected $orderId;
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string|null
@@ -44,11 +41,9 @@ trait HasOrderId
      *
      * @return $this
      */
-    public function setOrderId($orderId): self
+    public function setOrderId(?string $orderId): self
     {
         $this->orderId = $orderId;
         return $this;
     }
-
-    //</editor-fold>
 }

@@ -18,11 +18,12 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Resources
  */
+
 namespace UnzerSDK\Resources;
+
+use UnzerSDK\Adapter\HttpAdapterInterface;
 
 class Webhook extends AbstractUnzerResource
 {
@@ -43,8 +44,6 @@ class Webhook extends AbstractUnzerResource
         $this->url = $url;
         $this->event = $event;
     }
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string|null
@@ -84,17 +83,11 @@ class Webhook extends AbstractUnzerResource
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Resource IF">
-
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return 'webhooks';
     }
-
-    //</editor-fold>
 }

@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,16 +21,18 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Services;
 
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\EmbeddedResources\Amount;
 use UnzerSDK\Resources\Payment;
+use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
+use UnzerSDK\Resources\PaymentTypes\Klarna;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -122,9 +125,37 @@ class CancelServiceTest extends BasePaymentTest
     }
 
     /**
+     * Verify that max cancel amount is calculated correctly in edge case.
+     *
+     * @test
+     */
+    public function maxCancelAmountShouldBeRoundedCorrectly(): void
+    {
+        $cancelSrvMock = new CancelService($this->unzer);
+        $reflection = new \ReflectionClass(get_class($cancelSrvMock));
+        $method = $reflection->getMethod('calculateMaxReversalAmount');
+        $method->setAccessible(true);
+
+        $chargeAmount = 12.3;
+        $receiptAmount = 10.0;
+        $canceledAmount = 2.3;
+
+        // Verify not rounded result would not equal zero.
+        $this->assertNotEquals(0, $chargeAmount - $receiptAmount - $canceledAmount);
+
+        $chargeMock = $this->getMockBuilder(Charge::class)->setMethods(['getCancelledAmount'])->setConstructorArgs([$chargeAmount])->getMock();
+        $chargeMock->method('getCancelledAmount')->willReturn($canceledAmount);
+
+        $maxReversalAmount = $method->invokeArgs($cancelSrvMock, [$chargeMock , $receiptAmount]);
+
+        $this->assertEquals(0, $maxReversalAmount);
+    }
+
+    /**
      * Verify certain errors are allowed during cancellation and will be ignored.
      *
      * @test
+     *
      * @dataProvider allowedErrorCodesDuringChargeCancel
      *
      * @param string $allowedExceptionCode
@@ -204,6 +235,7 @@ class CancelServiceTest extends BasePaymentTest
      * Verify certain errors are allowed during cancellation and will be ignored.
      *
      * @test
+     *
      * @dataProvider allowedErrorCodesDuringAuthCancel
      *
      * @param string $exceptionCode
@@ -270,6 +302,24 @@ class CancelServiceTest extends BasePaymentTest
         $cancelService->cancelPayment('paymentId');
     }
 
+    /** Verify that payment types processed on P3 are not canceled via unzer::cancelPayment method.
+     * @test
+     *
+     * @dataProvider p3PaymentTypes
+     *
+     * @param BasePaymentType $paymentType
+     */
+    public function cancelPaymentMethodThrowsRuntimeExceptionWithP3PaymentType(BasePaymentType $paymentType): void
+    {
+        $dummyPayment = new Payment($this->unzer);
+        $dummyPayment->setPaymentType($paymentType);
+
+        $this->expectException(\RuntimeException::class);
+        $expectedMessage = 'The used payment type is not supported by this cancel method. Please use Unzer::cancelAuthorizedPayment() or Unzer::cancelChargedPayment() instead.';
+        $this->expectExceptionMessage($expectedMessage);
+        $this->unzer->cancelPayment($dummyPayment, 33.33);
+    }
+
     //<editor-fold desc="Data Providers">
 
     /**
@@ -294,6 +344,17 @@ class CancelServiceTest extends BasePaymentTest
             'already cancelled' => [ApiResponseCodes::API_ERROR_ALREADY_CANCELLED, false],
             'already chargedBack' => [ApiResponseCodes::API_ERROR_ALREADY_CHARGED, false],
             'other' => [ApiResponseCodes::API_ERROR_BASKET_ITEM_IMAGE_INVALID_URL, true]
+        ];
+    }
+
+    /**
+     * @return array
+     */
+    public function p3PaymentTypes(): array
+    {
+        return [
+            'Paylater Invoice' => [(new PaylaterInvoice())->setId('s-piv-dummyId')],
+            'Klarna' => [(new Klarna())->setId('s-piv-dummyId')]
         ];
     }
 

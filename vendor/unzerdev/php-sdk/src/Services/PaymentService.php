@@ -18,15 +18,17 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Services
  */
+
 namespace UnzerSDK\Services;
 
 use DateTime;
 use UnzerSDK\Constants\TransactionTypes;
 use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\Resources\EmbeddedResources\Paylater\InstallmentPlansQuery;
+use UnzerSDK\Resources\PaylaterInstallmentPlans;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
 use UnzerSDK\Unzer;
 use UnzerSDK\Interfaces\PaymentServiceInterface;
 use UnzerSDK\Resources\AbstractUnzerResource;
@@ -59,8 +61,6 @@ class PaymentService implements PaymentServiceInterface
         $this->unzer       = $unzer;
     }
 
-    //<editor-fold desc="Getters/Setters"
-
     /**
      * @return Unzer
      */
@@ -88,11 +88,36 @@ class PaymentService implements PaymentServiceInterface
         return $this->getUnzer()->getResourceService();
     }
 
-    //</editor-fold>
+    public function performAuthorization(
+        Authorization $authorization,
+        $paymentType,
+        $customer = null,
+        Metadata $metadata = null,
+        Basket $basket = null
+    ): Authorization {
+        $payment = $this->createPayment($paymentType);
+        $paymentType = $payment->getPaymentType();
+        $authorization->setSpecialParams($paymentType !== null ? $paymentType->getTransactionParams() : []);
 
-    //<editor-fold desc="Transactions">
+        $payment->setAuthorization($authorization)->setCustomer($customer)->setMetadata($metadata)->setBasket($basket);
 
-    //<editor-fold desc="Authorize transaction">
+        $this->getResourceService()->createResource($authorization);
+        return $authorization;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param Authorization $payment
+     */
+    public function updateAuthorization($payment, Authorization $authorization): Authorization
+    {
+        $authorization->setId(null);
+        $paymentResource = $this->getResourceService()->getPaymentResource($payment);
+        $authorization->setPayment($paymentResource);
+        $this->getResourceService()->patchResource($authorization);
+        return $authorization;
+    }
 
     /**
      * {@inheritDoc}
@@ -118,8 +143,7 @@ class PaymentService implements PaymentServiceInterface
         $authorization = (new Authorization($amount, $currency, $returnUrl))
             ->setOrderId($orderId)
             ->setInvoiceId($invoiceId)
-            ->setPaymentReference($referenceText)
-            ->setSpecialParams($paymentType !== null ? $paymentType->getTransactionParams() : []);
+            ->setPaymentReference($referenceText);
         if ($card3ds !== null) {
             $authorization->setCard3ds($card3ds);
         }
@@ -128,13 +152,40 @@ class PaymentService implements PaymentServiceInterface
         if ($recurrenceType !== null) {
             $authorization->setRecurrenceType($recurrenceType);
         }
-        $this->getResourceService()->createResource($authorization);
+        $this->performAuthorization($authorization, $paymentType, $customer, $metadata, $basket);
         return $authorization;
     }
 
-    //</editor-fold>
+    /**
+     * {@inheritDoc}
+     */
+    public function performCharge(Charge $charge, $paymentType, $customer = null, Metadata $metadata = null, Basket $basket = null): Charge
+    {
+        $payment     = $this->createPayment($paymentType);
+        $paymentType = $payment->getPaymentType();
 
-    //<editor-fold desc="Charge transaction">
+        /** @var Charge $charge */
+        $charge->setSpecialParams($paymentType->getTransactionParams() ?? []);
+        $payment->addCharge($charge)->setCustomer($customer)->setMetadata($metadata)->setBasket($basket);
+
+        $this->getResourceService()->createResource($charge);
+
+        return $charge;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @param Charge $payment
+     */
+    public function updateCharge($payment, Charge $charge): Charge
+    {
+        $charge->setId(null);
+        $paymentResource = $this->getResourceService()->getPaymentResource($payment);
+        $charge->setPayment($paymentResource);
+        $this->getResourceService()->patchResource($charge);
+        return $charge;
+    }
 
     /**
      * {@inheritDoc}
@@ -160,8 +211,7 @@ class PaymentService implements PaymentServiceInterface
         $charge = (new Charge($amount, $currency, $returnUrl))
             ->setOrderId($orderId)
             ->setInvoiceId($invoiceId)
-            ->setPaymentReference($paymentReference)
-            ->setSpecialParams($paymentType->getTransactionParams() ?? []);
+            ->setPaymentReference($paymentReference);
         if ($card3ds !== null) {
             $charge->setCard3ds($card3ds);
         }
@@ -170,9 +220,8 @@ class PaymentService implements PaymentServiceInterface
         if ($recurrenceType !== null) {
             $charge->setRecurrenceType($recurrenceType);
         }
-        $this->getResourceService()->createResource($charge);
 
-        return $charge;
+        return $this->performCharge($charge, $paymentType, $customer, $metadata, $basket);
     }
 
     /**
@@ -184,8 +233,7 @@ class PaymentService implements PaymentServiceInterface
         string $orderId = null,
         string $invoiceId = null
     ): Charge {
-        $paymentResource = $this->getResourceService()->getPaymentResource($payment);
-        return $this->chargePayment($paymentResource, $amount, $orderId, $invoiceId);
+        return $this->chargePayment($payment, $amount, $orderId, $invoiceId);
     }
 
     /**
@@ -194,41 +242,47 @@ class PaymentService implements PaymentServiceInterface
     public function chargePayment(
         $payment,
         float $amount = null,
-        string $currency = null,
         string $orderId = null,
         string $invoiceId = null
     ): Charge {
-        $charge = new Charge($amount, $currency);
-        $charge->setPayment($payment);
+        $charge = new Charge($amount);
+
         if ($orderId !== null) {
             $charge->setOrderId($orderId);
         }
         if ($invoiceId !== null) {
             $charge->setInvoiceId($invoiceId);
         }
-        $payment->addCharge($charge);
-        $this->getResourceService()->createResource($charge);
-        return $charge;
+
+        return $this->performChargeOnPayment($payment, $charge);
     }
 
-    //</editor-fold>
+    /**
+     * {@inheritDoc}
+     */
+    public function performChargeOnPayment($payment, Charge $charge): Charge
+    {
+        $paymentResource = $this->getResourceService()->getPaymentResource($payment);
+        $paymentResource->addCharge($charge);
+        $this->getResourceService()->createResource($charge);
 
-    //<editor-fold desc="Payout transactions">
+        return $charge;
+    }
 
     /**
      * {@inheritDoc}
      */
     public function payout(
-        $amount,
-        $currency,
+        float    $amount,
+        string   $currency,
         $paymentType,
-        $returnUrl,
+        string   $returnUrl,
         $customer = null,
-        $orderId = null,
-        $metadata = null,
-        $basket = null,
-        $invoiceId = null,
-        $referenceText = null
+        string   $orderId = null,
+        Metadata $metadata = null,
+        Basket   $basket = null,
+        string   $invoiceId = null,
+        string $referenceText = null
     ): Payout {
         $payment = $this->createPayment($paymentType);
         $payout = (new Payout($amount, $currency, $returnUrl))
@@ -241,10 +295,6 @@ class PaymentService implements PaymentServiceInterface
         return $payout;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Shipment transaction">
-
     /**
      * {@inheritDoc}
      */
@@ -256,12 +306,6 @@ class PaymentService implements PaymentServiceInterface
         $this->getResourceService()->createResource($shipment);
         return $shipment;
     }
-
-    //</editor-fold>
-
-    //</editor-fold>
-
-    //<editor-fold desc="Paypage">
 
     /**
      * {@inheritDoc}
@@ -287,17 +331,13 @@ class PaymentService implements PaymentServiceInterface
         return $this->initPayPage($paypage, TransactionTypes::AUTHORIZATION, $customer, $basket, $metadata);
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Installment Secured">
-
     /**
      * {@inheritDoc}
      */
     public function fetchInstallmentPlans(
-        $amount,
-        $currency,
-        $effectiveInterest,
+        float    $amount,
+        string   $currency,
+        float    $effectiveInterest,
         DateTime $orderDate = null
     ): InstalmentPlans {
         $ins   = (new InstallmentSecured(null, null, null))->setParentResource($this->unzer);
@@ -307,9 +347,16 @@ class PaymentService implements PaymentServiceInterface
         return $plans;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Helpers">
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchPaylaterInstallmentPlans(
+        InstallmentPlansQuery $paylaterInstallmentPlansQuery
+    ): PaylaterInstallmentPlans {
+        $paylaterInstallment = (new PaylaterInstallment(null, null, null, null))->setParentResource($this->unzer);
+        $plans = (new PaylaterInstallmentPlans())->setQueryParameter($paylaterInstallmentPlansQuery)->setParentResource($paylaterInstallment);
+        return $this->unzer->getResourceService()->fetchResource($plans);
+    }
 
     /**
      * Creates the PayPage for the requested transaction method.
@@ -331,14 +378,14 @@ class PaymentService implements PaymentServiceInterface
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
     private function initPayPage(
-        Paypage $paypage,
-        $action,
+        Paypage  $paypage,
+        string   $action,
         Customer $customer = null,
-        Basket $basket = null,
+        Basket   $basket = null,
         Metadata $metadata = null
     ): Paypage {
         $paypage->setAction($action)->setParentResource($this->unzer);
-        $payment = $this->createPayment($paypage)->setBasket($basket)->setCustomer($customer)->setMetadata($metadata);
+        $payment = $this->createPayment($paypage)->setBasket($basket)->setCustomer($customer)->setMetadata($metadata)->setPayPage($paypage);
         $this->getResourceService()->createResource($paypage->setPayment($payment));
         return $paypage;
     }
@@ -357,6 +404,4 @@ class PaymentService implements PaymentServiceInterface
     {
         return (new Payment($this->unzer))->setPaymentType($paymentType);
     }
-
-    //</editor-fold>
 }

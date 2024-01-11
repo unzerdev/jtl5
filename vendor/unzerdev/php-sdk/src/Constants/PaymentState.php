@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Constants
  */
+
 namespace UnzerSDK\Constants;
 
 use RuntimeException;
@@ -34,6 +33,7 @@ class PaymentState
     public const STATE_PARTLY = 3;
     public const STATE_PAYMENT_REVIEW = 4;
     public const STATE_CHARGEBACK = 5;
+    public const STATE_CREATE = 6;
 
     public const STATE_NAME_PENDING = 'pending';
     public const STATE_NAME_COMPLETED = 'completed';
@@ -41,6 +41,7 @@ class PaymentState
     public const STATE_NAME_PARTLY = 'partly';
     public const STATE_NAME_PAYMENT_REVIEW = 'payment review';
     public const STATE_NAME_CHARGEBACK = 'chargeback';
+    public const STATE_NAME_CREATE = 'create';
 
     /**
      * Returns the name of the state with the given code.
@@ -51,7 +52,7 @@ class PaymentState
      *
      * @throws RuntimeException A RuntimeException is thrown when the $stateCode is unknown.
      */
-    public static function mapStateCodeToName($stateCode): string
+    public static function mapStateCodeToName(int $stateCode): string
     {
         switch ($stateCode) {
             case self::STATE_PENDING:
@@ -72,6 +73,9 @@ class PaymentState
             case self::STATE_CHARGEBACK:
                 $stateName =  self::STATE_NAME_CHARGEBACK;
                 break;
+            case self::STATE_CREATE:
+                $stateName =  self::STATE_NAME_CREATE;
+                break;
             default:
                 throw new RuntimeException('Unknown payment state #' . $stateCode);
         }
@@ -88,7 +92,7 @@ class PaymentState
      *
      * @throws RuntimeException A RuntimeException is thrown when the $stateName is unknown.
      */
-    public static function mapStateNameToCode($stateName): int
+    public static function mapStateNameToCode(string $stateName): int
     {
         switch ($stateName) {
             case self::STATE_NAME_PENDING:

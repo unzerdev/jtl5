@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Interfaces
  */
+
 namespace UnzerSDK\Interfaces;
 
 use UnzerSDK\Unzer;
@@ -47,5 +46,5 @@ interface UnzerParentInterface
      *
      * @return string
      */
-    public function getUri($appendId = true, $httpMethod = HttpAdapterInterface::REQUEST_GET): string;
+    public function getUri(bool $appendId = true, string $httpMethod = HttpAdapterInterface::REQUEST_GET): string;
 }

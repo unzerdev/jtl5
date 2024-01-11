@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Controllers;
 
@@ -9,14 +11,18 @@ use UnzerSDK\Resources\TransactionTypes\Charge;
 use JTL\Checkout\Bestellung;
 use JTL\Plugin\PluginInterface;
 use JTL\Shop;
+use Plugin\s360_unzer_shop5\src\Charges\ChargeHandler;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingEntity;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingModel;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
 use Plugin\s360_unzer_shop5\src\Payments\PaymentMethodModuleFactory;
+use Plugin\s360_unzer_shop5\src\Utils\Config;
+use Plugin\s360_unzer_shop5\src\Utils\TranslatorTrait;
 use stdClass;
 use UnzerSDK\Constants\ApiResponseCodes;
+use UnzerSDK\Constants\CancelReasonCodes;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 
 /**
@@ -26,33 +32,17 @@ use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
  */
 class SyncController extends Controller
 {
+    use TranslatorTrait;
+
     public const ACTION_SHIPMENT = 'shipment';
     public const ACTION_CANCEL = 'cancel';
 
-    /**
-     * @var string
-     */
-    protected $action;
-
-    /**
-     * @var Bestellung
-     */
-    protected $order;
-
-    /**
-     * @var OrderMappingModel
-     */
-    protected $model;
-
-    /**
-     * @var HeidelpayApiAdapter
-     */
-    protected $adapter;
-
-    /**
-     * @var PaymentMethodModuleFactory
-     */
-    protected $factory;
+    protected string $action;
+    protected Bestellung $order;
+    protected OrderMappingModel $model;
+    protected HeidelpayApiAdapter $adapter;
+    protected PaymentMethodModuleFactory $factory;
+    protected ChargeHandler $chargeHandler;
 
     /**
      * @inheritDoc
@@ -62,6 +52,7 @@ class SyncController extends Controller
         parent::__construct($plugin);
 
         $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
+        $this->chargeHandler = Shop::Container()->get(ChargeHandler::class);
         $this->model = new OrderMappingModel(Shop::Container()->getDB());
         $this->factory = new PaymentMethodModuleFactory();
     }
@@ -110,6 +101,19 @@ class SyncController extends Controller
             return 'error';
         }
 
+        /**
+         *! Because of stupid JTL Shop <-> WaWi matching the payment method by its displayed name it can happen that
+         *! an order with "Unzer Invoice Paylater" turns into an order with "Unzer Invoice" (or default "JTL Invoice").
+         *! This of course messes everything up, especially the logic to determine the API KeyPair...
+         *! So for this case we try to fix that behaviour and reassign the payment method we initially saved for that
+         *! mapped order.
+         */
+        if ($mappedOrder->getPaymentMethodId() && $this->order->kZahlungsart !== $mappedOrder->getPaymentMethodId()) {
+            $this->order->kZahlungsart = $mappedOrder->getPaymentMethodId();
+            $this->order->updateInDB();
+            $this->order = new Bestellung($this->order->kBestellung, true);
+        }
+
         // Action routing
         if ($this->action == self::ACTION_SHIPMENT) {
             $this->handleShipment($mappedOrder);
@@ -137,24 +141,57 @@ class SyncController extends Controller
      */
     private function handleShipment(OrderMappingEntity $entity): void
     {
-        $this->debugLog('Handle Shipment for: ' . print_r($entity->toObject(), true));
+        $this->debugLog('Handle Shipment for: ' . print_r($entity->toObject(), true), static::class);
 
-        // Only call shipment if the order is shipped completely.
-        if ($this->order->cStatus != \BESTELLUNG_STATUS_VERSANDT) {
+        // Only call shipment if the order is shipped
+        if (
+            $this->order->cStatus != \BESTELLUNG_STATUS_VERSANDT &&
+            $this->order->cStatus != \BESTELLUNG_STATUS_TEILVERSANDT
+        ) {
+            $this->debugLog(
+                'Skip order because it is not in a shipped state: ' . $entity->getJtlOrderNumber(),
+                static::class
+            );
             return;
         }
 
         // Check if shipment call is supported for this payment
+        // Fill order before, otherwise we cannot determine if b2b or not and might get the wrong api key
+        $this->order->fuelleBestellung();
+        $api = $this->adapter->getConnectionForOrder($this->order);
         $payment = $this->adapter->fetchPayment($entity->getPaymentId());
 
+        // Charge before shipping calls are made
+        if ($this->adapter->shouldChargeBeforeShipping($payment->getPaymentType())) {
+            $method = $this->factory->createForType(
+                $payment->getPaymentType(),
+                ['id-string' => $entity->getPaymentTypeId()]
+            );
+
+            $this->chargeHandler->chargeOnShipping($this->order, $method, $payment, $entity);
+
+            $charge = $payment->getChargeByIndex(0);
+            if ($charge) {
+                $entity->setTransactionUniqueId($charge->getUniqueId());
+                $this->model->save($entity);
+            }
+
+            $this->debugLog(
+                'Charge before shipment call finished: ' . $entity->getJtlOrderNumber(),
+                static::class
+            );
+        }
+
+        // Ship order
         if ($this->adapter->supportsShipment($payment->getPaymentType())) {
             $this->debugLog(
-                'Ship payment ' . $payment->getId() . ' with invoiceId ' . $entity->getInvoiceId(),
+                'Ship payment ' . $payment->getId() . ' with invoiceId ' . $entity->getInvoiceId()
+                . ' for order ' . $entity->getJtlOrderNumber(),
                 static::class
             );
 
             // Ship
-            $shipment = $this->adapter->getApi()->ship($payment, $entity->getInvoiceId());
+            $shipment = $api->ship($payment, $entity->getInvoiceId());
             $entity->setPaymentState($payment->getStateName());
 
             if ($shipment->isSuccess()) {
@@ -173,6 +210,8 @@ class SyncController extends Controller
                 static::class
             );
         }
+
+        $this->debugLog('Finished handleShipment call for order ' . $entity->getJtlOrderNumber(), static::class);
     }
 
     /**
@@ -189,6 +228,8 @@ class SyncController extends Controller
     private function handleCancel(OrderMappingEntity $entity): void
     {
         $this->debugLog('Handle Cancelation for: ' . print_r($entity->toObject(), true));
+
+        $api = $this->adapter->getConnectionForOrder($this->order);
         $payment = $this->adapter->fetchPayment($entity->getPaymentId());
         $method = $this->factory->createForType(
             $payment->getPaymentType(),
@@ -205,9 +246,11 @@ class SyncController extends Controller
         $authorization = $payment->getAuthorization();
         $entity->setPaymentState(PaymentState::STATE_NAME_CANCELED);
 
-        if (!empty($authorization) &&
+        if (
+            !empty($authorization) &&
             !$payment->getPaymentType() instanceof InstallmentSecured &&
-            $authorization instanceof Authorization
+            $authorization instanceof Authorization &&
+            empty($payment->getCharges())
         ) {
             $this->cancelTransaction($payment, $authorization, $method);
             return;
@@ -217,7 +260,7 @@ class SyncController extends Controller
         // Most payment types probably contain only one charge, but for a full cancelation we have to cancel all.
         foreach ($payment->getCharges() as $charge) {
             /** @var Charge $charge */
-            $charge = $this->adapter->getApi()->fetchCharge($charge);
+            $charge = $api->fetchCharge($charge);
 
             if (!$charge->isError()) {
                 try {
@@ -251,13 +294,29 @@ class SyncController extends Controller
      */
     private function cancelTransaction(Payment $payment, $transaction, HeidelpayPaymentMethod $method): void
     {
-        if ($method instanceof CancelableInterface) {
-            $cancellation = $method->cancelPaymentTransaction($payment, $transaction, $this->order);
-        } else {
-            $cancellation = $transaction->cancel();
+        if ($transaction->isError()) {
+            $this->errorLog(
+                'Could not cancel unsuccessful transaction: ' . $transaction->getId(),
+                static::class
+            );
+            return;
         }
 
-        if ($cancellation->isError()) {
+        if ($method instanceof CancelableInterface) {
+            $cancellation = $method->cancelPaymentTransaction($payment, $transaction, $this->order);
+        } elseif ($transaction instanceof Authorization) {
+            $cancellation = $this->adapter->getCurrentConnection()->cancelAuthorizedPayment($payment);
+        } else {
+            $reference = str_replace(
+                ['%ORDER_ID%', '%SHOPNAME%'],
+                [$this->order->cBestellNr, Shop::getSettingValue(CONF_GLOBAL, 'global_shopname')],
+                $this->trans(Config::LANG_CANCEL_PAYMENT_REFERENCE)
+            );
+
+            $cancellation = $transaction->cancel(null, CancelReasonCodes::REASON_CODE_CANCEL, $reference);
+        }
+
+        if ($cancellation->isError() || $cancellation->isPending()) {
             $this->errorLog(
                 'Could not cancel payment: ' . $cancellation->getMessage()->getMerchant() .
                 ' | Error-Code: ' . $cancellation->getMessage()->getCode(),

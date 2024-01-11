@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Services
  */
+
 namespace UnzerSDK\Services;
 
 use DateTime;
@@ -30,7 +29,15 @@ use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Constants\IdStrings;
 use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\Resources\Config;
 use UnzerSDK\Resources\PaymentTypes\Applepay;
+use UnzerSDK\Resources\PaymentTypes\Klarna;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
+use UnzerSDK\Resources\PaymentTypes\Paypage;
+use UnzerSDK\Resources\PaymentTypes\PayU;
+use UnzerSDK\Resources\PaymentTypes\PostFinanceCard;
+use UnzerSDK\Resources\PaymentTypes\PostFinanceEfinance;
+use UnzerSDK\Resources\TransactionTypes\Chargeback;
 use UnzerSDK\Unzer;
 use UnzerSDK\Interfaces\ResourceServiceInterface;
 use UnzerSDK\Resources\AbstractUnzerResource;
@@ -49,6 +56,7 @@ use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\Ideal;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\Resources\PaymentTypes\PIS;
 use UnzerSDK\Resources\PaymentTypes\Prepayment;
@@ -66,6 +74,7 @@ use UnzerSDK\Resources\TransactionTypes\Shipment;
 use UnzerSDK\Traits\CanRecur;
 use RuntimeException;
 use stdClass;
+
 use function in_array;
 use function is_string;
 
@@ -84,8 +93,6 @@ class ResourceService implements ResourceServiceInterface
         $this->unzer = $unzer;
     }
 
-    //<editor-fold desc="Getters/Setters"
-
     /** @return Unzer */
     public function getUnzer(): Unzer
     {
@@ -103,15 +110,12 @@ class ResourceService implements ResourceServiceInterface
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="General">
-
     /**
      * Send request to API.
      *
      * @param AbstractUnzerResource $resource
      * @param string                $httpMethod
+     * @param string                $apiVersion
      *
      * @return stdClass
      *
@@ -120,11 +124,12 @@ class ResourceService implements ResourceServiceInterface
      */
     public function send(
         AbstractUnzerResource $resource,
-        $httpMethod = HttpAdapterInterface::REQUEST_GET
+        string                $httpMethod = HttpAdapterInterface::REQUEST_GET,
+        string                $apiVersion = Unzer::API_VERSION
     ): stdClass {
         $appendId     = $httpMethod !== HttpAdapterInterface::REQUEST_POST;
         $uri          = $resource->getUri($appendId, $httpMethod);
-        $responseJson = $resource->getUnzerObject()->getHttpService()->send($uri, $resource, $httpMethod);
+        $responseJson = $resource->getUnzerObject()->getHttpService()->send($uri, $resource, $httpMethod, $apiVersion);
         return json_decode($responseJson, false);
     }
 
@@ -160,6 +165,10 @@ class ResourceService implements ResourceServiceInterface
         $unzer    = $this->unzer;
 
         $resourceId   = IdService::getLastResourceIdFromUrlString($url);
+        if (empty($resourceId)) {
+            return null;
+        }
+
         $resourceType = IdService::getResourceTypeFromIdString($resourceId);
         switch (true) {
             case $resourceType === IdStrings::AUTHORIZE:
@@ -180,6 +189,15 @@ class ResourceService implements ResourceServiceInterface
             case $resourceType === IdStrings::CANCEL:
                 $paymentId  = IdService::getResourceIdFromUrl($url, IdStrings::PAYMENT);
                 $chargeId   = IdService::getResourceIdOrNullFromUrl($url, IdStrings::CHARGE);
+                if (IdService::isPaymentCancellation($url)) {
+                    $isRefund = preg_match('/charge/', $url) === 1;
+                    if ($isRefund) {
+                        $resource = $unzer->fetchPaymentRefund($paymentId, $resourceId);
+                        break;
+                    }
+                    $resource = $unzer->fetchPaymentReversal($paymentId, $resourceId);
+                    break;
+                }
                 if ($chargeId !== null) {
                     $resource = $unzer->fetchRefundById($paymentId, $chargeId, $resourceId);
                     break;
@@ -211,10 +229,6 @@ class ResourceService implements ResourceServiceInterface
         return $resource;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="CRUD operations">
-
     /**
      * Create the resource on the api.
      *
@@ -228,7 +242,7 @@ class ResourceService implements ResourceServiceInterface
     public function createResource(AbstractUnzerResource $resource): AbstractUnzerResource
     {
         $method = HttpAdapterInterface::REQUEST_POST;
-        $response = $this->send($resource, $method);
+        $response = $this->send($resource, $method, $resource->getApiVersion());
 
         $isError = isset($response->isError) && $response->isError;
         if ($isError) {
@@ -257,7 +271,32 @@ class ResourceService implements ResourceServiceInterface
     public function updateResource(AbstractUnzerResource $resource): AbstractUnzerResource
     {
         $method = HttpAdapterInterface::REQUEST_PUT;
-        $response = $this->send($resource, $method);
+        $response = $this->send($resource, $method, $resource->getApiVersion());
+
+        $isError = isset($response->isError) && $response->isError;
+        if ($isError) {
+            return $resource;
+        }
+
+        $resource->handleResponse($response, $method);
+        return $resource;
+    }
+
+    /**
+     * Update the resource on the api with PATCH method.
+     *
+     * @param AbstractUnzerResource $resource
+     *
+     * @return AbstractUnzerResource
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     * @throws Exception
+     */
+    public function patchResource(AbstractUnzerResource $resource): AbstractUnzerResource
+    {
+        $method = HttpAdapterInterface::REQUEST_PATCH;
+        $response = $this->send($resource, $method, $resource->getApiVersion());
 
         $isError = isset($response->isError) && $response->isError;
         if ($isError) {
@@ -278,7 +317,7 @@ class ResourceService implements ResourceServiceInterface
      */
     public function deleteResource(AbstractUnzerResource &$resource): ?AbstractUnzerResource
     {
-        $response = $this->send($resource, HttpAdapterInterface::REQUEST_DELETE);
+        $response = $this->send($resource, HttpAdapterInterface::REQUEST_DELETE, $resource->getApiVersion());
 
         $isError = isset($response->isError) && $response->isError;
         if ($isError) {
@@ -294,7 +333,8 @@ class ResourceService implements ResourceServiceInterface
     /**
      * Updates the given local resource object (id must be set)
      *
-     * @param AbstractUnzerResource $resource The local resource object to update.
+     * @param AbstractUnzerResource $resource   The local resource object to update.
+     * @param string                $apiVersion
      *
      * @return AbstractUnzerResource The updated resource object.
      *
@@ -302,18 +342,14 @@ class ResourceService implements ResourceServiceInterface
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      * @throws Exception
      */
-    public function fetchResource(AbstractUnzerResource $resource): AbstractUnzerResource
+    public function fetchResource(AbstractUnzerResource $resource, string $apiVersion = Unzer::API_VERSION): AbstractUnzerResource
     {
         $method = HttpAdapterInterface::REQUEST_GET;
-        $response = $this->send($resource, $method);
+        $response = $this->send($resource, $method, $apiVersion);
         $resource->setFetchedAt(new DateTime('now'));
         $resource->handleResponse($response, $method);
         return $resource;
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Payout resource">
 
     /**
      * Fetch an Payout object by its paymentId.
@@ -336,14 +372,10 @@ class ResourceService implements ResourceServiceInterface
         return $payout;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Recurring">
-
     /**
      * {@inheritDoc}
      */
-    public function activateRecurringPayment($paymentType, $returnUrl, string $recurrenceType = null): Recurring
+    public function activateRecurringPayment($paymentType, string $returnUrl, string $recurrenceType = null): Recurring
     {
         $paymentTypeObject = $paymentType;
         if (is_string($paymentType)) {
@@ -363,10 +395,6 @@ class ResourceService implements ResourceServiceInterface
 
         throw new RuntimeException('Recurring is not available for the given payment type.');
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Payment resource">
 
     /**
      * Fetches the payment object if the id is given.
@@ -390,6 +418,21 @@ class ResourceService implements ResourceServiceInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public function fetchPayPage($payPage): Paypage
+    {
+        $payPageObject = $payPage;
+        if (is_string($payPage)) {
+            $payPageObject = new payPage(0, '', '');
+            $payPageObject->setId($payPage);
+        }
+
+        $this->fetchResource($payPageObject->setParentResource($this->unzer));
+        return $payPageObject;
+    }
+
+    /**
      * {@inheritDoc}
      */
     public function fetchPayment($payment): Payment
@@ -407,30 +450,22 @@ class ResourceService implements ResourceServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function fetchPaymentByOrderId($orderId): Payment
+    public function fetchPaymentByOrderId(string $orderId): Payment
     {
         $paymentObject = (new Payment($this->unzer))->setOrderId($orderId);
         $this->fetchResource($paymentObject);
         return $paymentObject;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Keypair resource">
-
     /**
      * {@inheritDoc}
      */
-    public function fetchKeypair($detailed = false): Keypair
+    public function fetchKeypair(bool $detailed = false): Keypair
     {
         $keyPair = (new Keypair())->setParentResource($this->unzer)->setDetailed($detailed);
         $this->fetchResource($keyPair);
         return $keyPair;
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Metadata resource">
 
     /**
      * {@inheritDoc}
@@ -456,10 +491,6 @@ class ResourceService implements ResourceServiceInterface
         return $metadataObject;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Basket resource">
-
     /**
      * {@inheritDoc}
      */
@@ -481,7 +512,14 @@ class ResourceService implements ResourceServiceInterface
         }
         $basketObj->setParentResource($this->unzer);
 
-        $this->fetchResource($basketObj);
+        try {
+            $this->fetchResource($basketObj, 'v2');
+        } catch (UnzerApiException $exception) {
+            if ($exception->getCode() !== ApiResponseCodes::API_ERROR_BASKET_NOT_FOUND) {
+                throw $exception;
+            }
+            $this->fetchResource($basketObj);
+        }
         return $basketObj;
     }
 
@@ -494,10 +532,6 @@ class ResourceService implements ResourceServiceInterface
         $this->updateResource($basket);
         return $basket;
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="PaymentType resource">
 
     /**
      * {@inheritDoc}
@@ -512,72 +546,9 @@ class ResourceService implements ResourceServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function fetchPaymentType($typeId): BasePaymentType
+    public function fetchPaymentType(string $typeId): BasePaymentType
     {
-        $resourceType = IdService::getResourceTypeFromIdString($typeId);
-        switch ($resourceType) {
-            case IdStrings::ALIPAY:
-                $paymentType = new Alipay();
-                break;
-            case IdStrings::APPLEPAY:
-                $paymentType = new Applepay(null, null, null, null);
-                break;
-            case IdStrings::BANCONTACT:
-                $paymentType = new Bancontact();
-                break;
-            case IdStrings::CARD:
-                $paymentType = new Card(null, null);
-                break;
-            case IdStrings::EPS:
-                $paymentType = new EPS();
-                break;
-            case IdStrings::GIROPAY:
-                $paymentType = new Giropay();
-                break;
-            case IdStrings::HIRE_PURCHASE_DIRECT_DEBIT:
-            case IdStrings::INSTALLMENT_SECURED:
-                $paymentType = new InstallmentSecured();
-                break;
-            case IdStrings::IDEAL:
-                $paymentType = new Ideal();
-                break;
-            case IdStrings::INVOICE:
-                $paymentType = new Invoice();
-                break;
-            case IdStrings::INVOICE_FACTORING:
-            case IdStrings::INVOICE_GUARANTEED:
-            case IdStrings::INVOICE_SECURED:
-                $paymentType = new InvoiceSecured();
-                break;
-            case IdStrings::PAYPAL:
-                $paymentType = new Paypal();
-                break;
-            case IdStrings::PIS:
-                $paymentType = new PIS();
-                break;
-            case IdStrings::PREPAYMENT:
-                $paymentType = new Prepayment();
-                break;
-            case IdStrings::PRZELEWY24:
-                $paymentType = new Przelewy24();
-                break;
-            case IdStrings::SEPA_DIRECT_DEBIT:
-                $paymentType = new SepaDirectDebit(null);
-                break;
-            case IdStrings::SEPA_DIRECT_DEBIT_GUARANTEED:
-            case IdStrings::SEPA_DIRECT_DEBIT_SECURED:
-                $paymentType = new SepaDirectDebitSecured(null);
-                break;
-            case IdStrings::SOFORT:
-                $paymentType = new Sofort();
-                break;
-            case IdStrings::WECHATPAY:
-                $paymentType = new Wechatpay();
-                break;
-            default:
-                throw new RuntimeException('Invalid payment type!');
-                break;
-        }
+        $paymentType = self::getTypeInstanceFromIdString($typeId);
 
         /** @var BasePaymentType $paymentType */
         $paymentType = $paymentType->setParentResource($this->unzer)->setId($typeId);
@@ -594,10 +565,6 @@ class ResourceService implements ResourceServiceInterface
         $returnPaymentType = $this->updateResource($paymentType);
         return $returnPaymentType;
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Customer resource">
 
     /**
      * {@inheritDoc}
@@ -649,7 +616,7 @@ class ResourceService implements ResourceServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function fetchCustomerByExtCustomerId($customerId): Customer
+    public function fetchCustomerByExtCustomerId(string $customerId): Customer
     {
         $customerObject = (new Customer())->setCustomerId($customerId);
         $this->fetchResource($customerObject->setParentResource($this->unzer));
@@ -679,10 +646,6 @@ class ResourceService implements ResourceServiceInterface
         $this->deleteResource($customerObject);
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Authorization resource">
-
     /**
      * {@inheritDoc}
      */
@@ -700,9 +663,6 @@ class ResourceService implements ResourceServiceInterface
         return $authorize;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Charge resource">
     public function fetchCharge(Charge $charge): Charge
     {
         $this->fetchResource($charge);
@@ -712,7 +672,7 @@ class ResourceService implements ResourceServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function fetchChargeById($payment, $chargeId): Charge
+    public function fetchChargeById($payment, string $chargeId): Charge
     {
         $paymentObject = $this->fetchPayment($payment);
         $charge = $paymentObject->getCharge($chargeId, true);
@@ -725,14 +685,35 @@ class ResourceService implements ResourceServiceInterface
         return $charge;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Cancellation resource">
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchChargeback(Chargeback $chargeback): Chargeback
+    {
+        $this->fetchResource($chargeback);
+        return $chargeback;
+    }
 
     /**
      * {@inheritDoc}
      */
-    public function fetchReversalByAuthorization($authorization, $cancellationId): Cancellation
+    public function fetchChargebackById(string $paymentId, string $chargebackId, ?string $chargeId): Chargeback
+    {
+        $paymentObject = $this->fetchPayment($paymentId);
+        $chargeback = $paymentObject->getChargeback($chargebackId, $chargeId, true);
+
+        if (!$chargeback instanceof Chargeback) {
+            throw new RuntimeException('The chargeback object could not be found.');
+        }
+
+        $this->fetchResource($chargeback);
+        return $chargeback;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchReversalByAuthorization(Authorization $authorization, string $cancellationId): Cancellation
     {
         $this->fetchResource($authorization);
         return $authorization->getCancellation($cancellationId);
@@ -741,7 +722,7 @@ class ResourceService implements ResourceServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function fetchReversal($payment, $cancellationId): Cancellation
+    public function fetchReversal($payment, string $cancellationId): Cancellation
     {
         /** @var Authorization $authorization */
         $authorization = $this->fetchPayment($payment)->getAuthorization();
@@ -751,7 +732,7 @@ class ResourceService implements ResourceServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function fetchRefundById($payment, $chargeId, $cancellationId): Cancellation
+    public function fetchRefundById($payment, string $chargeId, string $cancellationId): Cancellation
     {
         /** @var Charge $charge */
         $charge = $this->fetchChargeById($payment, $chargeId);
@@ -761,25 +742,160 @@ class ResourceService implements ResourceServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function fetchRefund(Charge $charge, $cancellationId): Cancellation
+    public function fetchRefund(Charge $charge, string $cancellationId): Cancellation
     {
         /** @var Cancellation $cancel */
         $cancel = $this->fetchResource($charge->getCancellation($cancellationId, true));
         return $cancel;
     }
 
-    //</editor-fold>
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchPaymentRefund($payment, string $cancellationId): Cancellation
+    {
+        $charge = new Charge();
+        $paymentResource = $this->getPaymentResource($payment);
 
-    //<editor-fold desc="Shipment resource">
+        $charge->setParentResource($paymentResource);
+        $cancel = (new Cancellation())
+            ->setId($cancellationId)
+            ->setPayment($paymentResource)
+            ->setParentResource($charge);
+        return $this->fetchResource($cancel);
+    }
 
     /**
      * {@inheritDoc}
      */
-    public function fetchShipment($payment, $shipmentId): Shipment
+    public function fetchPaymentReversal($payment, string $cancellationId): Cancellation
+    {
+        $authorization = new Authorization();
+        $paymentResource = $this->getPaymentResource($payment);
+
+        $authorization->setParentResource($paymentResource);
+        $cancel = (new Cancellation())
+            ->setId($cancellationId)
+            ->setPayment($paymentResource)
+            ->setParentResource($authorization);
+        return $this->fetchResource($cancel);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function fetchShipment($payment, string $shipmentId): Shipment
     {
         $paymentObject = $this->fetchPayment($payment);
         return $paymentObject->getShipment($shipmentId);
     }
 
-    //</editor-fold>
+    /**
+     * {@inheritDoc}
+     *
+     * @param Config|null $config
+     */
+    public function fetchConfig(BasePaymentType $paymentType, ?Config $config = null): Config
+    {
+        $paymentType->setParentResource($this->unzer);
+
+        $configObject = $config ?? new Config();
+        $configObject->setParentResource($paymentType);
+
+        return $this->fetchResource($configObject);
+    }
+
+    /**
+     * Creates a payment type instance from a typeId string.
+     *
+     * @param $typeId
+     *
+     * @return BasePaymentType
+     */
+    public static function getTypeInstanceFromIdString($typeId): BasePaymentType
+    {
+        $resourceType = IdService::getResourceTypeFromIdString($typeId);
+        switch ($resourceType) {
+            case IdStrings::ALIPAY:
+                $paymentType = new Alipay();
+                break;
+            case IdStrings::APPLEPAY:
+                $paymentType = new Applepay(null, null, null, null);
+                break;
+            case IdStrings::BANCONTACT:
+                $paymentType = new Bancontact();
+                break;
+            case IdStrings::CARD:
+                $paymentType = new Card(null, null);
+                break;
+            case IdStrings::EPS:
+                $paymentType = new EPS();
+                break;
+            case IdStrings::GIROPAY:
+                $paymentType = new Giropay();
+                break;
+            case IdStrings::HIRE_PURCHASE_DIRECT_DEBIT:
+            case IdStrings::INSTALLMENT_SECURED:
+                $paymentType = new InstallmentSecured();
+                break;
+            case IdStrings::IDEAL:
+                $paymentType = new Ideal();
+                break;
+            case IdStrings::INVOICE:
+                $paymentType = new Invoice();
+                break;
+            case IdStrings::INVOICE_FACTORING:
+            case IdStrings::INVOICE_GUARANTEED:
+            case IdStrings::INVOICE_SECURED:
+                $paymentType = new InvoiceSecured();
+                break;
+            case IdStrings::KLARNA:
+                $paymentType = new Klarna();
+                break;
+            case IdStrings::PAYPAL:
+                $paymentType = new Paypal();
+                break;
+            case IdStrings::PAYLATER_INSTALLMENT:
+                $paymentType = new PaylaterInstallment();
+                break;
+            case IdStrings::PAYLATER_INVOICE:
+                $paymentType = new PaylaterInvoice();
+                break;
+            case IdStrings::PAYU:
+                $paymentType = new PayU();
+                break;
+            case IdStrings::PIS:
+                $paymentType = new PIS();
+                break;
+            case IdStrings::POST_FINANCE_CARD:
+                $paymentType = new PostFinanceCard();
+                break;
+            case IdStrings::POST_FINANCE_EFINANCE:
+                $paymentType = new PostFinanceEfinance();
+                break;
+            case IdStrings::PREPAYMENT:
+                $paymentType = new Prepayment();
+                break;
+            case IdStrings::PRZELEWY24:
+                $paymentType = new Przelewy24();
+                break;
+            case IdStrings::SEPA_DIRECT_DEBIT:
+                $paymentType = new SepaDirectDebit(null);
+                break;
+            case IdStrings::SEPA_DIRECT_DEBIT_GUARANTEED:
+            case IdStrings::SEPA_DIRECT_DEBIT_SECURED:
+                $paymentType = new SepaDirectDebitSecured(null);
+                break;
+            case IdStrings::SOFORT:
+                $paymentType = new Sofort();
+                break;
+            case IdStrings::WECHATPAY:
+                $paymentType = new Wechatpay();
+                break;
+            default:
+                throw new RuntimeException('Invalid payment type!');
+                break;
+        }
+        return $paymentType;
+    }
 }

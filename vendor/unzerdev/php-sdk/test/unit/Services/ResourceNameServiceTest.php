@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,10 +21,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Services;
 
 use UnzerSDK\Services\ResourceNameService;
@@ -35,6 +35,7 @@ class ResourceNameServiceTest extends BasePaymentTest
      * Verify getting the short name of a class.
      *
      * @test
+     *
      * @dataProvider classShortNameTestDP
      *
      * @param string $className

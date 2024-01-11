@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -19,8 +20,6 @@
  * limitations under the License.
  *
  * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
  *
  * @package  UnzerSDK\tests
  */

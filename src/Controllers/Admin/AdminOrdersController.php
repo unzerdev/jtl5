@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Controllers\Admin;
 
@@ -7,6 +9,7 @@ use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\Resources\TransactionTypes\Shipment;
 use InvalidArgumentException;
+use JTL\Catalog\Currency;
 use JTL\Checkout\Bestellung;
 use JTL\Helpers\Request;
 use JTL\Helpers\Text;
@@ -33,15 +36,8 @@ class AdminOrdersController extends AdminController implements AjaxResponse
     public const TEMPLATE_ID_ORDER_DETAIL = 'template/partials/_order_detail';
     public const TEMPLATE_ID_ORDER_ITEM = 'template/partials/_order_item';
 
-    /**
-     * @var OrderMappingModel
-     */
-    private $model;
-
-    /**
-     * @var HeidelpayApiAdapter
-     */
-    private $adapter;
+    private OrderMappingModel $model;
+    private HeidelpayApiAdapter $adapter;
 
     /**
      * Init dependencies
@@ -53,7 +49,8 @@ class AdminOrdersController extends AdminController implements AjaxResponse
         parent::prepare();
 
         // Abort if there are no API keys set yet (probably new install).
-        if (empty($this->config->get(Config::PRIVATE_KEY))
+        if (
+            empty($this->config->get(Config::PRIVATE_KEY))
             || empty($this->config->get(Config::PUBLIC_KEY))
         ) {
             $this->debugLog('Abort Controller. No API Keys set yet.', static::class);
@@ -142,8 +139,10 @@ class AdminOrdersController extends AdminController implements AjaxResponse
             ]);
         }
 
-        $payment = $this->adapter->fetchPayment($orderMapping->getPaymentId());
         $order = new Bestellung($orderMapping->getId(), true);
+        $api = $this->adapter->getConnectionForOrder($order);
+        $payment = $this->adapter->fetchPayment($orderMapping->getPaymentId());
+        $cancellations = [];
 
         // Load Charges, Cancellations and Shipments
         foreach ($payment->getCharges() as $chg) {
@@ -152,7 +151,42 @@ class AdminOrdersController extends AdminController implements AjaxResponse
 
             foreach ($chg->getCancellations() as $cancel) {
                 /** @var Cancellation $cancel */
-                $this->adapter->getApi()->fetchRefundById($payment, $chg->getId(), $cancel->getId());
+                try {
+                    $cancellations[$cancel->getId()] = $cancel;
+                    $api->fetchRefundById($payment, $chg->getId(), $cancel->getId());
+                } catch (UnzerApiException $exc) {
+                    $this->errorLog(
+                        'Error while loading cancellation: ' . $exc->getMerchantMessage()
+                        . ' | Error-Code: ' . $exc->getCode(),
+                        static::class
+                    );
+                }
+            }
+        }
+
+        foreach ($payment->getReversals() as $reversal) {
+            /** @var Cancellation $reversal */
+            try {
+                $cancellations[$reversal->getId()] = $api->fetchPaymentReversal($payment, $reversal->getId());
+            } catch (UnzerApiException $exc) {
+                $this->errorLog(
+                    'Error while loading cancellation: ' . $exc->getMerchantMessage()
+                    . ' | Error-Code: ' . $exc->getCode(),
+                    static::class
+                );
+            }
+        }
+
+        foreach($payment->getRefunds() as $refund) {
+            /** @var Cancellation $refund */
+            try {
+                $cancellations[$refund->getId()] = $api->fetchPaymentRefund($payment, $refund->getId());
+            } catch (UnzerApiException $exc) {
+                $this->errorLog(
+                    'Error while loading cancellation: ' . $exc->getMerchantMessage()
+                    . ' | Error-Code: ' . $exc->getCode(),
+                    static::class
+                );
             }
         }
 
@@ -164,19 +198,23 @@ class AdminOrdersController extends AdminController implements AjaxResponse
         // Update order mapping
         $orderMapping->setOrder($order);
         $orderMapping->setPaymentState($payment->getStateName());
-        $orderMapping->setInvoiceId($payment->getInvoiceId());
+        // $orderMapping->setInvoiceId($payment->getInvoiceId());
         $this->model->save($orderMapping);
 
         // Load View
-        $url = $this->config->getInsightPortalUrl($orderMapping->getTransactionUniqueId());
+        $url = $this->config->getInsightPortalUrl($orderMapping);
+        $orderMapping->setOrder(null);
+
         $this->jsonResponse([
             'status' => self::RESULT_SUCCESS,
             'data'   => new OrderViewStruct(
                 $orderMapping,
                 $this->view(self::TEMPLATE_ID_ORDER_DETAIL, [
+                    'hpOrderMapping' => $orderMapping,
                     'hpOrder'     => $order,
                     'hpPayment'   => $payment,
-                    'hpPortalUrl' => $url
+                    'hpPortalUrl' => $url,
+                    'hpCancellations' => $cancellations
                 ])
             )
         ]);
@@ -198,7 +236,8 @@ class AdminOrdersController extends AdminController implements AjaxResponse
 
         foreach ($orders as $order) {
             /** @var OrderMappingEntity $order */
-            $url = $this->config->getInsightPortalUrl($order->getTransactionUniqueId());
+            $order->getOrder()->Waehrung = new Currency((int)$order->getOrder()->kWaehrung);
+            $url = $this->config->getInsightPortalUrl($order);
             $data[] = new OrderViewStruct(
                 $order,
                 $this->view(self::TEMPLATE_ID_ORDER_ITEM, [

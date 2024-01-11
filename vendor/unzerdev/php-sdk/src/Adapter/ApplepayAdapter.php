@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpComposerExtensionStubsInspection */
 
 /**
@@ -20,10 +21,9 @@
  *
  * @link https://dev.unzer.com/
  *
- * @author David Owusu <development@unzer.com>
- *
  * @package  UnzerSDK\Adapter
  */
+
 namespace UnzerSDK\Adapter;
 
 use UnzerSDK\Constants\ApplepayValidationDomains;

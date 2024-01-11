@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Resources
  */
+
 namespace UnzerSDK\Resources;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
@@ -63,8 +62,6 @@ class Keypair extends AbstractUnzerResource
 
     /** @var bool $validateBasket */
     private $validateBasket;
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string|null
@@ -143,7 +140,7 @@ class Keypair extends AbstractUnzerResource
      *
      * @return Keypair
      */
-    protected function setSecureLevel($secureLevel): Keypair
+    protected function setSecureLevel(?string $secureLevel): Keypair
     {
         $this->secureLevel = $secureLevel;
         return $this;
@@ -162,7 +159,7 @@ class Keypair extends AbstractUnzerResource
      *
      * @return Keypair
      */
-    protected function setAlias($alias): Keypair
+    protected function setAlias(?string $alias): Keypair
     {
         $this->alias = $alias;
         return $this;
@@ -181,7 +178,7 @@ class Keypair extends AbstractUnzerResource
      *
      * @return Keypair
      */
-    protected function setMerchantName($merchantName): Keypair
+    protected function setMerchantName(?string $merchantName): Keypair
     {
         $this->merchantName = $merchantName;
         return $this;
@@ -200,7 +197,7 @@ class Keypair extends AbstractUnzerResource
      *
      * @return Keypair
      */
-    protected function setMerchantAddress($merchantAddress): Keypair
+    protected function setMerchantAddress(?string $merchantAddress): Keypair
     {
         $this->merchantAddress = $merchantAddress;
         return $this;
@@ -259,20 +256,16 @@ class Keypair extends AbstractUnzerResource
      *
      * @return Keypair
      */
-    protected function setValidateBasket($validateBasket): Keypair
+    protected function setValidateBasket(?bool $validateBasket): Keypair
     {
         $this->validateBasket = $validateBasket;
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable Methods">
-
     /**
      * @inheritDoc
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 
@@ -291,10 +284,8 @@ class Keypair extends AbstractUnzerResource
     /**
      * @inheritDoc
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return parent::getResourcePath($httpMethod) . ($this->isDetailed() ? '/types' : '');
     }
-
-    //</editor-fold>
 }

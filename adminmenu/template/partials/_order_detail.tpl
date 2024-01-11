@@ -1,18 +1,24 @@
 {strip}
     <div class="hp-order-detail-wrapper">
-        <div class="row">
+        {* <div class="row">
             <div class="col-12 col-xs-12">
                 <div class="input-group">
                     <div class="btn-group input-group-btn">
                         {if $hpPortalUrl}
-                            <a class="btn btn-primary" title="{__('hpOpenInPortal')}" href="{$hpPortalUrl}" target="_blank">
-                                {__('hpOpenInPortal')}
-                            </a>
+                            {if $hpPayment->getPaymentType()->getResourceName() === 'paylater-invoice'}
+                                <a class="btn btn-primary" title="{__('hpOpenInPaylaterPortal')}" href="{$hpPortalUrl}" target="_blank">
+                                    {__('hpOpenInPaylaterPortal')}
+                                </a>
+                            {else}
+                                <a class="btn btn-primary" title="{__('hpOpenInPortal')}" href="{$hpPortalUrl}" target="_blank">
+                                    {__('hpOpenInPortal')}
+                                </a>
+                            {/if}
                         {/if}
                     </div>
                 </div>
             </div>
-        </div>
+        </div> *}
 
         <div class="row">
             <div class="col-12 col-md-6 col-xs-12">
@@ -144,8 +150,17 @@
                                         {/if}
                                     </dd>
 
-                                    <dt class="col-5">{__('hpInvoiceNumber')}</dt>
-                                    <dd class="col-7">{$hpPayment->getInvoiceId()}</dd>
+                                    {if $hpPayment->getInvoiceId()}
+                                        <dt class="col-5">{__('hpInvoiceNumber')}</dt>
+                                        <dd class="col-7">
+                                            {$hpPayment->getInvoiceId()}
+                                        </dd>
+                                    {elseif $hpOrderMapping->getInvoiceId()}
+                                        <dt class="col-5">{__('hpInvoiceNumber')}</dt>
+                                        <dd class="col-7">
+                                            {$hpOrderMapping->getInvoiceId()}
+                                        </dd>
+                                    {/if}
 
                                     <dt class="col-5">{__('hpPaymentId')}</dt>
                                     <dd class="col-7">{$hpPayment->getId()}</dd>
@@ -154,44 +169,44 @@
                                     <dd class="col-7">
                                         {if $hpPayment->getPaymentType()->getResourceName() == 'card'}
                                             {__('hpPaymentmethodCard')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit'}
                                             {__('hpPaymentmethodSEPA')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit-guaranteed'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit-guaranteed'}
                                             {__('hpPaymentmethodSEPAGuaranteed')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit-secured'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'sepa-direct-debit-secured'}
                                             {__('hpPaymentmethodSEPAGuaranteed')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'invoice'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'invoice'}
                                             {__('hpPaymentmethodInvoice')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'invoice-guaranteed'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'invoice-guaranteed'}
                                             {__('hpPaymentmethodInvoiceGuaranteed')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'invoice-secured'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'invoice-secured'}
                                             {__('hpPaymentmethodInvoiceGuaranteed')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'invoice-factoring'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'invoice-factoring'}
                                             {__('hpPaymentmethodInvoiceFactoring')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'paypal'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'paypal'}
                                             {__('hpPaymentmethodPayPal')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'sofort'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'sofort'}
                                             {__('hpPaymentmethodSOFORT')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'giropay'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'giropay'}
                                             {__('hpPaymentmethodGiropay')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'prepayment'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'prepayment'}
                                             {__('hpPaymentmethodPrepayment')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'eps'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'eps'}
                                             {__('hpPaymentmethodEPS')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'pis'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'pis'}
                                             {__('hpPaymentmethodFlexiPayDirect')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'alipay'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'alipay'}
                                             {__('hpPaymentmethodAlipay')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'wechatpay'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'wechatpay'}
                                             {__('hpPaymentmethodWeChatPay')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'ideal'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'ideal'}
                                             {__('hpPaymentmethodiDEAL')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'hire-purchase-direct-debit'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'hire-purchase-direct-debit'}
                                             {__('hpPaymentmethodHirePurchaseDirectDebit')}
-                                        {else if $hpPayment->getPaymentType()->getResourceName() == 'installment-secured'}
+                                        {elseif $hpPayment->getPaymentType()->getResourceName() == 'installment-secured'}
                                             {__('hpPaymentmethodHirePurchaseDirectDebit')}
                                         {else}
-                                            {$hpPayment->getPaymentType()->getResourceName()}
+                                            {__($hpPayment->getPaymentType()->getResourceName())}
                                         {/if}
 
                                         <em>({$hpPayment->getPaymentType()->getId()})</em>
@@ -210,9 +225,7 @@
                     <div class="card-header panel-heading">
                         <h4 class="panel-title">{__('hpTransactions')}</h4>
                     </div>
-
-                    {if !empty($hpPayment->getCharges())}
-                    {* <div class="table-responsive"> *}
+                    {if !empty($hpPayment->getAuthorization() || !empty($hpPayment->getCharges()))}
                         <table class="list table table-striped">
                             <thead>
                             <tr>
@@ -223,31 +236,55 @@
                             </tr>
                             </thead>
                             <tbody>
-                                {foreach from=$hpPayment->getCharges() item='charge' name='charges'}
-                                    <tr {if !$smarty.foreach.charges.first} style="margin-top:10px;"{/if} class="{if $charge->isError()}danger{elseif $charge->isPending()}warning{else}success{/if}">
-                                        <td>{$charge->getId()}</td>
-                                        <td class="hp-short-id">{$charge->getShortId()}</td>
+                                {if !empty($hpPayment->getAuthorization())}
+                                    <tr style="margin-top:10px;" class="{if $hpPayment->getAuthorization()->isError()}danger{elseif $hpPayment->getAuthorization()->isPending()}warning{else}success{/if}">
+                                        <td>{$hpPayment->getAuthorization()->getId()}</td>
+                                        <td class="hp-short-id">{$hpPayment->getAuthorization()->getShortId()}</td>
                                         <td class="hp-status">
-                                            {if $charge->isPending()}
+                                            {if $hpPayment->getAuthorization()->isPending()}
                                                 {__('hpStatePending')}
-                                            {elseif $charge->isError()}
+                                            {elseif $hpPayment->getAuthorization()->isError()}
                                                 {__('hpStateFailure')}
-                                            {elseif $charge->isSuccess()}
+                                            {elseif $hpPayment->getAuthorization()->isSuccess()}
                                                 {__('hpStateSuccessful')}
                                             {else}
                                                 -
                                             {/if}
 
-                                            {if $charge->getMessage()}
-                                                &nbsp; <i class="fa fas fa fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="{$charge->getMessage()->getMerchant()}"></i>
+                                            {if $hpPayment->getAuthorization()->getMessage()}
+                                                &nbsp; <i class="fa fas fa fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="{$hpPayment->getAuthorization()->getMessage()->getMerchant()}"></i>
                                             {/if}
                                         </div>
-                                        <td class="hp-amount">{if isset($charge->getAmount())}{($charge->getAmount())|number_format:2}{else} - {/if}{if isset($charge->getCurrency())} {$charge->getCurrency()}{/if}</td>
+                                        <td class="hp-amount">{if isset($hpPayment->getAuthorization()->getAmount())}{number_format($hpPayment->getAuthorization()->getAmount(), 2)}{else} - {/if}{if isset($hpPayment->getAuthorization()->getCurrency())} {$hpPayment->getAuthorization()->getCurrency()}{/if}</td>
                                     </tr>
-                                {/foreach}
+                                {/if}
+
+                                {if !empty($hpPayment->getCharges())}
+                                    {foreach from=$hpPayment->getCharges() item='charge' name='charges'}
+                                        <tr {if !$smarty.foreach.charges.first} style="margin-top:10px;"{/if} class="{if $charge->isError()}danger{elseif $charge->isPending()}warning{else}success{/if}">
+                                            <td>{$charge->getId()}</td>
+                                            <td class="hp-short-id">{$charge->getShortId()}</td>
+                                            <td class="hp-status">
+                                                {if $charge->isPending()}
+                                                    {__('hpStatePending')}
+                                                {elseif $charge->isError()}
+                                                    {__('hpStateFailure')}
+                                                {elseif $charge->isSuccess()}
+                                                    {__('hpStateSuccessful')}
+                                                {else}
+                                                    -
+                                                {/if}
+
+                                                {if $charge->getMessage()}
+                                                    &nbsp; <i class="fa fas fa fa-info-circle" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="{$charge->getMessage()->getMerchant()}"></i>
+                                                {/if}
+                                            </div>
+                                            <td class="hp-amount">{if isset($charge->getAmount())}{number_format($charge->getAmount(), 2)}{else} - {/if}{if isset($charge->getCurrency())} {$charge->getCurrency()}{/if}</td>
+                                        </tr>
+                                    {/foreach}
+                                {/if}
                             </tbody>
                         </table>
-                    {* </div> *}
                     {else}
                         <div class="card-body panel-body text-center"><em>{__('hpEmptyResult')}</em></div>
                     {/if}
@@ -300,7 +337,7 @@
                 </div>
             {/if}
 
-            {if !empty($hpPayment->getCancellations())}
+            {if !empty($hpCancellations)}
                 <div class="col-12 col-xs-12">
                     <div class="card panel panel-default">
                         <div class="card-header panel-heading">
@@ -319,7 +356,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    {foreach from=$hpPayment->getCancellations() item='cancelation' name='cancelations'}
+                                    {foreach from=$hpCancellations item='cancelation' name='cancelations'}
                                         <tr {if !$smarty.foreach.cancelations.first} style="margin-top:10px;"{/if} class="{if $cancelation->isError()}danger{elseif $cancelation->isPending()}warning{else}success{/if}">
                                             <td>{$cancelation->getId()}</td>
                                             <td class="hp-short-id">{$cancelation->getShortId()}</td>
@@ -339,7 +376,7 @@
                                                 {/if}
                                             </div>
                                             <td class="hp-payment-ref">{if isset($cancelation->getPaymentReference())}{$cancelation->getPaymentReference()}{else} - {/if}</td>
-                                            <td class="hp-invoice-id">{if isset($cancelation->getAmount())}{($cancelation->getAmount())|number_format:2}{else} - {/if}</td>
+                                            <td class="hp-invoice-id">{if isset($cancelation->getAmount())}{number_format($cancelation->getAmount(), 2)}{else} - {/if}</td>
                                         </tr>
                                     {/foreach}
                                 </tbody>

@@ -18,24 +18,25 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\TransactionTypes
  */
+
 namespace UnzerSDK\Resources\TransactionTypes;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\Traits\HasAccountInformation;
 use UnzerSDK\Traits\HasCancellations;
-use UnzerSDK\Traits\HasInvoiceId;
+use UnzerSDK\Traits\HasChargebacks;
 use UnzerSDK\Traits\HasRecurrenceType;
 use RuntimeException;
 
 class Charge extends AbstractTransactionType
 {
     use HasCancellations;
-    use HasInvoiceId;
     use HasRecurrenceType;
+    use HasAccountInformation;
+    use HasChargebacks;
 
     /** @var float $amount */
     protected $amount;
@@ -46,18 +47,6 @@ class Charge extends AbstractTransactionType
     /** @var string $returnUrl */
     protected $returnUrl;
 
-    /** @var string $iban */
-    private $iban;
-
-    /** @var string bic */
-    private $bic;
-
-    /** @var string $holder */
-    private $holder;
-
-    /** @var string $descriptor */
-    private $descriptor;
-
     /** @var string $paymentReference */
     protected $paymentReference;
 
@@ -67,18 +56,16 @@ class Charge extends AbstractTransactionType
     /**
      * Authorization constructor.
      *
-     * @param float  $amount
-     * @param string $currency
-     * @param string $returnUrl
+     * @param float|null  $amount
+     * @param string|null $currency
+     * @param string|null $returnUrl
      */
-    public function __construct($amount = null, $currency = null, $returnUrl = null)
+    public function __construct(float $amount = null, string $currency = null, string $returnUrl = null)
     {
         $this->setAmount($amount);
         $this->setCurrency($currency);
         $this->setReturnUrl($returnUrl);
     }
-
-    //<editor-fold desc="Setters/Getters">
 
     /**
      * @return float|null
@@ -89,11 +76,11 @@ class Charge extends AbstractTransactionType
     }
 
     /**
-     * @param float $amount
+     * @param float|null $amount
      *
      * @return self
      */
-    public function setAmount($amount): self
+    public function setAmount(?float $amount): self
     {
         $this->amount = $amount !== null ? round($amount, 4) : null;
         return $this;
@@ -107,7 +94,9 @@ class Charge extends AbstractTransactionType
         $amount = 0.0;
         foreach ($this->getCancellations() as $cancellation) {
             /** @var Cancellation $cancellation */
-            $amount += $cancellation->getAmount();
+            if ($cancellation->isSuccess()) {
+                $amount += $cancellation->getAmount();
+            }
         }
 
         return $amount;
@@ -118,7 +107,7 @@ class Charge extends AbstractTransactionType
      */
     public function getTotalAmount(): ?float
     {
-        return $this->getAmount() - $this->getCancelledAmount();
+        return round($this->getAmount() - $this->getCancelledAmount(), 4);
     }
 
     /**
@@ -130,11 +119,11 @@ class Charge extends AbstractTransactionType
     }
 
     /**
-     * @param string $currency
+     * @param string|null $currency
      *
      * @return self
      */
-    public function setCurrency($currency): self
+    public function setCurrency(?string $currency): self
     {
         $this->currency = $currency;
         return $this;
@@ -149,101 +138,13 @@ class Charge extends AbstractTransactionType
     }
 
     /**
-     * @param string $returnUrl
+     * @param string|null $returnUrl
      *
      * @return self
      */
-    public function setReturnUrl($returnUrl): self
+    public function setReturnUrl(?string $returnUrl): self
     {
         $this->returnUrl = $returnUrl;
-        return $this;
-    }
-
-    /**
-     * Returns the IBAN of the account the customer needs to transfer the amount to.
-     * E. g. invoice, prepayment, etc.
-     *
-     * @return string|null
-     */
-    public function getIban(): ?string
-    {
-        return $this->iban;
-    }
-
-    /**
-     * @param string $iban
-     *
-     * @return self
-     */
-    protected function setIban(string $iban): self
-    {
-        $this->iban = $iban;
-        return $this;
-    }
-
-    /**
-     * Returns the BIC of the account the customer needs to transfer the amount to.
-     * E. g. invoice, prepayment, etc.
-     *
-     * @return string|null
-     */
-    public function getBic(): ?string
-    {
-        return $this->bic;
-    }
-
-    /**
-     * @param string $bic
-     *
-     * @return self
-     */
-    protected function setBic(string $bic): self
-    {
-        $this->bic = $bic;
-        return $this;
-    }
-
-    /**
-     * Returns the holder of the account the customer needs to transfer the amount to.
-     * E. g. invoice, prepayment, etc.
-     *
-     * @return string|null
-     */
-    public function getHolder(): ?string
-    {
-        return $this->holder;
-    }
-
-    /**
-     * @param string $holder
-     *
-     * @return self
-     */
-    protected function setHolder(string $holder): self
-    {
-        $this->holder = $holder;
-        return $this;
-    }
-
-    /**
-     * Returns the Descriptor the customer needs to use when transferring the amount.
-     * E. g. invoice, prepayment, etc.
-     *
-     * @return string|null
-     */
-    public function getDescriptor(): ?string
-    {
-        return $this->descriptor;
-    }
-
-    /**
-     * @param string $descriptor
-     *
-     * @return self
-     */
-    protected function setDescriptor(string $descriptor): self
-    {
-        $this->descriptor = $descriptor;
         return $this;
     }
 
@@ -260,7 +161,7 @@ class Charge extends AbstractTransactionType
      *
      * @return Charge
      */
-    public function setPaymentReference($referenceText): Charge
+    public function setPaymentReference(?string $referenceText): Charge
     {
         $this->paymentReference = $referenceText;
         return $this;
@@ -279,25 +180,19 @@ class Charge extends AbstractTransactionType
      *
      * @return Charge
      */
-    public function setCard3ds($card3ds): Charge
+    public function setCard3ds(?bool $card3ds): Charge
     {
         $this->card3ds = $card3ds;
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable Methods">
-
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return 'charges';
     }
-
-    //</editor-fold>
 
     /**
      * Full cancel of this authorization.
@@ -317,11 +212,11 @@ class Charge extends AbstractTransactionType
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
     public function cancel(
-        $amount = null,
+        float  $amount = null,
         string $reasonCode = null,
         string $paymentReference = null,
-        float $amountNet = null,
-        float $amountVat = null
+        float  $amountNet = null,
+        float  $amountVat = null
     ): Cancellation {
         return $this->getUnzerObject()->cancelCharge(
             $this,

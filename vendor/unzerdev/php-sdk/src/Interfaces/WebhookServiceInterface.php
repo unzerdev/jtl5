@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Interfaces
  */
+
 namespace UnzerSDK\Interfaces;
 
 use UnzerSDK\Exceptions\UnzerApiException;
@@ -67,7 +66,7 @@ interface WebhookServiceInterface
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function updateWebhook($webhook): Webhook;
+    public function updateWebhook(Webhook $webhook): Webhook;
 
     /**
      * Deletes the given Webhook resource.
@@ -122,5 +121,5 @@ interface WebhookServiceInterface
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function fetchResourceFromEvent($eventJson = null): AbstractUnzerResource;
+    public function fetchResourceFromEvent(string $eventJson = null): AbstractUnzerResource;
 }

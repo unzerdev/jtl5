@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Resources\EmbeddedResources
  */
+
 namespace UnzerSDK\Resources\EmbeddedResources;
 
 use UnzerSDK\Resources\AbstractUnzerResource;
@@ -46,7 +45,8 @@ class Address extends AbstractUnzerResource
     /** @var string country */
     protected $country;
 
-    //<editor-fold desc="Getters/Setters">
+    /** @var string|null shippingType */
+    protected $shippingType;
 
     /**
      * @return string|null
@@ -57,11 +57,11 @@ class Address extends AbstractUnzerResource
     }
 
     /**
-     * @param string $name
+     * @param string|null $name
      *
      * @return Address
      */
-    public function setName($name): Address
+    public function setName(?string $name): Address
     {
         $this->name = $name;
         return $this;
@@ -76,11 +76,11 @@ class Address extends AbstractUnzerResource
     }
 
     /**
-     * @param string $street
+     * @param string|null $street
      *
      * @return Address
      */
-    public function setStreet($street): Address
+    public function setStreet(?string $street): Address
     {
         $this->street = $street;
         return $this;
@@ -95,11 +95,11 @@ class Address extends AbstractUnzerResource
     }
 
     /**
-     * @param string $state
+     * @param string|null $state
      *
      * @return Address
      */
-    public function setState($state): Address
+    public function setState(?string $state): Address
     {
         $this->state = $state;
         return $this;
@@ -114,11 +114,11 @@ class Address extends AbstractUnzerResource
     }
 
     /**
-     * @param string $zip
+     * @param string|null $zip
      *
      * @return Address
      */
-    public function setZip($zip): Address
+    public function setZip(?string $zip): Address
     {
         $this->zip = $zip;
         return $this;
@@ -133,11 +133,11 @@ class Address extends AbstractUnzerResource
     }
 
     /**
-     * @param string $city
+     * @param string|null $city
      *
      * @return Address
      */
-    public function setCity($city): Address
+    public function setCity(?string $city): Address
     {
         $this->city = $city;
         return $this;
@@ -152,15 +152,32 @@ class Address extends AbstractUnzerResource
     }
 
     /**
-     * @param string $country
+     * @param string|null $country
      *
      * @return Address
      */
-    public function setCountry($country): Address
+    public function setCountry(?string $country): Address
     {
         $this->country = $country;
         return $this;
     }
 
-    //</editor-fold>
+    /**
+     * @return string|null
+     */
+    public function getShippingType(): ?string
+    {
+        return $this->shippingType;
+    }
+
+    /**
+     * @param string|null $shippingType
+     *
+     * @return Address
+     */
+    public function setShippingType(?string $shippingType): Address
+    {
+        $this->shippingType = $shippingType;
+        return $this;
+    }
 }

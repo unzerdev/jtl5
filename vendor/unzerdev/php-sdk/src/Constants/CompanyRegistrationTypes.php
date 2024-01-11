@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Constants
  */
+
 namespace UnzerSDK\Constants;
 
 class CompanyRegistrationTypes

@@ -18,8 +18,6 @@
  *
  *  @link  https://docs.unzer.com/
  *
- *  @author  David Owusu <development@unzer.com>
- *
  *  @package  UnzerSDK
  *
  */
@@ -29,8 +27,8 @@ namespace UnzerSDK\test\integration;
 use UnzerSDK\Adapter\ApplepayAdapter;
 use UnzerSDK\Exceptions\ApplepayMerchantValidationException;
 use UnzerSDK\Resources\ExternalResources\ApplepaySession;
-use UnzerSDK\Services\EnvironmentService;
 use UnzerSDK\test\BaseIntegrationTest;
+use UnzerSDK\test\Helper\TestEnvironmentService;
 
 class ApplepayAdapterTest extends BaseIntegrationTest
 {
@@ -52,11 +50,12 @@ class ApplepayAdapterTest extends BaseIntegrationTest
     {
         $this->merchantValidationUrl = 'https://apple-pay-gateway-cert.apple.com/paymentservices/startSession';
 
-        $appleMerchantIdPath = EnvironmentService::getAppleMerchantIdPath();
-        $this->applepayCertPath = $appleMerchantIdPath . 'merchant_id.pem';
-        $this->applepayKeyPath = $appleMerchantIdPath . 'merchant_id.key';
-        $this->applepayCombinedCertPath = $appleMerchantIdPath . 'apple-pay-cert.pem';
-        $this->appleCaCertificatePath = EnvironmentService::getAppleCaCertificatePath();
+        $appleMerchantIdPath = TestEnvironmentService::getAppleMerchantIdPath();
+
+        $this->applepayCertPath = $this->createFilePath($appleMerchantIdPath, 'merchant_id.pem');
+        $this->applepayKeyPath = $this->createFilePath($appleMerchantIdPath, 'merchant_id.key');
+        $this->applepayCombinedCertPath = $this->createFilePath($appleMerchantIdPath, 'apple-pay-cert.pem');
+        $this->appleCaCertificatePath = TestEnvironmentService::getAppleCaCertificatePath();
     }
 
     /**
@@ -196,6 +195,7 @@ class ApplepayAdapterTest extends BaseIntegrationTest
      * test merchant validation request without ca certificate.
      *
      * @dataProvider domainShouldBeValidatedCorrectlyDP
+     *
      * @test
      *
      * @param mixed $validationUrl
@@ -223,5 +223,17 @@ class ApplepayAdapterTest extends BaseIntegrationTest
             'invalid: apple-pay-gateway-nc-pod1.apple.com' => ['apple-pay-gateway-nc-pod1.apple.com', false],
             'invalid: (empty)' => ['', false],
         ];
+    }
+
+    /**
+     * @param string $appleMerchantIdPath
+     * @param string $merchantIdFile
+     *
+     * @return string
+     */
+    protected function createFilePath(string $appleMerchantIdPath, string $merchantIdFile): string
+    {
+        $separator = DIRECTORY_SEPARATOR;
+        return rtrim($appleMerchantIdPath, $separator) . $separator . $merchantIdFile;
     }
 }

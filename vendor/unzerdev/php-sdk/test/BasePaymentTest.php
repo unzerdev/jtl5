@@ -1,4 +1,5 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
@@ -20,15 +21,15 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test;
 
 use DateInterval;
 use DateTime;
-use UnzerSDK\Unzer;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use UnzerSDK\Resources\Basket;
 use UnzerSDK\Resources\EmbeddedResources\BasketItem;
 use UnzerSDK\Resources\Payment;
@@ -40,14 +41,13 @@ use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\test\Fixtures\CustomerFixtureTrait;
-use PHPUnit\Framework\TestCase;
-use RuntimeException;
+use UnzerSDK\Unzer;
 
 class BasePaymentTest extends TestCase
 {
-    protected const RETURN_URL = 'https://dev.unzer.com';
-
     use CustomerFixtureTrait;
+    protected const RETURN_URL = 'https://dev.unzer.com';
+    public const API_VERSION_2 = 'v2';
 
     /** @var Unzer $unzer */
     protected $unzer;
@@ -200,13 +200,35 @@ class BasePaymentTest extends TestCase
     }
 
     /**
+     * Creates a v2 Basket resource and returns it.
+     *
+     * @return Basket
+     */
+    public function createV2Basket(): Basket
+    {
+        $orderId = 'b' . self::generateRandomId();
+        $basket = new Basket($orderId);
+        $basket->setTotalValueGross(99.99)
+            ->setCurrencyCode('EUR');
+
+        $basketItem = (new BasketItem())
+            ->setAmountPerUnitGross(99.99)
+            ->setQuantity(1)
+            ->setBasketItemReferenceId('item1')
+            ->setTitle('title');
+        $basket->addBasketItem($basketItem);
+        $this->unzer->createBasket($basket);
+        return $basket;
+    }
+
+    /**
      * Creates a Card object for tests.
      *
      * @param string $cardNumber
      *
      * @return Card
      */
-    protected function createCardObject(string $cardNumber = '5453010000059543'): Card
+    protected function createCardObject(string $cardNumber = '4711100000000000'): Card
     {
         $expiryDate = $this->getNextYearsTimestamp()->format('m/Y');
         $card = new Card($cardNumber, $expiryDate);

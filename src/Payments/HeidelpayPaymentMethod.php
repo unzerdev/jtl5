@@ -1,5 +1,5 @@
 <?php // phpcs:disable PSR1.Files.SideEffects.FoundWithSymbols
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
@@ -23,12 +23,14 @@ use Plugin\s360_unzer_shop5\src\Payments\Interfaces\PaymentStatusInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasPayStatus;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasState;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\PriceCurrencyConverter;
+use Plugin\s360_unzer_shop5\src\Utils\Compatibility;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
 use Plugin\s360_unzer_shop5\src\Utils\TranslatorTrait;
 use RuntimeException;
 use stdClass;
+use Throwable;
 
 /**
  * Basic Heidepay Payment Method
@@ -37,6 +39,12 @@ use stdClass;
  */
 abstract class HeidelpayPaymentMethod extends Method implements NotificationInterface, PaymentStatusInterface
 {
+    use JtlLoggerTrait;
+    use TranslatorTrait;
+    use HasState;
+    use HasPayStatus;
+    use PriceCurrencyConverter;
+
     // Order Attributes
     public const ATTR_IBAN = 'unzer_iban';
     public const ATTR_BIC = 'unzer_bic';
@@ -46,47 +54,25 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     public const ATTR_PAYMENT_ID = 'unzer_payment_id';
     public const ATTR_PAYMENT_TYPE_ID = 'unzer_payment_type_id';
 
-    use JtlLoggerTrait;
-    use TranslatorTrait;
-    use HasState;
-    use HasPayStatus;
-    use PriceCurrencyConverter;
-
-    /**
-     * @var PluginInterface
-     */
-    protected $plugin;
-
-    /**
-     * @var SessionHelper
-     */
-    protected $sessionHelper;
-
-    /**
-     * @var HeidelpayApiAdapter
-     */
-    protected $adapter;
-
-    /**
-     * @var PaymentHandler
-     */
-    protected $handler;
-
-    /**
-     * @var string
-     */
-    public $hash = '';
+    protected PluginInterface $plugin;
+    protected SessionHelper $sessionHelper;
+    protected HeidelpayApiAdapter $adapter;
+    protected PaymentHandler $handler;
+    public string $hash = '';
 
     /**
      * Perform the transaction on the payment type (i.e. authorize or charge).
      *
      * @param BasePaymentType $payment
-     * @param stdClass|Bestellung $order
+     * @param Bestellung $order
      * @return AbstractTransactionType
      * @throws UnzerApiException A UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException      A RuntimeException is thrown when there is an error while using the SDK.
      */
-    abstract protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType;
+    abstract protected function performTransaction(
+        BasePaymentType $payment,
+        Bestellung $order
+    ): AbstractTransactionType;
 
     /**
      * Get order attributes for a specific order
@@ -110,11 +96,16 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     {
         parent::init($nAgainCheckout);
 
-        $this->plugin = Shop::Container()->get(Config::PLUGIN_ID);
-        $this->sessionHelper = Shop::Container()->get(SessionHelper::class);
-        $this->handler = Shop::Container()->get(PaymentHandler::class);
-        $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
-        $this->handler->setPaymentMethod($this);
+        try {
+            $this->plugin = Shop::Container()->get(Config::PLUGIN_ID);
+            $this->sessionHelper = Shop::Container()->get(SessionHelper::class);
+            $this->handler = Shop::Container()->get(PaymentHandler::class);
+            $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
+            $this->handler->setPaymentMethod($this);
+        } catch (\Exception $exc) {
+            $this->state = self::STATE_INVALID;
+            $this->errorLog('Could not init PaymentMethod: ' . $exc->getMessage(), static::class);
+        }
 
         return $this;
     }
@@ -219,6 +210,12 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
      */
     public function handleAdditional($post): bool
     {
+        // Clear session if the user changed the currency otherwise we might use the wrong IDs for a new keypair
+        if (Request::verifyGPDataString('curr')) {
+            $this->sessionHelper->clearCheckoutSession();
+            $this->sessionHelper->clear(SessionHelper::KEY_CUSTOMER_ID);
+        }
+
         $this->handler->prepareView();
         $paymentData = $this->sessionHelper->getCheckoutSession();
 
@@ -284,6 +281,10 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
      */
     public function isValidIntern($args = []): bool
     {
+        if ($this->state == self::STATE_INVALID) {
+            return false;
+        }
+
         if ($this->duringCheckout) {
             $this->state = self::STATE_DURING_CHECKOUT;
         }
@@ -322,6 +323,7 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     {
         // Validate Payment Request (check: currency changed, order amount, cart checksum)
         if (isset($args['state']) && $args['state'] == self::STATE_DURING_CHECKOUT) {
+            $this->adapter->getConnectionForOrder($order);
             $payment = $this->adapter->fetchPayment();
 
             // Invalid Request (basket, currency mismatch)
@@ -375,16 +377,20 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
         $this->handler->finishPayment($hash);
 
         try {
+            $this->adapter->getConnectionForOrder($order);
             $payment = $this->adapter->fetchPayment();
             $transaction = $this->adapter->getPaymentTransaction($payment);
 
+            // update cBestellNummer because we already have generated it but have no way of telling JTL to use
+            // it in the notify.php so a new one gets generated resulting in mismatched order ids ...
+            $orderNumber = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID);
+            if (!empty($orderNumber) && $orderNumber != $order->cBestellNr) {
+                $order->cBestellNr = $orderNumber;
+                $order->updateInDB();
+            }
+
             // Preorder = 1 => Order was not finalized before and therefore no order mapping was saved. Do this now!
             if (isset($args['state']) && $args['state'] == self::STATE_DURING_CHECKOUT) {
-                // update cBestellNummer because we already have generated it but have no way of telling JTL to use
-                // it in the notify.php so a new one gets generated resulting in mismatched order ids ...
-                $order->cBestellNr = $transaction->getOrderId();
-                $order->updateInDB();
-
                 $this->handler->saveOrderMapping($transaction->getPayment(), $order);
             }
 
@@ -409,11 +415,14 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
                 // Accept successful payment and clean up session
                 $this->handler->acceptPayment($order, $hash, $transaction);
                 $this->sessionHelper->clear();
+                $this->sessionHelper->clear(SessionHelper::KEY_CUSTOMER_ID);
                 $this->sessionHelper->getFrontendSession()->cleanUp();
                 return;
             }
 
             // If the payment is neither successful nor pending, something went wrong.
+            $this->sessionHelper->clear();
+            $this->sessionHelper->clear(SessionHelper::KEY_CUSTOMER_ID);
             $this->handler->revokePayment($order, $hash, $transaction);
             $this->sessionHelper->getFrontendSession()->cleanUp();
 
@@ -444,7 +453,7 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
                 'paymentRuntimeException',
                 ['saveInSession' => true]
             );
-        } catch (Exception $exc) {
+        } catch (Throwable $exc) {
             $merchant = 'An error occured in the payment process: ' . $exc->getMessage();
             $this->errorLog($merchant, static::class);
             $this->sessionHelper->getAlertService()->addAlert(
@@ -461,6 +470,8 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
      */
     public function preparePaymentProcess(Bestellung $order): void
     {
+        $this->adapter->getConnectionForOrder($order);
+        $transaction = null;
         $redirectError = null;
         $hashes = $this->getPaymentHashes((int) $order->kBestellung ?? -1);
 
@@ -472,9 +483,19 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
 
         // Preorder State (Preorder = 1), order not finalized
         if ($this->duringCheckout) {
-            $order->cBestellNr = \baueBestellnummer();
-            $redirectError = PaymentHandler::REDIRECT_ON_FAILURE_URL;
+            if (Compatibility::isShopAtLeast52()) {
+                $order->cBestellNr = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID)
+                    ?? getOrderHandler()->createOrderNo();
+            } else {
+                $order->cBestellNr = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID) ?? \baueBestellnummer();
+            }
+
+            $redirectError = PaymentHandler::REDIRECT_TO_PAYMENT_SELECTION_URL;
             $this->state = self::STATE_DURING_CHECKOUT;
+
+            // Save the generated order id in the session so that we can use it later
+            // instead of generating a new one due to redirects etc.
+            $this->sessionHelper->set(SessionHelper::KEY_ORDER_ID, $order->cBestellNr);
         }
 
         try {
@@ -485,7 +506,9 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             $this->handler->preparePayment($transaction, $order, $redirectError);
         } catch (UnzerApiException $exc) {
             $this->saveFailedTransaction($transaction, $order);
-            $merchant = $exc->getMerchantMessage() . ' | Id: ' . $exc->getErrorId() . ' | Code: ' . $exc->getCode();
+            $key = $this->adapter->getCurrentConnection()->getKey();
+            $key = substr($key, 0, -16) . str_repeat('&bull;', 16);
+            $merchant = $exc->getMerchantMessage() . ' | Id: ' . $exc->getErrorId() . ' | Code: ' . $exc->getCode() . ' | API-Key: ' . $key;
 
             $this->sessionHelper->addErrorAlert(
                 Text::convertUTF8($merchant),
@@ -496,8 +519,12 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             );
         } catch (RuntimeException $exc) {
             $this->saveFailedTransaction($transaction, $order);
+            $key = $this->adapter->getCurrentConnection()->getKey();
+            $key = substr($key, 0, -16) . str_repeat('&bull;', 16);
             $merchant = 'An exception was thrown while using the Heidelpay SDK: ';
             $merchant .= Text::convertUTF8($exc->getMessage());
+            $merchant .= ' | API-Key: ' . $key;
+
             $this->sessionHelper->addErrorAlert(
                 $merchant,
                 $this->trans(Config::LANG_PAYMENT_PROCESS_RUNTIME_EXCEPTION),
@@ -505,9 +532,12 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
                 $redirectError,
                 static::class
             );
-        } catch (Exception $exc) {
+        } catch (Throwable $exc) {
             $this->saveFailedTransaction($transaction, $order);
-            $merchant = 'An error occured in the payment process: ' . $exc->getMessage();
+            $key = $this->adapter->getCurrentConnection()->getKey();
+            $key = substr($key, 0, -16) . str_repeat('&bull;', 16);
+            $merchant = 'An error occured in the payment process: ' . $exc->getMessage() . ' | API-Key: ' . $key;
+
             $this->sessionHelper->addErrorAlert(
                 $merchant,
                 $this->trans(Config::LANG_PAYMENT_PROCESS_EXCEPTION),
@@ -522,18 +552,24 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
      *  If performing the transaction failed, save the order mapping because the order is still created!
      *
      * @param BasePaymentTyp|null $transaction
-     * @param Bestellung|stdClass $order
+     * @param Bestellung $order
      * @return void
      */
-    private function saveFailedTransaction($transaction, $order): void
+    private function saveFailedTransaction($transaction, Bestellung $order): void
     {
         if (is_null($transaction) && !empty($order->cBestellNr)) {
             try {
-                $payment = $this->adapter->getApi()->fetchPaymentByOrderId($order->cBestellNr);
+                $payment = $this->adapter->getConnectionForOrder($order)->fetchPaymentByOrderId($order->cBestellNr);
                 $this->handler->saveOrderMapping($payment, $order);
             } catch (Exception $err) {
-                $this->errorLog('An error occured in the payment process: ' . $err->getMessage(), static::class);
+                $key = $this->adapter->getCurrentConnection()->getKey();
+                $key = substr($key, 0, -16) . str_repeat('&bull;', 16);
+                $this->errorLog('An error occured in the payment process: ' . $err->getMessage() . "\nCurrent API Connection: " . $key, static::class);
             }
+
+            $this->sessionHelper->clearCheckoutSession();
+            $this->sessionHelper->clear(SessionHelper::KEY_CUSTOMER_ID);
+            $this->sessionHelper->clear(SessionHelper::KEY_ORDER_ID);
         }
     }
 }

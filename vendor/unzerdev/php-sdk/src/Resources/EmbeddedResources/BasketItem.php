@@ -18,10 +18,9 @@
  *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
  * @package  UnzerSDK\Resources\EmbeddedResources
  */
+
 namespace UnzerSDK\Resources\EmbeddedResources;
 
 use UnzerSDK\Resources\AbstractUnzerResource;
@@ -37,19 +36,45 @@ class BasketItem extends AbstractUnzerResource
     /** @var float $vat */
     protected $vat = 0.0;
 
-    /** @var float $amountDiscount */
+    /**
+     * @var float $amountDiscount
+     *
+     * @deprecated since 1.1.5.0 @see $amountDiscountPerUnitGross.
+     */
     protected $amountDiscount = 0.0;
 
-    /** @var float $amountGross */
+    /** @var float $amountDiscountPerUnitGross */
+    protected $amountDiscountPerUnitGross = 0.0;
+
+    /**
+     * @var float $amountGross
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
+     */
     protected $amountGross = 0.0;
 
-    /** @var float $amountVat */
+    /**
+     * @var float $amountVat
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
+     */
     protected $amountVat = 0.0;
 
-    /** @var float $amountPerUnit */
+    /**
+     * @var float $amountPerUnit
+     *
+     * @deprecated since 1.1.5.0 @see amountPerUnitGross
+     */
     protected $amountPerUnit = 0.0;
 
-    /** @var float $amountNet */
+    /** @var float $amountPerUnitGross */
+    protected $amountPerUnitGross = 0.0;
+
+    /**
+     * @var float $amountNet
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
+     */
     protected $amountNet = 0.0;
 
     /** @var string $unit */
@@ -70,6 +95,8 @@ class BasketItem extends AbstractUnzerResource
     /**
      * BasketItem constructor.
      *
+     * @deprecated since 1.1.5.0 Please call constructor without parameters and use setter functions instead.
+     *
      * @param string $title
      * @param float  $amountNet
      * @param float  $amountPerUnit
@@ -87,8 +114,6 @@ class BasketItem extends AbstractUnzerResource
         $this->setAmountPerUnit($amountPerUnit);
     }
 
-    //<editor-fold desc="Getters/Setters">
-
     /**
      * @return string|null
      */
@@ -102,7 +127,7 @@ class BasketItem extends AbstractUnzerResource
      *
      * @return BasketItem
      */
-    public function setBasketItemReferenceId($basketItemReferenceId): BasketItem
+    public function setBasketItemReferenceId(?string $basketItemReferenceId): BasketItem
     {
         $this->basketItemReferenceId = $basketItemReferenceId;
         return $this;
@@ -148,6 +173,8 @@ class BasketItem extends AbstractUnzerResource
 
     /**
      * @return float
+     *
+     * @deprecated since 1.1.5.0  @see $getAmountDiscountPerUnitGross.
      */
     public function getAmountDiscount(): float
     {
@@ -156,6 +183,8 @@ class BasketItem extends AbstractUnzerResource
 
     /**
      * @param float $amountDiscount
+     *
+     * @deprecated since 1.1.5.0  @see $setAmountDiscountPerUnitGross.
      *
      * @return BasketItem
      */
@@ -167,6 +196,8 @@ class BasketItem extends AbstractUnzerResource
 
     /**
      * @return float
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
      */
     public function getAmountGross(): float
     {
@@ -175,6 +206,8 @@ class BasketItem extends AbstractUnzerResource
 
     /**
      * @param float $amountGross
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
      *
      * @return BasketItem
      */
@@ -187,6 +220,46 @@ class BasketItem extends AbstractUnzerResource
     /**
      * @return float
      */
+    public function getAmountDiscountPerUnitGross(): float
+    {
+        return $this->amountDiscountPerUnitGross;
+    }
+
+    /**
+     * @param float $amountDiscountPerUnitGross
+     *
+     * @return BasketItem
+     */
+    public function setAmountDiscountPerUnitGross(float $amountDiscountPerUnitGross): BasketItem
+    {
+        $this->amountDiscountPerUnitGross = $amountDiscountPerUnitGross;
+        return $this;
+    }
+
+    /**
+     * @return float
+     */
+    public function getAmountPerUnitGross(): float
+    {
+        return $this->amountPerUnitGross;
+    }
+
+    /**
+     * @param float $amountPerUnitGross
+     *
+     * @return BasketItem
+     */
+    public function setAmountPerUnitGross(float $amountPerUnitGross): BasketItem
+    {
+        $this->amountPerUnitGross = $amountPerUnitGross;
+        return $this;
+    }
+
+    /**
+     * @return float
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
+     */
     public function getAmountVat(): float
     {
         return $this->amountVat;
@@ -194,6 +267,8 @@ class BasketItem extends AbstractUnzerResource
 
     /**
      * @param float $amountVat
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
      *
      * @return BasketItem
      */
@@ -205,6 +280,8 @@ class BasketItem extends AbstractUnzerResource
 
     /**
      * @return float
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
      */
     public function getAmountPerUnit(): float
     {
@@ -213,6 +290,8 @@ class BasketItem extends AbstractUnzerResource
 
     /**
      * @param float $amountPerUnit
+     *
+     * @deprecated since 1.1.5.0 @see setAmountPerUnitGross
      *
      * @return BasketItem
      */
@@ -224,6 +303,8 @@ class BasketItem extends AbstractUnzerResource
 
     /**
      * @return float
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
      */
     public function getAmountNet(): float
     {
@@ -232,6 +313,8 @@ class BasketItem extends AbstractUnzerResource
 
     /**
      * @param float $amountNet
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
      *
      * @return BasketItem
      */
@@ -254,7 +337,7 @@ class BasketItem extends AbstractUnzerResource
      *
      * @return BasketItem
      */
-    public function setUnit($unit): BasketItem
+    public function setUnit(?string $unit): BasketItem
     {
         $this->unit = $unit;
         return $this;
@@ -292,7 +375,7 @@ class BasketItem extends AbstractUnzerResource
      *
      * @return BasketItem
      */
-    public function setImageUrl($imageUrl): BasketItem
+    public function setImageUrl(?string $imageUrl): BasketItem
     {
         $this->imageUrl = $imageUrl;
         return $this;
@@ -311,7 +394,7 @@ class BasketItem extends AbstractUnzerResource
      *
      * @return BasketItem
      */
-    public function setSubTitle($subTitle): BasketItem
+    public function setSubTitle(?string $subTitle): BasketItem
     {
         $this->subTitle = $subTitle;
         return $this;
@@ -333,11 +416,9 @@ class BasketItem extends AbstractUnzerResource
      *
      * @return BasketItem
      */
-    public function setType($type): BasketItem
+    public function setType(?string $type): BasketItem
     {
         $this->type = $type;
         return $this;
     }
-
-    //</editor-fold>
 }

@@ -26,6 +26,7 @@ use JTL\Plugin\Payment\Method;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePay;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerBancontact;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterDirectDebit;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInstallment;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInvoice;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
@@ -41,6 +42,7 @@ use UnzerSDK\Resources\PaymentTypes\Ideal;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\PaylaterDirectDebit;
 use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
 use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
@@ -91,7 +93,8 @@ class PaymentMethodModuleFactory
         UnzerApplePay::class                      => 'unzerapplepay',
         UnzerPaylaterInvoice::class               => 'unzerrechnung(jetztkaufen,späterbezahlen)',
         UnzerBancontact::class                    => 'unzerbancontact',
-        UnzerPaylaterInstallment::class           => 'unzerratenzahlung(paylater)'
+        UnzerPaylaterInstallment::class           => 'unzerratenzahlung(paylater)',
+        UnzerPaylaterDirectDebit::class           => 'unzerlastschrift(paylater)',
     ];
 
     private const FACTORIES = [
@@ -116,7 +119,8 @@ class PaymentMethodModuleFactory
         Sofort::class                    => 'createSofortModule',
         Wechatpay::class                 => 'createWechatpayModule',
         Bancontact::class                => 'createBancontactModule',
-        PaylaterInstallment::class       => 'createPaylaterInstallmentModule'
+        PaylaterInstallment::class       => 'createPaylaterInstallmentModule',
+        PaylaterDirectDebit::class       => 'createPaylaterDirectDebitModule',
     ];
 
     public function __construct()
@@ -320,6 +324,16 @@ class PaymentMethodModuleFactory
     public function createPaylaterInstallmentModule(): HeidelpayPaymentMethod
     {
         return $this->create(UnzerPaylaterInstallment::class);
+    }
+
+    /**
+     * Create Paylater Direct Debit Payment Module.
+     *
+     * @return HeidelpayPaymentMethod|UnzerPaylaterDirectDebit
+     */
+    public function createPaylaterDirectDebitModule(): HeidelpayPaymentMethod
+    {
+        return $this->create(UnzerPaylaterDirectDebit::class);
     }
 
     /**

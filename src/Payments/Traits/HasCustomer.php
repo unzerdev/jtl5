@@ -104,6 +104,14 @@ trait HasCustomer
             Text::convertUTF8(html_entity_decode($customer->cNachname))
         );
 
+        if (
+            !empty($customer->dGeburtstag) &&
+            $customer->dGeburtstag !== '0000-00-00' &&
+            $customer->dGeburtstag !== '_DBNULL_'
+        ) {
+            $customerObj->setBirthDate(date('Y-m-d', strtotime($customer->dGeburtstag)));
+        }
+
         $customerObj->setEmail($customer->cMail);
 
         if (!empty($customer->cFirma)) {
@@ -166,7 +174,7 @@ trait HasCustomer
             $obj->setLastname(Text::convertUTF8(html_entity_decode($customer->cNachname)));
             $obj->setEmail($customer->cMail);
             $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : 'mrs');
-            $obj->setCustomerId($customer->kKunde);
+            $obj->setCustomerId((string) $customer->kKunde);
 
             return $obj;
         }
@@ -186,7 +194,7 @@ trait HasCustomer
             Text::convertUTF8(html_entity_decode($customer->cFirma))
         );
         $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : 'mrs');
-        $obj->setCustomerId($customer->kKunde);
+        $obj->setCustomerId((string) $customer->kKunde);
 
         return $obj;
     }

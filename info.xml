@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>1.3.1</Version>
+    <Version>1.4.0</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
     <ExsID>eef84f33-97ff-4519-8e0f-6760ae06c51f</ExsID>
@@ -347,13 +347,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/sepa_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Unzer Lastschrift]]></Name>
-                    <ChargeName><![CDATA[Unzer Lastschrift]]></ChargeName>
+                    <Name><![CDATA[SEPA Lastschrift]]></Name>
+                    <ChargeName><![CDATA[SEPA Lastschrift]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Unzer Direct Debit]]></Name>
-                    <ChargeName><![CDATA[Unzer Direct Debit]]></ChargeName>
+                    <Name><![CDATA[SEPA Direct Debit]]></Name>
+                    <ChargeName><![CDATA[SEPA Direct Debit]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -372,13 +372,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/sepa_guaranteed_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Unzer Lastschrift]]></Name>
-                    <ChargeName><![CDATA[Unzer Lastschrift]]></ChargeName>
+                    <Name><![CDATA[(Veraltet) Lastschrift Gesichert]]></Name>
+                    <ChargeName><![CDATA[(Veraltet) Lastschrift Gesichert]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Unzer Direct Debit]]></Name>
-                    <ChargeName><![CDATA[Unzer Direct Debit]]></ChargeName>
+                    <Name><![CDATA[(Deprecated) Direct Debit Secured]]></Name>
+                    <ChargeName><![CDATA[(Deprecated) Direct Debit Secured]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -836,6 +836,31 @@
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Installment]]></Name>
                     <ChargeName><![CDATA[Installment]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Lastschrift (Paylater)]]></Name>
+                <Sort>40</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerPaylaterDirectDebit.php</ClassFile>
+                <ClassName>UnzerPaylaterDirectDebit</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/paylater_direct_debit_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Lastschrift]]></Name>
+                    <ChargeName><![CDATA[Lastschrift]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Direct Debit]]></Name>
+                    <ChargeName><![CDATA[Direct Debit]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>

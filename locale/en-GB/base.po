@@ -11,13 +11,16 @@ msgid "Unzer SEPA-Lastschrift"
 msgstr "Unzer SEPA Direct Debit"
 
 msgid "Unzer Lastschrift"
-msgstr "Unzer Direct Debit"
+msgstr "Unzer SEPA Direct Debit"
 
 msgid "Unzer SEPA-Lastschrift (guaranteed)"
-msgstr "Unzer SEPA Direct Debit (secured)"
+msgstr "(Deprecated) Unzer SEPA Direct Debit (secured)"
 
 msgid "Unzer Lastschrift (secured)"
-msgstr "Unzer Direct Debit (secured)"
+msgstr "(Deprecated) Unzer Direct Debit (secured)"
+
+msgid "Unzer Lastschrift (Paylater)"
+msgstr "Unzer Direct Debit"
 
 msgid "Unzer Rechnung"
 msgstr "(Deprecated) Unzer Invoice"
@@ -74,10 +77,10 @@ msgid "Unzer FlexiPay Installment (Hire Purchase)"
 msgstr "Unzer FlexiPay Instalment (Hire Purchase)"
 
 msgid "Unzer Instalment"
-msgstr "Unzer Instalment"
+msgstr "(Deprecated) Unzer Installment"
 
 msgid "Unzer Ratenkauf"
-msgstr "Unzer Instalment"
+msgstr "(Deprecated) Unzer Instalment"
 
 msgid "Unzer Rechnung (Jetzt kaufen, Später bezahlen)"
 msgstr "Unzer Invoice"
@@ -185,7 +188,7 @@ msgid "hpPaymentmethodSEPA"
 msgstr "Direct Debit"
 
 msgid "hpPaymentmethodSEPAGuaranteed"
-msgstr "Direct Debit (secured)"
+msgstr "(Deprecated) Direct Debit (secured)"
 
 msgid "hpPaymentmethodInvoice"
 msgstr "Invoice"
@@ -227,10 +230,10 @@ msgid "hpPaymentmethodHirePurchaseDirectDebit"
 msgstr "Instalment"
 
 msgid "paylater-invoice"
-msgstr "Invoice (Paylater)"
+msgstr "Invoice"
 
 msgid "paylater-installment"
-msgstr "Installment (Paylater)"
+msgstr "Installment"
 
 msgid "hpOpenInPortal"
 msgstr "Open Order in Insight Portal"
@@ -557,3 +560,18 @@ msgstr "PQ-Method for instalment information on the order confirm page"
 
 msgid "hpSettingsPqMethodInstallmentInfoHelp"
 msgstr "The PHP Query Method for the injection of the instalment information on the order confirm page"
+
+msgid "hpPaymentReference"
+msgstr "Payment Reference"
+
+msgid "paylater-direct-debit"
+msgstr "Direct Debit"
+
+msgid "Hinzufügen"
+msgstr "Add"
+
+msgid "Die Einstellungen wurden erfolgreich gespeichert."
+msgstr "The settings have been saved successfully."
+
+msgid "Dokumentation"
+msgstr "Documentation"

@@ -2,31 +2,32 @@
 
 Dieses Plugin integriert die folgenden Unzer-Zahlungsarten im JTL Shop:
 
-- ApplePay
 - Alipay
+- ApplePay
 - Bancontact
+- Direktüberweisung
 - EPS
 - Giropay
 - iDEAL
 - Kreditkarte
+- Lastschrift
+- SEPA Lastschrift
 - PayPal
 - Przelewy24
+- Ratenkauf
+- Rechnungskauf
 - SOFORT
+- Vorkasse
 - WeChat Pay
-- Unzer Direktüberweisung
-- Unzer Ratenkauf
-- Unzer Rechnung
-- Unzer Rechnung (secured)
-- Unzer Rechnung (Jetzt kaufen, Später bezahlen)
-- Unzer Lastschrift
-- Unzer Lastschrift (secured)
-- Unzer Vorkasse
-
+- (Veraltet) Unzer Ratenkauf
+- (Veraltet) Unzer Rechnungskauf
+- (Veraltet) Unzer Rechnungskauf (secured)
+- (Veraltet) Unzer Lastschrift Gesichert
 
 ## Installation / Update
 ### Systemvoraussetzungen
 - JTL-Shop 5.0.0+ und dessen Vorraussetzungen
-- mindestens PHP 7.1
+- PHP Version: 7.4 - 8.3
 - Die folgenden PHP Erweiterungen
   - ext-json
   - ext-curl

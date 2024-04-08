@@ -11,6 +11,8 @@ use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
 use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
+use UnzerSDK\Resources\PaymentTypes\PaylaterDirectDebit;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use JTL\Cart\Cart;
@@ -22,7 +24,6 @@ use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairService;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
-use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
 
 /**
  * Heidelpay API Adapter for JTL Shop.
@@ -42,7 +43,8 @@ class HeidelpayApiAdapter
     ];
     public const SHOULD_CHARGE_BEFORE_SHIPPING = [
         PaylaterInvoice::class,
-        PaylaterInstallment::class
+        PaylaterInstallment::class,
+        PaylaterDirectDebit::class,
     ];
 
     /**

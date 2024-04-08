@@ -22,6 +22,7 @@ export default class UnzerPayment {
         PAYLATER_INVOICE: 'Paylater Invoice',
         BANCONTACT: 'Bancontact',
         PAYLATER_INSTALLMENT: 'Paylater Installment',
+        PAYLATER_DIRECT_DEBIT: 'Paylater Direct Debit',
     };
 
     /**
@@ -133,6 +134,9 @@ export default class UnzerPayment {
             case UnzerPayment.PAYMENT_TYPES.PAYLATER_INSTALLMENT:
                 return this.createPaylaterInstallment();
 
+            case UnzerPayment.PAYMENT_TYPES.PAYLATER_DIRECT_DEBIT:
+                return this.createPaylaterDirectDebit();
+
             default:
                 throw new Error('Unkown Payment Type: ' + type);
         }
@@ -181,6 +185,35 @@ export default class UnzerPayment {
     }
 
     /**
+     * Handle Paylater Input Validation
+     * @param {Event} event 
+     * @param {String} paymentMethodName 
+     * @param {HTMLElement} continueButton 
+     * @returns 
+     */
+    onPaylaterInputValidation(event, paymentMethodName, continueButton) {
+        // console.log(paymentMethodName, { event, continueButton, 's360-valid': continueButton.getAttribute('data-s360-valid') });
+        if (event.success) {
+            // Customer is already valid -> everything is valid
+            if (continueButton.getAttribute('data-s360-valid') == 'customer') {
+                continueButton.removeAttribute('disabled');
+                return;
+            }
+
+            // mark payment method as valid
+            continueButton.setAttribute('data-s360-valid', paymentMethodName);
+            return;
+        }
+
+        continueButton.setAttribute('disabled', true);
+
+        // only invalidate if the paymentMethodName was valid before
+        if (continueButton.getAttribute('data-s360-valid') == paymentMethodName) {
+            continueButton.setAttribute('data-s360-valid', 0);
+        }
+    }
+
+    /**
      * Create (or update) customer resource.
      *
      * @param {?String} paymentTypeName
@@ -206,18 +239,17 @@ export default class UnzerPayment {
         if (multipleValidation) {
             continueButton.setAttribute('data-s360-valid', 0);
             Customer.addEventListener('validate', (e) => {
-                console.log('customer validate', e, continueButton, continueButton.getAttribute('data-s360-valid'));
+                // console.log('customer validate', e, continueButton, continueButton.getAttribute('data-s360-valid'));
+                continueButton.setAttribute('disabled', true);
 
                 if (e.success) {
-                    if (continueButton.getAttribute('data-s360-valid') != 0) {
+                    if (continueButton.getAttribute('data-s360-valid') == paymentTypeName) {
                         continueButton.removeAttribute('disabled');
                     }
 
                     continueButton.setAttribute('data-s360-valid', 'customer');
                     return;
                 }
-
-                continueButton.setAttribute('disabled', true);
 
                 // only invalidate if the customer was valid before
                 if (continueButton.getAttribute('data-s360-valid') == 'customer') {
@@ -286,7 +318,7 @@ export default class UnzerPayment {
             }
 
             if (e.action === 'validate' && e.success) {
-                if (continueButton.getAttribute('data-s360-valid') != 0) {
+                if (continueButton.getAttribute('data-s360-valid') == 'customer') {
                     continueButton.removeAttribute('disabled');
                 }
 
@@ -321,26 +353,43 @@ export default class UnzerPayment {
             customerType: this.settings.isB2B ? 'B2B' : 'B2C'
         });
 
-        paylaterInvoice.addEventListener('change', (e) => {
-            console.log('payleterinvoice', e, continueButton, continueButton.getAttribute('data-s360-valid'));
-            if (e.success) {
-                if (continueButton.getAttribute('data-s360-valid') != 0) {
-                    continueButton.removeAttribute('disabled');
-                }
-
-                continueButton.setAttribute('data-s360-valid', 'paylater-invoice');
-                return;
-            }
-
-            continueButton.setAttribute('disabled', true);
-
-            // only invalidate if the paylater-invoice was valid before
-            if (continueButton.getAttribute('data-s360-valid') == 'paylater-invoice') {
-                continueButton.setAttribute('data-s360-valid', 0);
-            }
-        });
+        paylaterInvoice.addEventListener('change', (e) => 
+            this.onPaylaterInputValidation(
+                e,
+                'paylater-invoice',
+                continueButton
+            )
+        );
 
         return paylaterInvoice;
+    }
+
+    /**
+     * Create Paylayter Invoice Payment Type
+     *
+     * @see https://docs.unzer.com/payment-methods/direct-debit-secured/accept-direct-debit-secured-ui-component/
+     * @returns {{createResource: Function}}
+     */
+    createPaylaterDirectDebit() {
+        this.customerResource = this.createCustomer('paylater-direct-debit', true);
+
+        const continueButton = this.settings.submitButton || document.getElementById("submit-button");
+        const paylaterDirectDebit = this.unzerInstance.PaylaterDirectDebit();
+
+        paylaterDirectDebit.create('paylater-direct-debit', {
+            containerId: 'paylater-direct-debit',
+            customerType: this.settings.isB2B ? 'B2B' : 'B2C'
+        });
+
+        paylaterDirectDebit.addEventListener('change', (e) =>
+            this.onPaylaterInputValidation(
+                e,
+                'paylater-direct-debit',
+                continueButton
+            )
+        );
+
+        return paylaterDirectDebit;
     }
 
     /**

@@ -8,16 +8,19 @@ msgid "Unzer Kreditkarte"
 msgstr "Unzer Kreditkarte"
 
 msgid "Unzer SEPA-Lastschrift"
-msgstr "Unzer Lastschrift"
+msgstr "Unzer SEPA Lastschrift"
 
 msgid "Unzer Lastschrift"
-msgstr "Unzer Lastschrift"
+msgstr "Unzer SEPA Lastschrift"
 
 msgid "Unzer SEPA-Lastschrift (guaranteed)"
-msgstr "Unzer Lastschrift (secured)"
+msgstr "(Veraltet) Unzer Direct Debit (Gesichert)"
 
 msgid "Unzer Lastschrift (secured)"
-msgstr "Unzer Lastschrift (secured)"
+msgstr "(Veraltet) Unzer Direct Debit (Gesichert)"
+
+msgid "Unzer Lastschrift (Paylater)"
+msgstr "Unzer Lastschrift"
 
 msgid "Unzer Rechnung"
 msgstr "(Veraltet) Unzer Rechnungskauf"
@@ -71,7 +74,10 @@ msgid "Unzer FlexiPay Installment (Hire Purchase)"
 msgstr "Unzer FlexiPay Instalment (Hire Purchase)"
 
 msgid "Unzer Instalment"
-msgstr "Unzer Ratenkauf"
+msgstr "(Veraltet) Unzer Ratenkauf"
+
+msgid "Unzer Ratenkauf"
+msgstr "(Veraltet) Unzer Ratenkauf"
 
 msgid "Unzer Rechnung (Jetzt kaufen, Später bezahlen)"
 msgstr "Unzer Rechnungskauf"
@@ -536,3 +542,15 @@ msgstr "PQ-Einfügemethode für den Ratenzahlungshinweis auf Bestellbestätigung
 
 msgid "hpSettingsPqMethodInstalmentInfoHelp"
 msgstr "Die PHP-Query-Einfügemethode für das Einhängen des Ratenzahlungshinweis auf der Bestellbestätigungsseite"
+
+msgid "hpPaymentReference"
+msgstr "Zahlungsreferenz"
+
+msgid "paylater-installment"
+msgstr "Ratenkauf"
+
+msgid "paylater-invoice"
+msgstr "Rechnungskauf"
+
+msgid "paylater-direct-debit"
+msgstr "Lastschrift"

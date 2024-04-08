@@ -236,7 +236,10 @@ class AdminOrdersController extends AdminController implements AjaxResponse
 
         foreach ($orders as $order) {
             /** @var OrderMappingEntity $order */
-            $order->getOrder()->Waehrung = new Currency((int)$order->getOrder()->kWaehrung);
+            if ($order->getOrder()->kWaehrung > 0) {
+                $order->getOrder()->Waehrung = new Currency((int)$order->getOrder()->kWaehrung);
+            }
+
             $url = $this->config->getInsightPortalUrl($order);
             $data[] = new OrderViewStruct(
                 $order,

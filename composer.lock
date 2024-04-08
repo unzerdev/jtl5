@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a60ec1c1dc0b76892fcb527fe2ebf8f9",
+    "content-hash": "be6ccc8080da00e4b98c05d6f11aeb65",
     "packages": [
         {
             "name": "paragonie/constant_time_encoding",
@@ -125,16 +125,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.23",
+            "version": "3.0.37",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "866cc78fbd82462ffd880e3f65692afe928bed50"
+                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/866cc78fbd82462ffd880e3f65692afe928bed50",
-                "reference": "866cc78fbd82462ffd880e3f65692afe928bed50",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
+                "reference": "cfa2013d0f68c062055180dd4328cc8b9d1f30b8",
                 "shasum": ""
             },
             "require": {
@@ -215,7 +215,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.23"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.37"
             },
             "funding": [
                 {
@@ -231,25 +231,25 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2023-09-18T17:22:01+00:00"
+            "time": "2024-03-03T02:14:58+00:00"
         },
         {
             "name": "unzerdev/php-sdk",
-            "version": "3.3.0",
+            "version": "3.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/unzerdev/php-sdk.git",
-                "reference": "2854951496a7021e3f27fadefe7c35046669edab"
+                "reference": "818cb1fb02ef65278221a95d82663ca11ec459e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/unzerdev/php-sdk/zipball/2854951496a7021e3f27fadefe7c35046669edab",
-                "reference": "2854951496a7021e3f27fadefe7c35046669edab",
+                "url": "https://api.github.com/repos/unzerdev/php-sdk/zipball/818cb1fb02ef65278221a95d82663ca11ec459e5",
+                "reference": "818cb1fb02ef65278221a95d82663ca11ec459e5",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "php": "~7.4.0|~8.0.0|~8.1.0|~8.2.0"
+                "php": "~7.4.0|~8.0.0|~8.1.0|~8.2.0|~8.3.0"
             },
             "require-dev": {
                 "friendsofphp/php-cs-fixer": "^3.0",
@@ -269,12 +269,12 @@
             "license": [
                 "Apache-2.0"
             ],
-            "description": "This is the php sdk to connect to the Unzer rest api.",
+            "description": "This is the php sdk to connect to the Unzer rest API.",
             "support": {
                 "email": "support@unzer.com",
-                "source": "https://github.com/unzerdev/php-sdk/tree/3.3.0"
+                "source": "https://github.com/unzerdev/php-sdk/tree/3.5.0"
             },
-            "time": "2023-09-04T12:55:24+00:00"
+            "time": "2024-02-08T11:12:26+00:00"
         }
     ],
     "packages-dev": [],
@@ -285,5 +285,5 @@
     "prefer-lowest": false,
     "platform": [],
     "platform-dev": [],
-    "plugin-api-version": "2.6.0"
+    "plugin-api-version": "2.3.0"
 }

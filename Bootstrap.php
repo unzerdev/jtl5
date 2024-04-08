@@ -275,8 +275,14 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
                     $controller->setModel($model);
                     return $controller->handle();
                 case JtlLinkHelper::ADMIN_TAB_APPLE_PAY:
+                    /** @var Config $config */
+                    $config = Shop::Container()->get(Config::class);
+                    if (!$config->get(Config::PRIVATE_KEY)) {
+                        return 'Missing API Key';
+                    }
                     $controller = new AdminApplePayController($this->getPlugin(), $smarty);
                     $controller->setCertService(Shop::Container()->get(CertificationService::class));
+
                     return $controller->handle();
                 case JtlLinkHelper::ADMIN_TAB_SETTINGS:
                     $controller = new AdminSettingsController($this->getPlugin(), $smarty);

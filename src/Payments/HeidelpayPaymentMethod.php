@@ -252,6 +252,11 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             return false;
         }
 
+        // Save Customer ID if it exists
+        if (isset($postPaymentData['customerId'])) {
+            $this->sessionHelper->set(SessionHelper::KEY_CUSTOMER_ID, $postPaymentData['customerId']);
+        }
+
         // Check Form Inputs
         if (isset($postPaymentData['resourceId'])) {
             // Abort if CSRF Token is invalid

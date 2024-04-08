@@ -42,10 +42,15 @@ class PaymentController extends Controller
             $session->clear(SessionHelper::KEY_CUSTOMER_ID);
         }
 
-        // Clear Payment Data if the customer wants to change his payment or shipping method
+        // Clear Payment Data if the customer wants to change his payment or shipping method or changes his address
         if (
             Shop::getPageType() === \PAGE_BESTELLVORGANG &&
-            (Request::verifyGPCDataInt('editZahlungsart') > 0 || Request::verifyGPCDataInt('editVersandart') > 0)
+            (
+                Request::verifyGPCDataInt('editZahlungsart') > 0 ||
+                Request::verifyGPCDataInt('editVersandart') > 0 ||
+                Request::verifyGPCDataInt('editRechnungsadresse') > 0 ||
+                Request::verifyGPCDataInt('editLieferadresse') > 0
+            )
         ) {
             $session->clearCheckoutSession();
 

@@ -183,12 +183,11 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
             /** @var Lieferadresse $shipping */
             $shipping = $this->sessionHelper->getFrontendSession()->get('Lieferadresse');
 
-            // Split name into first and lastname
-            $names = $this->getNamesFromAddress($customer->getShippingAddress());
-            $shipping->cVorname = $names['firstname'] ?: $shipping->cVorname;
-            $shipping->cNachname = $names['lastname'] ?: $shipping->cNachname;
-
             if ($this->isB2BCustomer($shopCustomer)) {
+                // Split name into first and lastname
+                $names = $this->getNamesFromAddress($customer->getShippingAddress());
+                $shipping->cVorname = $names['firstname'] ?: $shipping->cVorname;
+                $shipping->cNachname = $names['lastname'] ?: $shipping->cNachname;
                 $shipping->cBundesland = $customer->getShippingAddress()->getState();
                 $shipping->cPLZ = $customer->getShippingAddress()->getZip();
                 $shipping->cOrt = $customer->getShippingAddress()->getCity();

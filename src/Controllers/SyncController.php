@@ -110,8 +110,9 @@ class SyncController extends Controller
          */
         if ($mappedOrder->getPaymentMethodId() && $this->order->kZahlungsart !== $mappedOrder->getPaymentMethodId()) {
             $this->order->kZahlungsart = $mappedOrder->getPaymentMethodId();
-            $this->order->updateInDB();
-            $this->order = new Bestellung($this->order->kBestellung, true);
+            $order = new Bestellung($this->order->kBestellung);
+            $order->kZahlungsart = $mappedOrder->getPaymentMethodId();
+            $order->updateInDB();
         }
 
         // Action routing

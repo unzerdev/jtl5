@@ -3,7 +3,24 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [1.3.1] (January 2023)
+## [1.4.0] (April 2024)
+### Added
+- New Payment Method **Unzer Direct Debit**
+- Missing Translations
+
+### Fixed
+- prefill birthday field if alreay set by shop
+- fixed issue with unzer ui component validation
+- fixed issue with session new being cleared correctly when changing shipping/billing address in the checkout
+
+### Changed
+- updated payment and system requirements in the documenation
+
+## [1.3.2] (January 2024)
+### Fixed:
+- Fixed issue with API Call in Settings after fresh install
+
+## [1.3.1] (January 2024)
 ### Added
 - Added Key Pair Management
 - Added new payment method **Unzer Instalment**

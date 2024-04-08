@@ -162,6 +162,13 @@
                                         </dd>
                                     {/if}
 
+                                    {if !empty($hpPayment->getAuthorization()) && !empty($hpPayment->getAuthorization()->getDescriptor())}
+                                        <dt class="col-5">{__('hpPaymentReference')}</dt>
+                                        <dd class="col-7">
+                                            {$hpPayment->getAuthorization()->getDescriptor()}
+                                        </dd>
+                                    {/if}
+
                                     <dt class="col-5">{__('hpPaymentId')}</dt>
                                     <dd class="col-7">{$hpPayment->getId()}</dd>
 

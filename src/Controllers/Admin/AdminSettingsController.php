@@ -60,11 +60,19 @@ class AdminSettingsController extends AdminController
         $settings = $this->smarty->getTemplateVars('hpSettings');
         $settings['config'] = $this->config->all();
 
+
         try {
-            /** @var HeidelpayApiAdapter $adapter */
-            $adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
-            $webhooks = $adapter->getCurrentConnection()->fetchAllWebhooks();
-            $settings['webhooks'] = \count($webhooks);
+            if (
+                empty($this->config->get(Config::PRIVATE_KEY))
+                || empty($this->config->get(Config::PUBLIC_KEY))
+            ) {
+                $settings['webhooks'] = false;
+            } else {
+                /** @var HeidelpayApiAdapter $adapter */
+                $adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
+                $webhooks = $adapter->getCurrentConnection()->fetchAllWebhooks();
+                $settings['webhooks'] = \count($webhooks);
+            }
         } catch (\Exception $exc) {
             $settings['webhooks'] = false;
         }

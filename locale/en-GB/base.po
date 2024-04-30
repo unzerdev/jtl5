@@ -185,19 +185,19 @@ msgid "hpPaymentmethodCard"
 msgstr "Credit Card"
 
 msgid "hpPaymentmethodSEPA"
-msgstr "Direct Debit"
+msgstr "SEPA Direct Debit"
 
 msgid "hpPaymentmethodSEPAGuaranteed"
 msgstr "(Deprecated) Direct Debit (secured)"
 
 msgid "hpPaymentmethodInvoice"
-msgstr "Invoice"
+msgstr "(Deprecated) Invoice"
 
 msgid "hpPaymentmethodInvoiceGuaranteed"
-msgstr "Invoice (secured)"
+msgstr "(Deprecated) Invoice (secured)"
 
 msgid "hpPaymentmethodInvoiceFactoring"
-msgstr "Invoice (factoring)"
+msgstr "(Deprecated) Invoice (factoring)"
 
 msgid "hpPaymentmethodPayPal"
 msgstr "PayPal"
@@ -227,7 +227,7 @@ msgid "hpPaymentmethodiDEAL"
 msgstr "iDEAL"
 
 msgid "hpPaymentmethodHirePurchaseDirectDebit"
-msgstr "Instalment"
+msgstr "(Deprecated) Instalment"
 
 msgid "paylater-invoice"
 msgstr "Invoice"

@@ -107,7 +107,10 @@ class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
         //         return false;
         //     }
         // }
-        if ($this->isB2BCustomer($this->sessionHelper->getFrontendSession()->getCustomer())) {
+        if (
+            $this->isB2BCustomer($this->sessionHelper->getFrontendSession()->getCustomer()) ||
+            $this->sessionHelper->getFrontendSession()->getCurrency()->getCode() !== 'EUR'
+        ) {
             return false;
         }
 

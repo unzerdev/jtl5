@@ -9,6 +9,7 @@ use JTL\Cart\Cart;
 use JTL\Checkout\Bestellung;
 use JTL\Checkout\ZahlungsInfo;
 use JTL\Helpers\Text;
+use JTL\Session\Frontend;
 use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
@@ -147,7 +148,8 @@ class UnzerPaylaterInstallment extends HeidelpayPaymentMethod implements
         $data = $view->getTemplateVars('hpPayment') ?: [];
         $data['customer'] = $customer;
         $data['amount'] = round(
-            $this->sessionHelper->getFrontendSession()->getCart()->gibGesamtsummeWaren(true),
+            $this->sessionHelper->getFrontendSession()->getCart()->gibGesamtsummeWaren(true)
+            * Frontend::getCurrency()->getConversionFactor(),
             2
         );
         $data['currency'] = $this->sessionHelper->getFrontendSession()->getCurrency()->getCode();

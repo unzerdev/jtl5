@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.4.1] (April 2024)
+### Changed
+- reduce Unzer UI Component fields if they are already filled by the shop
+- Unzer Direct Debit only available for EUR
+
+### Fixed
+- Validation of the Unzer UI Components
+- use correct currency factor for instalments
+
 ## [1.4.0] (April 2024)
 ### Added
 - New Payment Method **Unzer Direct Debit**

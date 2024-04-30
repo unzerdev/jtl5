@@ -13,6 +13,7 @@ use JTL\Catalog\Currency;
 use JTL\Helpers\Tax;
 use JTL\Helpers\Text;
 use JTL\Language\LanguageHelper;
+use JTL\Session\Frontend;
 
 /**
  * Payment Methods which require a Basket object.
@@ -61,7 +62,9 @@ trait HasBasket
     {
         $basket = (new Basket())
             ->setOrderId($orderId)
-            ->setTotalValueGross(round($cart->gibGesamtsummeWaren(true, false), 2))
+            ->setTotalValueGross(
+                round($cart->gibGesamtsummeWaren(true, false) * Frontend::getCurrency()->getConversionFactor(), 2)
+            )
             ->setCurrencyCode(($currency instanceof Currency ? $currency->getCode() : $currency->cISO) ?? '');
 
         $cumulatedDelta = 0;
@@ -135,12 +138,12 @@ trait HasBasket
         // !NOTE: JTL distributes its rounding errors of the total basket sum to the cart positions,
         // ! so we have to do the same (kinda, as we just need the gross amount per unit and not total) ...
         $grossAmount        = Tax::getGross(
-            $position->fPreis,
+            $position->fPreis * Frontend::getCurrency()->getConversionFactor(),
             Tax::getSalesTax($position->kSteuerklasse),
             12
         );
         $roundedGrossAmount = Tax::getGross(
-            $position->fPreis + $cumulatedDelta,
+            $position->fPreis * Frontend::getCurrency()->getConversionFactor() + $cumulatedDelta,
             Tax::getSalesTax($position->kSteuerklasse),
             2
         );

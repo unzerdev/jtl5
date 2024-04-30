@@ -186,16 +186,25 @@ export default class UnzerPayment {
 
     /**
      * Handle Paylater Input Validation
-     * @param {Event} event 
-     * @param {String} paymentMethodName 
-     * @param {HTMLElement} continueButton 
-     * @returns 
+     * @param {Event} event
+     * @param {boolean} isValid
+     * @param {String} paymentMethodName
+     * @param {HTMLElement} continueButton
+     * @returns
      */
-    onPaylaterInputValidation(event, paymentMethodName, continueButton) {
-        // console.log(paymentMethodName, { event, continueButton, 's360-valid': continueButton.getAttribute('data-s360-valid') });
-        if (event.success) {
+    onPaylaterInputValidation(event, isValid, paymentMethodName, continueButton) {
+        // console.log(paymentMethodName, { event, isValid, continueButton, 's360-valid': continueButton.getAttribute('data-s360-valid') });
+
+        if (isValid) {
+            // everything is still valid
+            if (continueButton.getAttribute('data-s360-valid') == 'all') {
+                continueButton.removeAttribute('disabled');
+                return;
+            }
+
             // Customer is already valid -> everything is valid
             if (continueButton.getAttribute('data-s360-valid') == 'customer') {
+                continueButton.setAttribute('data-s360-valid', 'all');
                 continueButton.removeAttribute('disabled');
                 return;
             }
@@ -210,6 +219,8 @@ export default class UnzerPayment {
         // only invalidate if the paymentMethodName was valid before
         if (continueButton.getAttribute('data-s360-valid') == paymentMethodName) {
             continueButton.setAttribute('data-s360-valid', 0);
+        } else if (continueButton.getAttribute('data-s360-valid') == 'all') {
+            continueButton.setAttribute('data-s360-valid', 'customer');
         }
     }
 
@@ -228,7 +239,8 @@ export default class UnzerPayment {
         let options = {
             containerId: 'customer',
             showInfoBox: false,
-            showHeader: false
+            showHeader: false,
+            fields: ['name', 'birthdate']
         };
 
         if (paymentTypeName) {
@@ -238,13 +250,23 @@ export default class UnzerPayment {
         Customer.initFormFields(customerObj);
         if (multipleValidation) {
             continueButton.setAttribute('data-s360-valid', 0);
+
             Customer.addEventListener('validate', (e) => {
                 // console.log('customer validate', e, continueButton, continueButton.getAttribute('data-s360-valid'));
                 continueButton.setAttribute('disabled', true);
 
                 if (e.success) {
-                    if (continueButton.getAttribute('data-s360-valid') == paymentTypeName) {
+                    // everything is still valid
+                    if (continueButton.getAttribute('data-s360-valid') == 'all') {
                         continueButton.removeAttribute('disabled');
+                        return;
+                    }
+
+                    // payment method is already valid -> everything is valid
+                    if (continueButton.getAttribute('data-s360-valid') == paymentTypeName) {
+                        continueButton.setAttribute('data-s360-valid', 'all');
+                        continueButton.removeAttribute('disabled');
+                        return;
                     }
 
                     continueButton.setAttribute('data-s360-valid', 'customer');
@@ -254,6 +276,8 @@ export default class UnzerPayment {
                 // only invalidate if the customer was valid before
                 if (continueButton.getAttribute('data-s360-valid') == 'customer') {
                     continueButton.setAttribute('data-s360-valid', 0);
+                } else if (continueButton.getAttribute('data-s360-valid') == 'all') {
+                    continueButton.setAttribute('data-s360-valid', paymentTypeName);
                 }
             });
         } else {
@@ -267,21 +291,44 @@ export default class UnzerPayment {
             });
         }
 
+        if (this.settings.isB2B) {
+            options.fields = ['companyInfo'];
+            // options = {containerId: 'customer'};
+        }
+
         if (this.customerId) {
-            options.fields = ['name', 'birthdate'];
-
-            // if (this.settings.isB2B) {
-            //     options = {containerId: 'customer'};
-            // }
-
             Customer.update(this.customerId, options);
-
             return Customer;
         }
 
         Customer.create(options);
 
         return Customer;
+    }
+
+    /**
+     * Hide form fields from unzer ui component because they are already filled by the shop
+     * @param {string} paymentMethodName
+     */
+    hideFormFields(paymentMethodName) {
+        const field = $('#customer');
+
+        field.find('.field').filter(
+            '.city, .company, :has(.country), .street, .zip, .firstname, .lastname'
+        ).hide();
+        field.find('.salutation-customer').hide();
+        field.find('.firstname, .lastname').parent('.fields').hide();
+        field.find('.unzerUI.divider-horizontal:eq(0)').hide();
+        field.find('.unzerUI.message.downArrow').hide();
+
+        if (paymentMethodName) {
+            field.find('.field').filter('.checkbox-billingAddress, .email').hide();
+            field.find('.field').filter(
+                '.billing-name, .billing-street, .billing-zip, .billing-city, :has(.billing-country)'
+            ).hide();
+            field.find('.unzerUI.form>.checkboxLabel').hide();
+            field.find('.unzerUI.form>.salutation-unzer-' + paymentMethodName + '-customer').hide();
+        }
     }
 
     /**
@@ -292,9 +339,10 @@ export default class UnzerPayment {
      */
     createPaylaterInstallment() {
         this.customerResource = this.createCustomer('paylater-installment', true);
-
         const continueButton = this.settings.submitButton || document.getElementById("submit-button");
         const paylaterInstallment = this.unzerInstance.PaylaterInstallment();
+
+        this.hideFormFields('paylater-installment');
 
         paylaterInstallment.create({
             containerId: 'paylater-installment',
@@ -317,21 +365,8 @@ export default class UnzerPayment {
                     break;
             }
 
-            if (e.action === 'validate' && e.success) {
-                if (continueButton.getAttribute('data-s360-valid') == 'customer') {
-                    continueButton.removeAttribute('disabled');
-                }
-
-                continueButton.setAttribute('data-s360-valid', 'paylater-installment');
-                return;
-            }
-
-            continueButton.setAttribute('disabled', true);
-
-            // only invalidate if the paylater-installment was valid before
-            if (continueButton.getAttribute('data-s360-valid') == 'paylater-installment') {
-                continueButton.setAttribute('data-s360-valid', 0);
-            }
+            const isValid = e.action === 'validate' && e.success;
+            this.onPaylaterInputValidation(e, isValid, 'paylater-installment', continueButton);
         });
 
         return paylaterInstallment;
@@ -348,14 +383,17 @@ export default class UnzerPayment {
         const continueButton = this.settings.submitButton || document.getElementById("submit-button");
         const paylaterInvoice = this.unzerInstance.PaylaterInvoice();
 
+        this.hideFormFields('paylater-invoice');
+
         paylaterInvoice.create({
             containerId: 'paylater-invoice',
             customerType: this.settings.isB2B ? 'B2B' : 'B2C'
         });
 
-        paylaterInvoice.addEventListener('change', (e) => 
+        paylaterInvoice.addEventListener('change', (e) =>
             this.onPaylaterInputValidation(
                 e,
+                e.success,
                 'paylater-invoice',
                 continueButton
             )
@@ -372,9 +410,10 @@ export default class UnzerPayment {
      */
     createPaylaterDirectDebit() {
         this.customerResource = this.createCustomer('paylater-direct-debit', true);
-
         const continueButton = this.settings.submitButton || document.getElementById("submit-button");
         const paylaterDirectDebit = this.unzerInstance.PaylaterDirectDebit();
+
+        this.hideFormFields('paylater-direct-debit');
 
         paylaterDirectDebit.create('paylater-direct-debit', {
             containerId: 'paylater-direct-debit',
@@ -384,6 +423,7 @@ export default class UnzerPayment {
         paylaterDirectDebit.addEventListener('change', (e) =>
             this.onPaylaterInputValidation(
                 e,
+                e.success,
                 'paylater-direct-debit',
                 continueButton
             )

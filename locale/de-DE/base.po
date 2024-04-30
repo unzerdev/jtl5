@@ -182,19 +182,19 @@ msgid "hpPaymentmethodCard"
 msgstr "Kreditkarte"
 
 msgid "hpPaymentmethodSEPA"
-msgstr "Lastschrift"
+msgstr "SEPA Lastschrift"
 
 msgid "hpPaymentmethodSEPAGuaranteed"
-msgstr "Lastschrift (secured)"
+msgstr "(Veraltet) Unzer Direct Debit (Gesichert)"
 
 msgid "hpPaymentmethodInvoice"
-msgstr "Rechnung"
+msgstr "(Veraltet) Rechnung"
 
 msgid "hpPaymentmethodInvoiceGuaranteed"
-msgstr "Rechnung (secured)"
+msgstr "(Veraltet) Rechnung (secured)"
 
 msgid "hpPaymentmethodInvoiceFactoring"
-msgstr "Rechnungskauf"
+msgstr "(Veraltet) Rechnungskauf"
 
 msgid "hpPaymentmethodPayPal"
 msgstr "PayPal"
@@ -224,7 +224,7 @@ msgid "hpPaymentmethodiDEAL"
 msgstr "iDEAL"
 
 msgid "hpPaymentmethodHirePurchaseDirectDebit"
-msgstr "Ratenkauf"
+msgstr "(Veraltet) Ratenkauf"
 
 msgid "hpOpenInPortal"
 msgstr "Bestellung im Insight-Portal anzeigen"

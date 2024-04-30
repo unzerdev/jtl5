@@ -439,19 +439,27 @@ var UnzerPayment = /*#__PURE__*/function () {
     }
     /**
      * Handle Paylater Input Validation
-     * @param {Event} event 
-     * @param {String} paymentMethodName 
-     * @param {HTMLElement} continueButton 
-     * @returns 
+     * @param {Event} event
+     * @param {boolean} isValid
+     * @param {String} paymentMethodName
+     * @param {HTMLElement} continueButton
+     * @returns
      */
 
   }, {
     key: "onPaylaterInputValidation",
-    value: function onPaylaterInputValidation(event, paymentMethodName, continueButton) {
-      // console.log(paymentMethodName, { event, continueButton, 's360-valid': continueButton.getAttribute('data-s360-valid') });
-      if (event.success) {
-        // Customer is already valid -> everything is valid
+    value: function onPaylaterInputValidation(event, isValid, paymentMethodName, continueButton) {
+      // console.log(paymentMethodName, { event, isValid, continueButton, 's360-valid': continueButton.getAttribute('data-s360-valid') });
+      if (isValid) {
+        // everything is still valid
+        if (continueButton.getAttribute('data-s360-valid') == 'all') {
+          continueButton.removeAttribute('disabled');
+          return;
+        } // Customer is already valid -> everything is valid
+
+
         if (continueButton.getAttribute('data-s360-valid') == 'customer') {
+          continueButton.setAttribute('data-s360-valid', 'all');
           continueButton.removeAttribute('disabled');
           return;
         } // mark payment method as valid
@@ -465,6 +473,8 @@ var UnzerPayment = /*#__PURE__*/function () {
 
       if (continueButton.getAttribute('data-s360-valid') == paymentMethodName) {
         continueButton.setAttribute('data-s360-valid', 0);
+      } else if (continueButton.getAttribute('data-s360-valid') == 'all') {
+        continueButton.setAttribute('data-s360-valid', 'customer');
       }
     }
     /**
@@ -487,7 +497,8 @@ var UnzerPayment = /*#__PURE__*/function () {
       var options = {
         containerId: 'customer',
         showInfoBox: false,
-        showHeader: false
+        showHeader: false,
+        fields: ['name', 'birthdate']
       };
 
       if (paymentTypeName) {
@@ -503,8 +514,17 @@ var UnzerPayment = /*#__PURE__*/function () {
           continueButton.setAttribute('disabled', true);
 
           if (e.success) {
-            if (continueButton.getAttribute('data-s360-valid') == paymentTypeName) {
+            // everything is still valid
+            if (continueButton.getAttribute('data-s360-valid') == 'all') {
               continueButton.removeAttribute('disabled');
+              return;
+            } // payment method is already valid -> everything is valid
+
+
+            if (continueButton.getAttribute('data-s360-valid') == paymentTypeName) {
+              continueButton.setAttribute('data-s360-valid', 'all');
+              continueButton.removeAttribute('disabled');
+              return;
             }
 
             continueButton.setAttribute('data-s360-valid', 'customer');
@@ -514,6 +534,8 @@ var UnzerPayment = /*#__PURE__*/function () {
 
           if (continueButton.getAttribute('data-s360-valid') == 'customer') {
             continueButton.setAttribute('data-s360-valid', 0);
+          } else if (continueButton.getAttribute('data-s360-valid') == 'all') {
+            continueButton.setAttribute('data-s360-valid', paymentTypeName);
           }
         });
       } else {
@@ -527,17 +549,39 @@ var UnzerPayment = /*#__PURE__*/function () {
         });
       }
 
-      if (this.customerId) {
-        options.fields = ['name', 'birthdate']; // if (this.settings.isB2B) {
-        //     options = {containerId: 'customer'};
-        // }
+      if (this.settings.isB2B) {
+        options.fields = ['companyInfo']; // options = {containerId: 'customer'};
+      }
 
+      if (this.customerId) {
         Customer.update(this.customerId, options);
         return Customer;
       }
 
       Customer.create(options);
       return Customer;
+    }
+    /**
+     * Hide form fields from unzer ui component because they are already filled by the shop
+     * @param {string} paymentMethodName
+     */
+
+  }, {
+    key: "hideFormFields",
+    value: function hideFormFields(paymentMethodName) {
+      var field = $('#customer');
+      field.find('.field').filter('.city, .company, :has(.country), .street, .zip, .firstname, .lastname').hide();
+      field.find('.salutation-customer').hide();
+      field.find('.firstname, .lastname').parent('.fields').hide();
+      field.find('.unzerUI.divider-horizontal:eq(0)').hide();
+      field.find('.unzerUI.message.downArrow').hide();
+
+      if (paymentMethodName) {
+        field.find('.field').filter('.checkbox-billingAddress, .email').hide();
+        field.find('.field').filter('.billing-name, .billing-street, .billing-zip, .billing-city, :has(.billing-country)').hide();
+        field.find('.unzerUI.form>.checkboxLabel').hide();
+        field.find('.unzerUI.form>.salutation-unzer-' + paymentMethodName + '-customer').hide();
+      }
     }
     /**
      * Create Paylayter Installment Payment Type
@@ -549,9 +593,12 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createPaylaterInstallment",
     value: function createPaylaterInstallment() {
+      var _this = this;
+
       this.customerResource = this.createCustomer('paylater-installment', true);
       var continueButton = this.settings.submitButton || document.getElementById("submit-button");
       var paylaterInstallment = this.unzerInstance.PaylaterInstallment();
+      this.hideFormFields('paylater-installment');
       paylaterInstallment.create({
         containerId: 'paylater-installment',
         amount: this.settings.amount,
@@ -572,20 +619,9 @@ var UnzerPayment = /*#__PURE__*/function () {
             break;
         }
 
-        if (e.action === 'validate' && e.success) {
-          if (continueButton.getAttribute('data-s360-valid') == 'customer') {
-            continueButton.removeAttribute('disabled');
-          }
+        var isValid = e.action === 'validate' && e.success;
 
-          continueButton.setAttribute('data-s360-valid', 'paylater-installment');
-          return;
-        }
-
-        continueButton.setAttribute('disabled', true); // only invalidate if the paylater-installment was valid before
-
-        if (continueButton.getAttribute('data-s360-valid') == 'paylater-installment') {
-          continueButton.setAttribute('data-s360-valid', 0);
-        }
+        _this.onPaylaterInputValidation(e, isValid, 'paylater-installment', continueButton);
       });
       return paylaterInstallment;
     }
@@ -599,17 +635,18 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createPaylaterInvoice",
     value: function createPaylaterInvoice() {
-      var _this = this;
+      var _this2 = this;
 
       this.customerResource = this.createCustomer('paylater-invoice', true);
       var continueButton = this.settings.submitButton || document.getElementById("submit-button");
       var paylaterInvoice = this.unzerInstance.PaylaterInvoice();
+      this.hideFormFields('paylater-invoice');
       paylaterInvoice.create({
         containerId: 'paylater-invoice',
         customerType: this.settings.isB2B ? 'B2B' : 'B2C'
       });
       paylaterInvoice.addEventListener('change', function (e) {
-        return _this.onPaylaterInputValidation(e, 'paylater-invoice', continueButton);
+        return _this2.onPaylaterInputValidation(e, e.success, 'paylater-invoice', continueButton);
       });
       return paylaterInvoice;
     }
@@ -623,17 +660,18 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createPaylaterDirectDebit",
     value: function createPaylaterDirectDebit() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.customerResource = this.createCustomer('paylater-direct-debit', true);
       var continueButton = this.settings.submitButton || document.getElementById("submit-button");
       var paylaterDirectDebit = this.unzerInstance.PaylaterDirectDebit();
+      this.hideFormFields('paylater-direct-debit');
       paylaterDirectDebit.create('paylater-direct-debit', {
         containerId: 'paylater-direct-debit',
         customerType: this.settings.isB2B ? 'B2B' : 'B2C'
       });
       paylaterDirectDebit.addEventListener('change', function (e) {
-        return _this2.onPaylaterInputValidation(e, 'paylater-direct-debit', continueButton);
+        return _this3.onPaylaterInputValidation(e, e.success, 'paylater-direct-debit', continueButton);
       });
       return paylaterDirectDebit;
     }
@@ -790,7 +828,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createSepa",
     value: function createSepa() {
-      var _this3 = this;
+      var _this4 = this;
 
       var Sepa = this.unzerInstance.SepaDirectDebit();
       Sepa.create('sepa-direct-debit', {
@@ -804,7 +842,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.success) {
           continueButton.removeAttribute('disabled');
 
-          _this3.errorHandler.hide();
+          _this4.errorHandler.hide();
 
           return;
         }
@@ -823,7 +861,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createSepaGuaranteed",
     value: function createSepaGuaranteed() {
-      var _this4 = this;
+      var _this5 = this;
 
       var SepaGuaranteed = this.unzerInstance.SepaDirectDebitSecured();
       SepaGuaranteed.create('sepa-direct-debit-guaranteed', {
@@ -837,7 +875,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.success) {
           continueButton.removeAttribute('disabled');
 
-          _this4.errorHandler.hide();
+          _this5.errorHandler.hide();
 
           return;
         }
@@ -909,7 +947,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createIdeal",
     value: function createIdeal() {
-      var _this5 = this;
+      var _this6 = this;
 
       var Ideal = this.unzerInstance.Ideal();
       Ideal.create('ideal', {
@@ -923,7 +961,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.value) {
           continueButton.removeAttribute('disabled');
 
-          _this5.errorHandler.hide();
+          _this6.errorHandler.hide();
 
           return;
         }

@@ -173,8 +173,11 @@ trait HasCustomer
             $obj->setFirstname(Text::convertUTF8(html_entity_decode($customer->cVorname)));
             $obj->setLastname(Text::convertUTF8(html_entity_decode($customer->cNachname)));
             $obj->setEmail($customer->cMail);
-            $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : 'mrs');
             $obj->setCustomerId((string) $customer->kKunde);
+
+            if (!empty($customer->cAnrede)) {
+                $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : ($customer->cAnrede == 'w' ? 'mrs' : null));
+            }
 
             return $obj;
         }
@@ -193,8 +196,11 @@ trait HasCustomer
             Text::convertUTF8(html_entity_decode($customer->cMail)),
             Text::convertUTF8(html_entity_decode($customer->cFirma))
         );
-        $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : 'mrs');
         $obj->setCustomerId((string) $customer->kKunde);
+
+        if (!empty($customer->cAnrede)) {
+            $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : ($customer->cAnrede == 'w' ? 'mrs' : null));
+        }
 
         return $obj;
     }

@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] (May 2024)
+### Added
+- added new payment method **Google Pay**
+
+## [1.4.2] (May 2024)
+### Changed
+- only show the payment methods for their supported countries and currencies. This affects the following payment methods: *Alipay*, *EPS*, *Giropay*, *Prepayment*, *Przelewy24*, *SEPA Direct Debit*, *Direct Debit*, *SOFORT*, *WeChat Pay*, *iDEAL*, *Bancontact*, *Installment*, *Invoice*
+
 ## [1.4.1] (April 2024)
 ### Changed
 - reduce Unzer UI Component fields if they are already filled by the shop

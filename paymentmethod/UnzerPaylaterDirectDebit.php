@@ -37,6 +37,16 @@ class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
     use HasBasket;
     use SupportsB2B;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['AT', 'DE'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['EUR'];
+    }
+
     /**
      * Cancel the Charge or authorization
      *
@@ -107,10 +117,7 @@ class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
         //         return false;
         //     }
         // }
-        if (
-            $this->isB2BCustomer($this->sessionHelper->getFrontendSession()->getCustomer()) ||
-            $this->sessionHelper->getFrontendSession()->getCurrency()->getCode() !== 'EUR'
-        ) {
+        if ($this->isB2BCustomer($this->sessionHelper->getFrontendSession()->getCustomer())) {
             return false;
         }
 

@@ -29,6 +29,16 @@ class HeidelpayGiropay extends HeidelpayPaymentMethod implements RedirectPayment
     use HasMetadata;
     use HasCustomer;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['DE'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['EUR'];
+    }
+
     /**
      * @inheritDoc
      * @return AbstractTransactionType|Charge

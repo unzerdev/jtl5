@@ -554,3 +554,9 @@ msgstr "Rechnungskauf"
 
 msgid "paylater-direct-debit"
 msgstr "Lastschrift"
+
+msgid "googlepay"
+msgstr "Google Pay"
+
+msgid "Gateway Merchant ID"
+msgstr "Gateway Händler ID"

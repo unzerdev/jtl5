@@ -26,6 +26,7 @@ use JTL\Plugin\Payment\Method;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePay;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerBancontact;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerGooglePay;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterDirectDebit;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInstallment;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInvoice;
@@ -38,6 +39,7 @@ use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Card;
 use UnzerSDK\Resources\PaymentTypes\EPS;
 use UnzerSDK\Resources\PaymentTypes\Giropay;
+use UnzerSDK\Resources\PaymentTypes\Googlepay;
 use UnzerSDK\Resources\PaymentTypes\Ideal;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
@@ -95,6 +97,7 @@ class PaymentMethodModuleFactory
         UnzerBancontact::class                    => 'unzerbancontact',
         UnzerPaylaterInstallment::class           => 'unzerratenzahlung(paylater)',
         UnzerPaylaterDirectDebit::class           => 'unzerlastschrift(paylater)',
+        UnzerGooglePay::class                     => 'unzergooglepay',
     ];
 
     private const FACTORIES = [
@@ -121,6 +124,7 @@ class PaymentMethodModuleFactory
         Bancontact::class                => 'createBancontactModule',
         PaylaterInstallment::class       => 'createPaylaterInstallmentModule',
         PaylaterDirectDebit::class       => 'createPaylaterDirectDebitModule',
+        Googlepay::class                 => 'createGooglePayModule'
     ];
 
     public function __construct()
@@ -304,6 +308,16 @@ class PaymentMethodModuleFactory
         }
 
         return $this->create($module);
+    }
+
+    /**
+     * Create Google Pay Module.
+     *
+     * @return HeidelpayPaymentMethod|UnzerPaylaterInvoice
+     */
+    public function createGooglePayModule(): HeidelpayPaymentMethod
+    {
+        return $this->create(UnzerGooglePay::class);
     }
 
     /**

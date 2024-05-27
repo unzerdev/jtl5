@@ -87,6 +87,24 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     }
 
     /**
+     * List of allowed currencies (3-Letter ISO Codes)
+     * An empty list means everything is allowed
+     */
+    protected function getAllowedCurrencies(): array
+    {
+        return [];
+    }
+
+    /**
+     * List of allowed countries (Two-Letter ISO Codes)
+     * An empty list means everything is allowed
+     */
+    protected function getAllowedCountries(): array
+    {
+        return [];
+    }
+
+    /**
      * Load dependencies
      *
      * @param integer $nAgainCheckout
@@ -298,6 +316,29 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     }
 
     /**
+     * Checks if payment method is allowed for currency and country
+     * @return bool
+     */
+    public function isSelectable(): bool
+    {
+        if (
+            !empty($this->getAllowedCountries()) &&
+            !in_array($this->sessionHelper->getFrontendSession()->getCustomer()->cLand, $this->getAllowedCountries())
+        ) {
+            return false;
+        }
+
+        if (
+            !empty($this->getAllowedCurrencies()) &&
+            !in_array($this->sessionHelper->getFrontendSession()->getCurrency()->getCode(), $this->getAllowedCurrencies())
+        ) {
+            return false;
+        }
+
+        return parent::isSelectable();
+    }
+
+    /**
      * If this methods returns true, then notify.php uses the URL from getReturnURL (@see self::getReturnUrl).
      *
      * Here, this is the case if we have a payment no matter the actual state of it.
@@ -479,6 +520,11 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
         $transaction = null;
         $redirectError = null;
         $hashes = $this->getPaymentHashes((int) $order->kBestellung ?? -1);
+
+        // check if the payment type id was posted instead of being saved in the session
+        if (Request::postVar('unzer-payment-type-id')) {
+            $this->sessionHelper->setCheckoutSession(Request::postVar('unzer-payment-type-id'));
+        }
 
         // We already processes this order, we just need to finish the payment process
         if (isset($hashes) && !empty($hashes->cId)) {

@@ -8,6 +8,7 @@ use Exception;
 use UnzerSDK\Unzer;
 use UnzerSDK\Resources\Payment;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
+use UnzerSDK\Resources\PaymentTypes\Googlepay;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
 use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
@@ -45,6 +46,7 @@ class HeidelpayApiAdapter
         PaylaterInvoice::class,
         PaylaterInstallment::class,
         PaylaterDirectDebit::class,
+        Googlepay::class
     ];
 
     /**
@@ -270,6 +272,37 @@ class HeidelpayApiAdapter
     public function shouldChargeBeforeShipping(BasePaymentType $paymentType): bool
     {
         return in_array(get_class($paymentType), self::SHOULD_CHARGE_BEFORE_SHIPPING);
+    }
+
+    /**
+     * Get the channel id for the payment type
+     *
+     * @param string $paymentType
+     * @return ?string
+     */
+    public function getChannelIdForPaymentType(string $paymentType): ?string
+    {
+        $keypair = $this->getCurrentConnection()->fetchKeypair(true);
+        $payment = current(array_filter(
+            $keypair->getPaymentTypes(),
+            static fn(\stdClass $type) => $type->type === $paymentType
+        ));
+
+        if (empty($payment)) {
+            return null;
+        }
+
+        $channelIds = [];
+
+        foreach ($payment->supports as $supports) {
+            $channelIds[] = $supports->channel;
+        }
+
+        if (empty($channelIds)) {
+            return null;
+        }
+
+        return current(array_unique($channelIds));
     }
 
     /**

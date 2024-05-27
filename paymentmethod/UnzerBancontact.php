@@ -26,6 +26,16 @@ class UnzerBancontact extends HeidelpayPaymentMethod implements RedirectPaymentI
     use HasCustomer;
     use HasMetadata;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['BE'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['EUR'];
+    }
+
     /**
      * Pass Styling Options to template
      *

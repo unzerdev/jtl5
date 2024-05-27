@@ -29,6 +29,16 @@ class HeidelpayPrzelewy24 extends HeidelpayPaymentMethod implements RedirectPaym
     use HasMetadata;
     use HasCustomer;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['PL'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['EUR', 'PLN'];
+    }
+
     /**
      * @inheritDoc
      * @return AbstractTransactionType|Charge

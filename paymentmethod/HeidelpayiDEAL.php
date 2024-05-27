@@ -34,6 +34,16 @@ class HeidelpayiDEAL extends HeidelpayPaymentMethod implements RedirectPaymentIn
     use HasMetadata;
     use HasCustomer;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['NL'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['EUR'];
+    }
+
     /**
      * @inheritDoc
      * @return AbstractTransactionType|Charge

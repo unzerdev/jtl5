@@ -73,6 +73,20 @@ class Config
     public const APPLEPAY_UNZER_PRIVATE_KEY_ID = 'applepay_unzer_private_key_id';
     public const APPLEPAY_UNZER_CERTIFICATE_ID = 'applepay_unzer_certificate_id';
 
+    // Google Pay Config Keys
+    public const GPAY_BOOKING_MODE = 'booking_mode';
+    public const GPAY_GATEWAY_MERCHANT_ID = 'gateway_merchant_id';
+    public const GPAY_MERCHANT_ID = 'merchant_id';
+    public const GPAY_MERCHANT_NAME = 'merchant_name';
+    public const GPAY_ALLOW_CREDIT_CARDS = 'allow_credit_cards';
+    public const GPAY_ALLOW_PREPAID_CARDS = 'allow_prepaid_cards';
+    public const GPAY_ACCEPT_MASTERCARD = 'accept_mastercard';
+    public const GPAY_ACCEPT_VISA = 'accept_visa';
+    public const GPAY_ACCEPT_DISCOVER = 'accept_discover';
+    public const GPAY_ACCEPT_JCB = 'accept_jcb';
+    public const GPAY_BTN_COLOR = 'btn_color';
+    public const GPAY_BTN_SIZE = 'btn_size';
+
     /**
      * @var string Key for `ecckey.key` file content
      */
@@ -206,6 +220,11 @@ class Config
         }
     }
 
+    public function savePaymentSetting(string $key, string $moduleId, string $value): void
+    {
+        $this->database->update('tplugineinstellungen', 'cName', $moduleId . '_' . $key, (object) ['cWert' => $value]);
+    }
+
     /**
      * Get a payment setting.
      *
@@ -213,10 +232,10 @@ class Config
      * @param string $moduleId
      * @return string|null
      */
-    public function getPaymentSetting(string $key, string $moduleId): ?string
+    public function getPaymentSetting(string $key, string $moduleId, ?PluginInterface $plugin = null): ?string
     {
         /** @var PluginInterface $plugin */
-        $plugin = Shop::Container()->get(self::PLUGIN_ID);
+        $plugin = $plugin ?? Shop::Container()->get(self::PLUGIN_ID);
         return $plugin->getConfig()->getValue($moduleId . '_' . $key);
     }
 

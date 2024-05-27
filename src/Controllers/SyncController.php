@@ -163,7 +163,7 @@ class SyncController extends Controller
         $payment = $this->adapter->fetchPayment($entity->getPaymentId());
 
         // Charge before shipping calls are made
-        if ($this->adapter->shouldChargeBeforeShipping($payment->getPaymentType())) {
+        if ($this->adapter->shouldChargeBeforeShipping($payment->getPaymentType()) && $payment->getAuthorization()) {
             $method = $this->factory->createForType(
                 $payment->getPaymentType(),
                 ['id-string' => $entity->getPaymentTypeId()]

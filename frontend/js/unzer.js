@@ -7,13 +7,16 @@ var _applepay = _interopRequireDefault(require("./payments/applepay"));
 
 var _general = _interopRequireDefault(require("./payments/general"));
 
+var _googlepay = _interopRequireDefault(require("./payments/googlepay"));
+
 var _instalment = _interopRequireDefault(require("./payments/instalment"));
 
 window.HpPayment = _general["default"];
 window.HpInstalment = _instalment["default"];
 window.UnzerApplePay = _applepay["default"];
+window.UnzerGooglePay = _googlepay["default"];
 
-},{"./payments/applepay":2,"./payments/general":3,"./payments/instalment":4,"@babel/runtime/helpers/interopRequireDefault":10}],2:[function(require,module,exports){
+},{"./payments/applepay":2,"./payments/general":3,"./payments/googlepay":4,"./payments/instalment":5,"@babel/runtime/helpers/interopRequireDefault":11}],2:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -258,7 +261,7 @@ var ApplePay = /*#__PURE__*/function () {
 
 exports["default"] = ApplePay;
 
-},{"../utils/debugging":5,"../utils/errors":6,"@babel/runtime/helpers/classCallCheck":7,"@babel/runtime/helpers/createClass":8,"@babel/runtime/helpers/interopRequireDefault":10}],3:[function(require,module,exports){
+},{"../utils/debugging":6,"../utils/errors":7,"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/interopRequireDefault":11}],3:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1123,7 +1126,115 @@ exports["default"] = UnzerPayment;
   PAYLATER_DIRECT_DEBIT: 'Paylater Direct Debit'
 });
 
-},{"../utils/errors":6,"@babel/runtime/helpers/classCallCheck":7,"@babel/runtime/helpers/createClass":8,"@babel/runtime/helpers/defineProperty":9,"@babel/runtime/helpers/interopRequireDefault":10}],4:[function(require,module,exports){
+},{"../utils/errors":7,"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/defineProperty":10,"@babel/runtime/helpers/interopRequireDefault":11}],4:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _errors = _interopRequireDefault(require("../utils/errors"));
+
+var GooglePay = /*#__PURE__*/function () {
+  /**
+   * @param {string} pubKey
+   * @param {GooglePaySettings} settings
+   */
+  function GooglePay(pubKey, settings) {
+    (0, _classCallCheck2["default"])(this, GooglePay);
+
+    /** @type {GooglePaySettings} */
+    this.settings = settings || {};
+    /** @type {HTMLFormElement} */
+
+    this.form = this.settings.form || document.getElementById('complete_order');
+    var options = {
+      locale: this.settings.locale || 'de-DE'
+    };
+    this.unzerInstance = new unzer(pubKey, options);
+    this.errorHandler = new _errors["default"](this.settings.$errorContainer, this.settings.$errorMessage);
+    this.createPaymentTypeResource();
+  }
+
+  (0, _createClass2["default"])(GooglePay, [{
+    key: "createPaymentTypeResource",
+    value: function createPaymentTypeResource() {
+      var _this = this;
+
+      // Creating a Google Pay instance
+      var googlepayInstance = this.unzerInstance.Googlepay();
+      var paymentData = googlepayInstance.initPaymentDataRequestObject({
+        gatewayMerchantId: this.settings.googlepay.gatewayMerchantId,
+        merchantInfo: this.settings.googlepay.merchantInfo,
+        transactionInfo: this.settings.googlepay.transactionInfo,
+        allowedCardNetworks: this.settings.googlepay.allowedCardNetworks,
+        allowCreditCards: this.settings.googlepay.allowCreditCards,
+        allowPrepaidCards: this.settings.googlepay.allowPrepaidCards,
+        buttonOptions: {
+          buttonColor: this.settings.googlepay.buttonOptions.buttonColor,
+          buttonSizeMode: this.settings.googlepay.buttonOptions.buttonSize
+        },
+        onPaymentAuthorizedCallback: function onPaymentAuthorizedCallback(paymentData) {
+          return googlepayInstance.createResource(paymentData).then(_this.onAuthorizedSuccess.bind(_this))["catch"](_this.onAuthorizedFailed.bind(_this));
+        }
+      });
+      googlepayInstance.create({
+        containerId: 'googlepay-holder'
+      }, paymentData);
+    }
+    /**
+     * @param {{id: string}} result
+     * @returns {{ status: string }}
+     */
+
+  }, {
+    key: "onAuthorizedSuccess",
+    value: function onAuthorizedSuccess(result) {
+      // Submit the ID to your server-side integration
+      var hiddenInput = document.createElement('input');
+      hiddenInput.setAttribute('type', 'hidden');
+      hiddenInput.setAttribute('name', 'unzer-payment-type-id');
+      hiddenInput.setAttribute('value', result.id);
+      this.form.appendChild(hiddenInput);
+      this.form.submit();
+      return {
+        status: 'success'
+      };
+    }
+    /**
+     * @param {{customerMessage?: string, message?: string, data?: {errors?: Array<{customerMessage?: string}>}}} error
+     * @returns {{ status: string, message: string }}
+     */
+
+  }, {
+    key: "onAuthorizedFailed",
+    value: function onAuthorizedFailed(error) {
+      var errorMessage = error.customerMessage || error.message || 'Error';
+
+      if (error.data && Array.isArray(error.data.errors) && error.data.errors[0]) {
+        errorMessage = error.data.errors[0].customerMessage || 'Error';
+      }
+
+      this.errorHandler.show(errorMessage);
+      return {
+        status: 'error',
+        message: errorMessage || 'Unexpected error'
+      };
+    }
+  }]);
+  return GooglePay;
+}();
+
+exports["default"] = GooglePay;
+
+},{"../utils/errors":7,"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/interopRequireDefault":11}],5:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1157,7 +1268,7 @@ var Installment = function Installment(modalSelector, btn, $form) {
 var _default = Installment;
 exports["default"] = _default;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1211,7 +1322,7 @@ var Debugging = /*#__PURE__*/function () {
 
 exports["default"] = Debugging;
 
-},{"@babel/runtime/helpers/classCallCheck":7,"@babel/runtime/helpers/createClass":8,"@babel/runtime/helpers/interopRequireDefault":10}],6:[function(require,module,exports){
+},{"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/interopRequireDefault":11}],7:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1263,7 +1374,7 @@ var ErrorHandler = /*#__PURE__*/function () {
 
 exports["default"] = ErrorHandler;
 
-},{"@babel/runtime/helpers/classCallCheck":7,"@babel/runtime/helpers/createClass":8,"@babel/runtime/helpers/interopRequireDefault":10}],7:[function(require,module,exports){
+},{"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/interopRequireDefault":11}],8:[function(require,module,exports){
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -1271,7 +1382,7 @@ function _classCallCheck(instance, Constructor) {
 }
 
 module.exports = _classCallCheck, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
     var descriptor = props[i];
@@ -1292,7 +1403,7 @@ function _createClass(Constructor, protoProps, staticProps) {
 }
 
 module.exports = _createClass, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 function _defineProperty(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
@@ -1309,7 +1420,7 @@ function _defineProperty(obj, key, value) {
 }
 
 module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {
     "default": obj

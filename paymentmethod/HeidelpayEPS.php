@@ -31,6 +31,16 @@ class HeidelpayEPS extends HeidelpayPaymentMethod implements RedirectPaymentInte
     use HasMetadata;
     use HasCustomer;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['AT'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['EUR'];
+    }
+
     /**
      * @inheritDoc
      * @return AbstractTransactionType|Charge

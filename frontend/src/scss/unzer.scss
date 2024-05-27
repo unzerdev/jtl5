@@ -5,6 +5,17 @@
     }
 }
 
+#googlepay-holder {
+    text-align: right;
+}
+
+// ET Fixes
+.et-widget {
+    #googlepay-holder {
+        margin-top: 10px;
+    }
+}
+
 // NOVA Fixes
 .label-slide .form-group:not(.exclude-from-label-slide):not(.checkbox) .unzerUI {
     &.form {

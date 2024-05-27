@@ -33,6 +33,16 @@ class HeidelpayPrepayment extends HeidelpayPaymentMethod
     use HasMetadata;
     use HasCustomer;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['AT', 'BE', 'CY', 'FI', 'FR', 'DE', 'GR', 'IE', 'IT', 'LI', 'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SI', 'SK', 'ES'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['EUR'];
+    }
+
     /**
      * Data the merchant needs to put on the Invoice.
      *

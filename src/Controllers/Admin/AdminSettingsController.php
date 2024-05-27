@@ -8,12 +8,14 @@ use Exception;
 use UnzerSDK\Validators\PrivateKeyValidator;
 use UnzerSDK\Validators\PublicKeyValidator;
 use JTL\Helpers\Request;
+use JTL\Plugin\Data\PaymentMethod;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairModel;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Webhooks\PaymentEventSubscriber;
+use UnzerSDK\Resources\PaymentTypes\Googlepay;
 
 /**
  * Admin Settings Controller
@@ -131,6 +133,7 @@ class AdminSettingsController extends AdminController
         $this->config->set(Config::PQ_SELECTOR_REVIEW_STEP, Request::postVar('pqSelectorReviewStep'));
         $this->config->set(Config::PQ_METHOD_REVIEW_STEP, Request::postVar('pqMethodReviewStep'));
         $this->config->set(Config::ADD_INCOMING_PAYMENTS, Request::postVar('addIncomingPayments', false));
+        $this->saveChannelId(null);
 
         // Validate
         $valid = true;
@@ -152,11 +155,32 @@ class AdminSettingsController extends AdminController
             $this->config->save();
             $this->addSuccess(__('Die Einstellungen wurden erfolgreich gespeichert.'));
 
-            // Register Webhooks Event Handlers if needed
             /** @var HeidelpayApiAdapter $adapter */
             $adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
+            $this->saveChannelId($adapter->getChannelIdForPaymentType(Googlepay::getResourceName()));
             $this->registerWebhooks($adapter);
         }
+    }
+
+    protected function saveChannelId(?string $channelId = null): void
+    {
+        /** @var PaymentMethod $paymentMethod */
+        $paymentMethod = current(
+            array_filter(
+                $this->plugin->getPaymentMethods()->getMethods(),
+                static fn(PaymentMethod $paymentMethod) => $paymentMethod->getName() === 'Unzer Google Pay'
+            )
+        );
+
+        if (!$paymentMethod) {
+            return;
+        }
+
+        $this->config->savePaymentSetting(
+            Config::GPAY_GATEWAY_MERCHANT_ID,
+            $paymentMethod->getModuleID(),
+            $channelId ?? ''
+        );
     }
 
     /**

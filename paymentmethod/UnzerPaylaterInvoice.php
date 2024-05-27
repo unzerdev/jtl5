@@ -41,6 +41,16 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
     use HasBasket;
     use SupportsB2B;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['AT', 'DE', 'CH', 'NL'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['EUR', 'CHF'];
+    }
+
     /**
      * Cancel the Charge or authorization
      *

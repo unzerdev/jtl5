@@ -8,6 +8,7 @@ Dieses Plugin integriert die folgenden Unzer-Zahlungsarten im JTL Shop:
 - Direktüberweisung
 - EPS
 - Giropay
+- Google Pay
 - iDEAL
 - Kreditkarte
 - Lastschrift

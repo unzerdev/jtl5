@@ -34,6 +34,7 @@ use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Utils\Logger;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
+use Smarty_Internal_Template;
 use Throwable;
 
 /**
@@ -158,6 +159,35 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
 
         // Backend Hooks
         if (!Shop::isFrontend()) {
+            /**
+             * !FIX ISSUES WITH getHelpDesc:
+             * - Description not being translated
+             * - show template even if description is empty
+             */
+            try {
+                Shop::Smarty()->unregisterPlugin(JTLSmarty::PLUGIN_FUNCTION, 'getHelpDesc');
+                Shop::Smarty()->registerPlugin(JTLSmarty::PLUGIN_FUNCTION, 'getHelpDesc', function (array $params, Smarty_Internal_Template $smarty) {
+                    $placement    = $params['placement'] ?? 'left';
+                    $cID          = !empty($params['cID']) ? $params['cID'] : null;
+                    $iconQuestion = !empty($params['iconQuestion']);
+                    $description  = isset($params['cDesc'])
+                        ? \str_replace('"', '\'', __(trim($params['cDesc'])))
+                        : null;
+
+                    if (empty($description)) {
+                        return '<div style="width: 1.25em"></div>';
+                    }
+
+                    return $smarty->assign('placement', $placement)
+                        ->assign('cID', $cID)
+                        ->assign('description', $description)
+                        ->assign('iconQuestion', $iconQuestion)
+                        ->fetch('tpl_inc/help_description.tpl');
+                });
+            } catch (Throwable $th) {
+                // silently discard as we only try to fix the core behavior
+            }
+
             $dispatcher->listen('backend.notification', function () {
                 // Payment Method Notifications
                 foreach ($this->getPlugin()->getPaymentMethods()->getMethods() as $paymentMethod) {

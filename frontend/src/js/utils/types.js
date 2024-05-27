@@ -44,3 +44,25 @@
  *  lineItems: Array<{label: string, amount: number, type: string}>
  * }} ApplePayPaymentRequest
  */
+
+/**
+ * @typedef {{
+ *  $errorContainer?: jQuery<HTMLElement>,
+ *  $errorMessage?: jQuery<HTMLElement>,
+ *  submitButton: HTMLElement|HTMLButtonElement|null,
+ *  locale: ?string,
+ *  googlepay: GooglePayDataRequest
+ * }} GooglePaySettings
+ */
+
+/**
+ * @typedef {{
+ *  gatewayMerchantId: string,
+ *  merchantInfo: {merchantId: string, merchantName: string},
+ *  transactionInfo: {countryCode: string, currencyCode: string, totalPrice: string},
+ *  allowCreditCards: boolean,
+ *  allowPrepaidCards: boolean,
+ *  allowedCardNetworks: string[],
+ *  buttonOptions: { buttonColor: "default" | "white" | "black ", buttonSize: "static" | "fill"}
+ * }} GooglePayDataRequest
+ */

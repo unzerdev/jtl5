@@ -575,3 +575,66 @@ msgstr "The settings have been saved successfully."
 
 msgid "Dokumentation"
 msgstr "Documentation"
+
+msgid "Buchungsmodus"
+msgstr "Booking Mode"
+
+msgid "Authorisierung"
+msgstr "Authorize"
+
+msgid "Erfassen"
+msgstr "Charge"
+
+msgid "Die von Unzer bereitgestellte Kanal-ID (wird automatisch geladen, falls nicht angegeben)"
+msgstr "The channel ID provided by Unzer (will be loaded automatically if not set)"
+
+msgid "Händler ID"
+msgstr "Merchant ID"
+
+msgid "Händler Name"
+msgstr "Merchant Name"
+
+msgid "Wird von Google im Feld \"Händlerinformationen\" bereitgestellt"
+msgstr "Provided by Google in the merchant info field"
+
+msgid "Kreditkarten zulassen"
+msgstr "Allow Credit Cards"
+
+msgid "Prepaid-Karten zulassen"
+msgstr "Allow Prepaid Cards"
+
+msgid "VISA akzeptieren"
+msgstr "Accept VISA"
+
+msgid "Discover akzeptieren"
+msgstr "Accept Discover"
+
+msgid "JCB akzeptieren"
+msgstr "Accept JCB"
+
+msgid "Mastercard akzeptieren"
+msgstr "Accept Mastercard"
+
+msgid "Button Farbe"
+msgstr "Button Color"
+
+msgid "Standard"
+msgstr "Default"
+
+msgid "Schwarz"
+msgstr "Black"
+
+msgid "Weiß"
+msgstr "White"
+
+msgid "Fest"
+msgstr "Static"
+
+msgid "Ausfüllen"
+msgstr "Fill"
+
+msgid "Button Größe"
+msgstr "Button Size"
+
+msgid "googlepay"
+msgstr "Google Pay"

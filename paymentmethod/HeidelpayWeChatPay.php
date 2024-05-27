@@ -28,6 +28,16 @@ class HeidelpayWeChatPay extends HeidelpayPaymentMethod implements RedirectPayme
     use HasMetadata;
     use HasCustomer;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'ES', 'GB', 'GR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LU', 'MT', 'NL', 'NO', 'PT', 'SE'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['CHF', 'CNY', 'EUR', 'GBP', 'USD'];
+    }
+
     /**
      * @inheritDoc
      * @return AbstractTransactionType|Charge

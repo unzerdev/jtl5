@@ -39,6 +39,16 @@ class HeidelpaySEPADirectDebit extends HeidelpayPaymentMethod implements
     use HasCustomer;
     use TranslatorTrait;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['AT', 'BE', 'CY', 'FI', 'FR', 'DE', 'GR', 'IE', 'IT', 'LI', 'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SI', 'SK', 'ES'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['EUR'];
+    }
+
     /**
      * Add SEPA Mandate text to view.
      *

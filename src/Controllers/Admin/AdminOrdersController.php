@@ -164,6 +164,7 @@ class AdminOrdersController extends AdminController implements AjaxResponse
             }
         }
 
+
         foreach ($payment->getReversals() as $reversal) {
             /** @var Cancellation $reversal */
             try {
@@ -177,7 +178,7 @@ class AdminOrdersController extends AdminController implements AjaxResponse
             }
         }
 
-        foreach($payment->getRefunds() as $refund) {
+        foreach ($payment->getRefunds() as $refund) {
             /** @var Cancellation $refund */
             try {
                 $cancellations[$refund->getId()] = $api->fetchPaymentRefund($payment, $refund->getId());
@@ -187,6 +188,22 @@ class AdminOrdersController extends AdminController implements AjaxResponse
                     . ' | Error-Code: ' . $exc->getCode(),
                     static::class
                 );
+            }
+        }
+
+        if ($payment->getAuthorization()) {
+            foreach ($payment->getAuthorization()->getCancellations() as $cancel) {
+                /** @var Cancellation $cancel */
+                try {
+                    $cancellations[$cancel->getId()] = $cancel;
+                    $api->fetchReversalByAuthorization($payment->getAuthorization(), $cancel->getId());
+                } catch (UnzerApiException $exc) {
+                    $this->errorLog(
+                        'Error while loading cancellation: ' . $exc->getMerchantMessage()
+                        . ' | Error-Code: ' . $exc->getCode(),
+                        static::class
+                    );
+                }
             }
         }
 

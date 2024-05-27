@@ -37,6 +37,7 @@ use UnzerSDK\Resources\TransactionTypes\Cancellation;
  * The difference is that there is also an insurance company involved in the process.
  * The insurance company guarantees the payment, but only if the risk checks are successful.
  *
+ * @deprecated
  * @see https://docs.heidelpay.com/docs/sepa-direct-debit-payment
  */
 class HeidelpaySEPADirectDebitGuaranteed extends HeidelpayPaymentMethod implements

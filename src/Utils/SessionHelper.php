@@ -22,6 +22,7 @@ class SessionHelper
 
     public const KEY_ORDER_ID = 'orderId';
     public const KEY_RESOURCE_ID = 'resourceId';
+    public const KEY_CHANNEL_ID = 'channelId';
     public const KEY_CART_CHECKSUM = 'cartChecksum';
     public const KEY_CART_CURRENCY = 'cartCurrency';
     public const KEY_CHECKOUT_SESSION = 'checkoutSession';
@@ -196,17 +197,29 @@ class SessionHelper
     /**
      * Save payment data in session
      *
-     * @param string $resourceId
+     * @param string|null $resourceId
+     * @param string|null $channelId
      * @return void
      */
-    public function setCheckoutSession(string $resourceId): void
+    public function setCheckoutSession(?string $resourceId = null, ?string $channelId = null): void
     {
-        $this->set(
-            $this->buildSessionKey(
-                [self::KEY_CHECKOUT_SESSION, self::KEY_RESOURCE_ID]
-            ),
-            Text::filterXSS($resourceId)
-        );
+        if (!empty($resourceId)) {
+            $this->set(
+                $this->buildSessionKey(
+                    [self::KEY_CHECKOUT_SESSION, self::KEY_RESOURCE_ID]
+                ),
+                Text::filterXSS($resourceId)
+            );
+        }
+
+        if (!empty($channelId)) {
+            $this->set(
+                $this->buildSessionKey(
+                    [self::KEY_CHECKOUT_SESSION, self::KEY_CHANNEL_ID]
+                ),
+                Text::filterXSS($channelId)
+            );
+        }
     }
 
     /**

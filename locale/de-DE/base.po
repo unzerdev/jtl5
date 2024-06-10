@@ -560,3 +560,6 @@ msgstr "Google Pay"
 
 msgid "Gateway Merchant ID"
 msgstr "Gateway Händler ID"
+
+msgid "Die Webhooks wurden erfolgreich gespeichert."
+msgstr "Die Webhooks wurden erfolgreich registriert."

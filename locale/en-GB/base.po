@@ -528,8 +528,14 @@ msgstr "Invalid private key."
 msgid "Ungültiger Public Key. Bitte stellen Sie sicher, dass sie hier Ihren Public Key und nicht Ihren Private Key angeben!"
 msgstr "Invalid public key. Please make sure that you enter your public key here and not your private key!"
 
+msgid "Ungültiger Private Key - eine leere Zeichenfolge ist nicht zulässig."
+msgstr "Invalid private key - Empty string is not allowed."
+
+msgid "Ungültiger Public Key - eine leere Zeichenfolge ist nicht zulässig."
+msgstr "Invalid public key - Empty string is not allowed."
+
 msgid "Die Webhooks wurden erfolgreich gespeichert."
-msgstr "The webhooks have been saved successfully."
+msgstr "Webhooks have been registered successfully."
 
 msgid "Key Pairs"
 msgstr "Key Pairs"
@@ -638,3 +644,15 @@ msgstr "Button Size"
 
 msgid "googlepay"
 msgstr "Google Pay"
+
+msgid "hpSettingsPqSelectorInstalmentInfo"
+msgstr "PQ-Selector for the Installment Information on the order confirmation page"
+
+msgid "hpSettingsPqSelectorInstalmentInfoHelp"
+msgstr "The PHP Query Selector for the injection of the Installment Information on the order confirmation page"
+
+msgid "hpSettingsPqMethodInstalmentInfo"
+msgstr "PQ-Method for the Installment Information on the order confirmation page"
+
+msgid "hpSettingsPqMethodInstalmentInfoHelp"
+msgstr "The PHP Query Selector for the injection of the Installment Information on the order confirmation page"

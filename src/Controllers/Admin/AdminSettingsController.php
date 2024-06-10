@@ -90,6 +90,7 @@ class AdminSettingsController extends AdminController
     protected function handleSaveRequest(): void
     {
         // If private key is hashed -> no new user input -> use existing one
+        $publicKey = Request::postVar('publicKey');
         $privateKey = Request::postVar('privateKey');
         $info = password_get_info($privateKey);
         if (!empty($info) && $info['algo'] > 0) {
@@ -97,8 +98,6 @@ class AdminSettingsController extends AdminController
         }
 
         // Set Config
-        $this->config->set(Config::PRIVATE_KEY, $privateKey);
-        $this->config->set(Config::PUBLIC_KEY, Request::postVar('publicKey'));
         $this->config->set(Config::MERCHANT_ID, Request::postVar('merchantId'));
         $this->config->set(Config::FONT_SIZE, Request::postVar('fontSize'));
         $this->config->set(Config::FONT_COLOR, Request::postVar('fontColor'));
@@ -138,12 +137,18 @@ class AdminSettingsController extends AdminController
         // Validate
         $valid = true;
 
-        if (empty($privateKey) || !PrivateKeyValidator::validate($privateKey)) {
+        if (empty($privateKey)) {
+            $this->addError(__('Ungültiger Private Key - eine leere Zeichenfolge ist nicht zulässig.'));
+            $valid = false;
+        } elseif (!PrivateKeyValidator::validate($privateKey)) {
             $this->addError(__('Ungültiger Private Key.'));
             $valid = false;
         }
 
-        if (empty(Request::postVar('publicKey')) || !PublicKeyValidator::validate(Request::postVar('publicKey'))) {
+        if (empty($publicKey)) {
+            $this->addError(__('Ungültiger Public Key - eine leere Zeichenfolge ist nicht zulässig.'));
+            $valid = false;
+        } elseif(!PublicKeyValidator::validate($publicKey)) {
             $this->addError(
                 __('Ungültiger Public Key. Bitte stellen Sie sicher, dass sie hier Ihren Public Key und nicht Ihren Private Key angeben!')
             );
@@ -152,6 +157,8 @@ class AdminSettingsController extends AdminController
 
         // If config is valid, save it in DB
         if ($valid) {
+            $this->config->set(Config::PRIVATE_KEY, $privateKey);
+            $this->config->set(Config::PUBLIC_KEY, $publicKey);
             $this->config->save();
             $this->addSuccess(__('Die Einstellungen wurden erfolgreich gespeichert.'));
 

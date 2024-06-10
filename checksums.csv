@@ -1,11 +1,11 @@
 4db0ef5803b943bc62cf9a6e0f7b40b5;Seeders/Shop4PluginMigrationSeeder.php
 e1b9ba833fa2eae5ce86ea735f13d3ad;.babelrc
-c9eb6bd2315ebd0d5bb17e70530e1c93;CHANGELOG.md
+7f07958d80258a693c5c21d5aac097b6;CHANGELOG.md
 c9f6e33220cf462393c7070cffcfff1a;NOTICE
-f8ef1d071082059bafb02b2694f9524c;locale/de-DE/base.mo
-f0b91cecc128f02377758935afc9ac8e;locale/de-DE/base.po
-94c8297df59d7ae35c072d4581c2bf52;locale/en-GB/base.mo
-e302d880beece4c1218a378a32818aa4;locale/en-GB/base.po
+5fe9733c531e10c5f9fb732e6f1adac3;locale/de-DE/base.mo
+2b6b28525ca67c28b72552fc342fa119;locale/de-DE/base.po
+5ff732ccf9f1cca153dd31fe9fea9cb1;locale/en-GB/base.mo
+45f59d399ea9526b0c49f3d9f702e172;locale/en-GB/base.po
 65b687327345973a7e0f29a1b06f6f1a;composer.json
 0c7d14f4b8923e90f70291f86ef0092e;src/Orders/OrderMappingModel.php
 3da45aa29a08f869b95627a6e46e5f9a;src/Orders/OrderViewStruct.php
@@ -21,7 +21,7 @@ a3255fc904b7509e171553ea009c9c82;src/ApplePay/ActivateCertificateResource.php
 33cbcb22d0962a3bce5ab9347e0f3233;src/Controllers/PaymentController.php
 798787c58af415512c8f097950cd265b;src/Controllers/Admin/AdminController.php
 1902987773d5d5f5582f0c90198628fd;src/Controllers/Admin/AdminApplePayController.php
-9aae63f62d24db02f3b5a3cf68d39b7a;src/Controllers/Admin/AdminSettingsController.php
+b81aaa39be543d7e85e68cd49c393705;src/Controllers/Admin/AdminSettingsController.php
 8c4982325003accca6081c5319ee4825;src/Controllers/Admin/AdminKeyPairsController.php
 3414b2e2e59f1c752782fc73a5d66b36;src/Controllers/Admin/AdminOrdersController.php
 bf56738786ddeec878ff2141fd68425d;src/Controllers/SyncWorkflowController.php
@@ -68,7 +68,7 @@ ab1b1e5c0f257e793786fd8f49b3a9b7;src/Payments/Interfaces/NotificationInterface.p
 36e5aa72d873a51ef1c3bd79a32acade;src/Payments/Interfaces/HandleStepAdditionalInterface.php
 5a17589c176c45aedb1879dc120fcf86;src/Payments/Interfaces/CancelableInterface.php
 ac4adca913172393fba84fda8c388a10;src/Payments/Interfaces/PaymentStatusInterface.php
-a477b3689f1e7508b3c021cadd36b5b6;info.xml
+b1e8482d1c556fb9a01481c2ea98c6f0;info.xml
 780b2b8990e8dba5534b2d1fa468c6f3;frontend/webhook.php
 0ef3971650ce158a32ba980e80ed69a8;frontend/js/unzer.js
 da63bb57b236c3a3b920e867293cf66f;frontend/js/unzer.min.js

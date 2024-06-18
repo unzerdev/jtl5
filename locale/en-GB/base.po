@@ -656,3 +656,15 @@ msgstr "PQ-Method for the Installment Information on the order confirmation page
 
 msgid "hpSettingsPqMethodInstalmentInfoHelp"
 msgstr "The PHP Query Selector for the injection of the Installment Information on the order confirmation page"
+
+msgid "Ja"
+msgstr "Yes"
+
+msgid "Nein"
+msgstr "No"
+
+msgid "Ländercode"
+msgstr "Country Code"
+
+msgid "Der Ländercode des Erwerbers (Standard: DK)"
+msgstr "The country code of the acquirer (default DK)."

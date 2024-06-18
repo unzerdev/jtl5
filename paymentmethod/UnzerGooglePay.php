@@ -145,7 +145,7 @@ class UnzerGooglePay extends HeidelpayPaymentMethod implements RedirectPaymentIn
             ],
             'transactionInfo' => [
                 // 'displayItems' => $lineItems,
-                'countryCode' => $this->sessionHelper->getFrontendSession()->getCustomer()->cLand ?? 'DE',
+                'countryCode' => $config->getPaymentSetting(Config::GPAY_COUNTRY_CODE, $this->moduleID, $this->plugin) ?? 'DK',
                 'currencyCode' => $this->sessionHelper->getFrontendSession()->getCurrency()->getCode(),
                 'totalPrice' => (string) round(
                     $this->sessionHelper->getFrontendSession()->getCart()->gibGesamtsummeWaren(true)
@@ -168,14 +168,6 @@ class UnzerGooglePay extends HeidelpayPaymentMethod implements RedirectPaymentIn
 
         if ($config->getPaymentSetting(Config::GPAY_ACCEPT_VISA, $this->moduleID, $this->plugin) !== 'N') {
             $data['googlepay']['allowedCardNetworks'][] = 'VISA';
-        }
-
-        if ($config->getPaymentSetting(Config::GPAY_ACCEPT_DISCOVER, $this->moduleID, $this->plugin) !== 'N') {
-            $data['googlepay']['allowedCardNetworks'][] = 'DISCOVER';
-        }
-
-        if ($config->getPaymentSetting(Config::GPAY_ACCEPT_JCB, $this->moduleID, $this->plugin) !== 'N') {
-            $data['googlepay']['allowedCardNetworks'][] = 'JCB';
         }
 
         $view->assign('hpPayment', $data);

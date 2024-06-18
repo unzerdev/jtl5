@@ -78,6 +78,7 @@ class Config
     public const GPAY_GATEWAY_MERCHANT_ID = 'gateway_merchant_id';
     public const GPAY_MERCHANT_ID = 'merchant_id';
     public const GPAY_MERCHANT_NAME = 'merchant_name';
+    public const GPAY_COUNTRY_CODE = 'country_code';
     public const GPAY_ALLOW_CREDIT_CARDS = 'allow_credit_cards';
     public const GPAY_ALLOW_PREPAID_CARDS = 'allow_prepaid_cards';
     public const GPAY_ACCEPT_MASTERCARD = 'accept_mastercard';

@@ -1,11 +1,11 @@
 4db0ef5803b943bc62cf9a6e0f7b40b5;Seeders/Shop4PluginMigrationSeeder.php
 e1b9ba833fa2eae5ce86ea735f13d3ad;.babelrc
-7f07958d80258a693c5c21d5aac097b6;CHANGELOG.md
+a662af38b68dbcaad82a9d6c10c41cd6;CHANGELOG.md
 c9f6e33220cf462393c7070cffcfff1a;NOTICE
 5fe9733c531e10c5f9fb732e6f1adac3;locale/de-DE/base.mo
 2b6b28525ca67c28b72552fc342fa119;locale/de-DE/base.po
-5ff732ccf9f1cca153dd31fe9fea9cb1;locale/en-GB/base.mo
-45f59d399ea9526b0c49f3d9f702e172;locale/en-GB/base.po
+54b0aeb0f2bb85b46ca4a9e38f9016be;locale/en-GB/base.mo
+7c044b22081d4d5893555e85195e392a;locale/en-GB/base.po
 65b687327345973a7e0f29a1b06f6f1a;composer.json
 0c7d14f4b8923e90f70291f86ef0092e;src/Orders/OrderMappingModel.php
 3da45aa29a08f869b95627a6e46e5f9a;src/Orders/OrderViewStruct.php
@@ -35,7 +35,7 @@ f510097b40df90505b40042b0e9b0c07;src/Controllers/HasAjaxResponse.php
 1742f6db481fe5fe3c6311d0afd802de;src/Charges/ChargeHandler.php
 24bea0a602bf575ea6c7d432587c4fba;src/Charges/ChargeMappingModel.php
 20db0d8770933362b0b8b7fa32c18494;src/Charges/ChargeMappingEntity.php
-8cb87510f9ef779863a902055a0986fc;src/Utils/Config.php
+09c0a76286e297ec0cf0bd307c47c38e;src/Utils/Config.php
 a55391fc76b21e41d4f183d808064bd6;src/Utils/TranslatorTrait.php
 ff2e8ea1952f33020fe432ab359624d6;src/Utils/JtlLinkHelper.php
 a692da7ebe767f37f9c3646e88c14112;src/Utils/Compatibility.php
@@ -68,7 +68,7 @@ ab1b1e5c0f257e793786fd8f49b3a9b7;src/Payments/Interfaces/NotificationInterface.p
 36e5aa72d873a51ef1c3bd79a32acade;src/Payments/Interfaces/HandleStepAdditionalInterface.php
 5a17589c176c45aedb1879dc120fcf86;src/Payments/Interfaces/CancelableInterface.php
 ac4adca913172393fba84fda8c388a10;src/Payments/Interfaces/PaymentStatusInterface.php
-b1e8482d1c556fb9a01481c2ea98c6f0;info.xml
+55890e8f1e92bdca6b142d1f6a1d1d18;info.xml
 780b2b8990e8dba5534b2d1fa468c6f3;frontend/webhook.php
 0ef3971650ce158a32ba980e80ed69a8;frontend/js/unzer.js
 da63bb57b236c3a3b920e867293cf66f;frontend/js/unzer.min.js
@@ -98,7 +98,7 @@ ca79740c158847ad33410b9f2d9746c0;frontend/template/partials/_threatMetrix.tpl
 96b585ddc78e8c6441df7b160a012680;paymentmethod/UnzerBancontact.php
 d4d37d360b2e7490e847959adf1b2b32;paymentmethod/UnzerApplePay.php
 c5ddf04a0b4b200a64ba87fcbf23553d;paymentmethod/HeidelpaySofort.php
-ed7d1e43c9dca8557b20f3bd041cceaf;paymentmethod/UnzerGooglePay.php
+666d8887006b5b9cb029964ad4f6ae41;paymentmethod/UnzerGooglePay.php
 d7c8725ab44f382d9c1b5d4567698113;paymentmethod/HeidelpayGiropay.php
 5a0016ce6c3bee1d745985b077ef9601;paymentmethod/HeidelpayFlexiPayDirect.php
 b17911b713327d8b0ff25fd56def4dc8;paymentmethod/HeidelpayPrepayment.php

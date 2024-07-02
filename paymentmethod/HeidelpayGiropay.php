@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
+use JTL\Backend\Notification;
+use JTL\Backend\NotificationEntry;
 use JTL\Checkout\Bestellung;
+use JTL\Shop;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -22,6 +25,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
  *
  * Giropay is the official online banking implementation of the German banks.
  *
+ * @deprecated
  * @see https://docs.heidelpay.com/docs/giropay-payment
  */
 class HeidelpayGiropay extends HeidelpayPaymentMethod implements RedirectPaymentInterface
@@ -37,6 +41,41 @@ class HeidelpayGiropay extends HeidelpayPaymentMethod implements RedirectPayment
     protected function getAllowedCurrencies(): array
     {
         return ['EUR'];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function initBackendNotification(): void
+    {
+        // Add deprecation notice IF paymethod is used (ie assigned to a shipping method)
+        $payMethod = $this->plugin->getPaymentMethods()->getMethodByID($this->moduleID);
+
+        if ($payMethod !== null && $payMethod->getActive()) {
+            $this->kZahlungsart = $payMethod->getMethodID();
+            $result = Shop::Container()->getDB()->select('tversandartzahlungsart', 'kZahlungsart', $this->kZahlungsart);
+
+            if ($result) {
+                $notification = new NotificationEntry(
+                    NotificationEntry::TYPE_INFO,
+                    sprintf(__('hpDeprecationPaymentMethodTitle'), $payMethod->getName()),
+                    sprintf(nl2br(__('hpDeprecationGiroPayNotice')), $payMethod->getName())
+                );
+
+                $notification->setPluginId((string) $this->plugin->getID());
+                Notification::getInstance()->addNotify($notification);
+            }
+        }
+    }
+
+    /**
+     * Deactivate as GiroPay has dicontinued its service
+     * @param array $args
+     * @return bool
+     */
+    public function isValidIntern($args = []): bool
+    {
+        return false;
     }
 
     /**

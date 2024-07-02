@@ -1,11 +1,11 @@
 4db0ef5803b943bc62cf9a6e0f7b40b5;Seeders/Shop4PluginMigrationSeeder.php
 e1b9ba833fa2eae5ce86ea735f13d3ad;.babelrc
-a662af38b68dbcaad82a9d6c10c41cd6;CHANGELOG.md
+05ea2b609f29c3f338f924e9468d7c7d;CHANGELOG.md
 c9f6e33220cf462393c7070cffcfff1a;NOTICE
-5fe9733c531e10c5f9fb732e6f1adac3;locale/de-DE/base.mo
-2b6b28525ca67c28b72552fc342fa119;locale/de-DE/base.po
-54b0aeb0f2bb85b46ca4a9e38f9016be;locale/en-GB/base.mo
-7c044b22081d4d5893555e85195e392a;locale/en-GB/base.po
+b5669f21c44fb448a255efb65443a93d;locale/de-DE/base.mo
+4bc5514d66bf8f7a26cc67ed6e59ee4e;locale/de-DE/base.po
+7d71e6f34d7c302e337783d77a7dd76c;locale/en-GB/base.mo
+d215f433fd9d9bc5733da92719804677;locale/en-GB/base.po
 65b687327345973a7e0f29a1b06f6f1a;composer.json
 0c7d14f4b8923e90f70291f86ef0092e;src/Orders/OrderMappingModel.php
 3da45aa29a08f869b95627a6e46e5f9a;src/Orders/OrderViewStruct.php
@@ -68,7 +68,7 @@ ab1b1e5c0f257e793786fd8f49b3a9b7;src/Payments/Interfaces/NotificationInterface.p
 36e5aa72d873a51ef1c3bd79a32acade;src/Payments/Interfaces/HandleStepAdditionalInterface.php
 5a17589c176c45aedb1879dc120fcf86;src/Payments/Interfaces/CancelableInterface.php
 ac4adca913172393fba84fda8c388a10;src/Payments/Interfaces/PaymentStatusInterface.php
-55890e8f1e92bdca6b142d1f6a1d1d18;info.xml
+0fad0b2edcc5b0d432a859d4804d0d5a;info.xml
 780b2b8990e8dba5534b2d1fa468c6f3;frontend/webhook.php
 0ef3971650ce158a32ba980e80ed69a8;frontend/js/unzer.js
 da63bb57b236c3a3b920e867293cf66f;frontend/js/unzer.min.js
@@ -99,7 +99,7 @@ ca79740c158847ad33410b9f2d9746c0;frontend/template/partials/_threatMetrix.tpl
 d4d37d360b2e7490e847959adf1b2b32;paymentmethod/UnzerApplePay.php
 c5ddf04a0b4b200a64ba87fcbf23553d;paymentmethod/HeidelpaySofort.php
 666d8887006b5b9cb029964ad4f6ae41;paymentmethod/UnzerGooglePay.php
-d7c8725ab44f382d9c1b5d4567698113;paymentmethod/HeidelpayGiropay.php
+04f239d9194556e5a43ef6c6b6168f43;paymentmethod/HeidelpayGiropay.php
 5a0016ce6c3bee1d745985b077ef9601;paymentmethod/HeidelpayFlexiPayDirect.php
 b17911b713327d8b0ff25fd56def4dc8;paymentmethod/HeidelpayPrepayment.php
 dbcc0575277980988db941ad8c5119fb;paymentmethod/UnzerPaylaterInstallment.php

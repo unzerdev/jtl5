@@ -44,7 +44,7 @@ msgid "Unzer SOFORT"
 msgstr "Unzer SOFORT"
 
 msgid "Unzer Giropay"
-msgstr "Unzer Giropay"
+msgstr "(Veraltet) Unzer Giropay"
 
 msgid "Unzer Przelewy24"
 msgstr "Unzer Przelewy24"
@@ -512,6 +512,10 @@ msgstr ""
 "Der Ersatz für diese Zahlart ist die neue Zahlart `Unzer Rechnung (Jetzt kaufen, später bezahlen)`.\n"
 "\n"
 "Wenn Sie migrieren möchten, wenden Sie sich bitte an Ihren Ansprechpartner bei Unzer!"
+
+msgid "hpDeprecationGiroPayNotice"
+msgstr ""
+"Sie verwenden die Zahlungsmethode `GiroPay`, beachten Sie, dass GiroPay den Service eingestellt hat. Das bedeutet, dass Kunden den Dienst nicht mehr nutzen können!"
 
 msgid "Key Pairs"
 msgstr "Schlüsselpaare"

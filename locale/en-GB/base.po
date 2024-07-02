@@ -44,7 +44,7 @@ msgid "Unzer SOFORT"
 msgstr "Unzer SOFORT"
 
 msgid "Unzer Giropay"
-msgstr "Unzer Giropay"
+msgstr "(Deprecated) Unzer Giropay"
 
 msgid "Unzer Przelewy24"
 msgstr "Unzer Przelewy24"
@@ -521,6 +521,10 @@ msgstr ""
 "The replacement for this payment method is the new `Unzer Invoice (Buy Now Pay Later)` payment method..\n"
 "\n"
 "If you want to migrate, please get in touch with your contact person at Unzer!"
+
+msgid "hpDeprecationGiroPayNotice"
+msgstr ""
+"You are using the payment method `GiroPay`, note that GiroPay has discontinued the service. That means customers cannot use the service anymore!"
 
 msgid "Ungültiger Private Key."
 msgstr "Invalid private key."

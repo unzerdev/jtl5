@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>1.5.3</Version>
+    <Version>1.6.0</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
 
@@ -323,12 +323,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Kreditkarte]]></Name>
                     <ChargeName><![CDATA[Kreditkarte]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Credit Card]]></Name>
                     <ChargeName><![CDATA[Credit Card]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -348,12 +348,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[SEPA Lastschrift]]></Name>
                     <ChargeName><![CDATA[SEPA Lastschrift]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[SEPA Direct Debit]]></Name>
                     <ChargeName><![CDATA[SEPA Direct Debit]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -373,12 +373,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[(Veraltet) Lastschrift Gesichert]]></Name>
                     <ChargeName><![CDATA[(Veraltet) Lastschrift Gesichert]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[(Deprecated) Direct Debit Secured]]></Name>
                     <ChargeName><![CDATA[(Deprecated) Direct Debit Secured]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -398,12 +398,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[(Veraltet) Rechnungskauf]]></Name>
                     <ChargeName><![CDATA[(Veraltet) Rechnungskauf]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[(Deprecated) Invoice]]></Name>
                     <ChargeName><![CDATA[(Deprecated) Invoice]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -423,12 +423,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[(Veraltet) Rechnungskauf Gesichert]]></Name>
                     <ChargeName><![CDATA[(Veraltet) Rechnungskauf Gesichert]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[(Deprecated) Invoice Secured]]></Name>
                     <ChargeName><![CDATA[(Deprecated) Invoice Secured]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -448,12 +448,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Rechnungskauf]]></Name>
                     <ChargeName><![CDATA[Rechnungskauf]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Invoice]]></Name>
                     <ChargeName><![CDATA[Invoice]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -473,12 +473,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Unzer Rechnungskauf]]></Name>
                     <ChargeName><![CDATA[Unzer Rechnungskauf]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Unzer Invoice]]></Name>
                     <ChargeName><![CDATA[Unzer Invoice]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -498,12 +498,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[PayPal]]></Name>
                     <ChargeName><![CDATA[PayPal]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[PayPal]]></Name>
                     <ChargeName><![CDATA[PayPal]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -523,12 +523,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[SOFORT]]></Name>
                     <ChargeName><![CDATA[SOFORT]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[SOFORT]]></Name>
                     <ChargeName><![CDATA[SOFORT]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -548,12 +548,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[(Veraltet) Giropay]]></Name>
                     <ChargeName><![CDATA[(Veraltet) Giropay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[(Deprecated) Giropay]]></Name>
                     <ChargeName><![CDATA[(Deprecated) Giropay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -573,12 +573,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Przelewy24]]></Name>
                     <ChargeName><![CDATA[Przelewy24]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Przelewy24]]></Name>
                     <ChargeName><![CDATA[Przelewy24]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -598,12 +598,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[iDEAL]]></Name>
                     <ChargeName><![CDATA[iDEAL]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[iDEAL]]></Name>
                     <ChargeName><![CDATA[iDEAL]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -623,12 +623,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Unzer Vorkasse]]></Name>
                     <ChargeName><![CDATA[Unzer Vorkasse]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Unzer Prepayment]]></Name>
                     <ChargeName><![CDATA[Unzer Prepayment]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -648,12 +648,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[EPS]]></Name>
                     <ChargeName><![CDATA[EPS]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[EPS]]></Name>
                     <ChargeName><![CDATA[EPS]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -673,12 +673,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Unzer Direktüberweisung]]></Name>
                     <ChargeName><![CDATA[Unzer Direktüberweisung]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Unzer Bank Transfer]]></Name>
                     <ChargeName><![CDATA[Unzer Bank Transfer]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -698,12 +698,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Alipay]]></Name>
                     <ChargeName><![CDATA[Alipay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Alipay]]></Name>
                     <ChargeName><![CDATA[Alipay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -723,12 +723,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[WeChat Pay]]></Name>
                     <ChargeName><![CDATA[WeChat Pay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[WeChat Pay]]></Name>
                     <ChargeName><![CDATA[WeChat Pay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -748,12 +748,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Unzer Ratenkauf]]></Name>
                     <ChargeName><![CDATA[Unzer Ratenkauf]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Unzer Instalment]]></Name>
                     <ChargeName><![CDATA[Unzer Instalment]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <Setting type="text" initialValue="" sort="10" conf="Y">
                     <Name><![CDATA[Effektiver Zinssatz (in %)]]></Name>
@@ -780,12 +780,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Apple Pay]]></Name>
                     <ChargeName><![CDATA[Apple Pay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Apple Pay]]></Name>
                     <ChargeName><![CDATA[Apple Pay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -805,12 +805,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Unzer Bancontact]]></Name>
                     <ChargeName><![CDATA[Unzer Bancontact]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Unzer Bancontact]]></Name>
                     <ChargeName><![CDATA[Unzer Bancontact]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -830,12 +830,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Ratenkauf]]></Name>
                     <ChargeName><![CDATA[Ratenkauf]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Installment]]></Name>
                     <ChargeName><![CDATA[Installment]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -855,12 +855,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Lastschrift]]></Name>
                     <ChargeName><![CDATA[Lastschrift]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Direct Debit]]></Name>
                     <ChargeName><![CDATA[Direct Debit]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
             </Method>
             <Method>
@@ -880,12 +880,12 @@
                 <MethodLanguage iso="GER">
                     <Name><![CDATA[Google Pay]]></Name>
                     <ChargeName><![CDATA[Google Pay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
                     <Name><![CDATA[Google Pay]]></Name>
                     <ChargeName><![CDATA[Google Pay]]></ChargeName>
-                    <InfoText></InfoText>
+                    <InfoText/>
                 </MethodLanguage>
                 <!-- <Setting type="text" initialValue="" sort="0" conf="N">
                     <Name><![CDATA[Allgmein]]></Name>
@@ -1007,6 +1007,32 @@
                     </SelectboxOptions>
                 </Setting>
             </Method>
+
+            <Method>
+                <Name><![CDATA[Unzer TWINT]]></Name>
+                <Sort>60</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerTwint.php</ClassFile>
+                <ClassName>UnzerTwint</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/twint.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[TWINT]]></Name>
+                    <ChargeName><![CDATA[TWINT]]></ChargeName>
+                    <InfoText/>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[TWINT]]></Name>
+                    <ChargeName><![CDATA[TWINT]]></ChargeName>
+                    <InfoText/>
+                </MethodLanguage>
+            </Method>
         </PaymentMethod>
     </Install>
-</jtlshopplugin>
+<ExsID>eef84f33-97ff-4519-8e0f-6760ae06c51f</ExsID></jtlshopplugin>

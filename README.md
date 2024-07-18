@@ -18,6 +18,7 @@ Dieses Plugin integriert die folgenden Unzer-Zahlungsarten im JTL Shop:
 - Ratenkauf
 - Rechnungskauf
 - SOFORT
+- TWINT
 - Vorkasse
 - WeChat Pay
 - (Veraltet) Unzer Ratenkauf

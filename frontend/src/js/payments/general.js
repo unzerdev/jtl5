@@ -23,6 +23,7 @@ export default class UnzerPayment {
         BANCONTACT: 'Bancontact',
         PAYLATER_INSTALLMENT: 'Paylater Installment',
         PAYLATER_DIRECT_DEBIT: 'Paylater Direct Debit',
+        TWINT: 'Twint',
     };
 
     /**
@@ -118,6 +119,9 @@ export default class UnzerPayment {
 
             case UnzerPayment.PAYMENT_TYPES.ALIPAY:
                 return this.createAlipay();
+
+            case UnzerPayment.PAYMENT_TYPES.TWINT:
+                return this.createTwint();
 
             case UnzerPayment.PAYMENT_TYPES.WECHAT_PAY:
                 return this.createWeChatPay();
@@ -741,6 +745,16 @@ export default class UnzerPayment {
      */
     createAlipay() {
         return this.unzerInstance.Alipay();
+    }
+
+    /**
+     * Create a new TWINT Payment Type.
+     *
+     * @see https://docs.unzer.com/payment-methods/twint/accept-twint-ui-component/
+     * @returns {{createResource: Function}} Twint Payment Type
+     */
+    createTwint() {
+        return this.unzerInstance.Twint();
     }
 
     /**

@@ -377,6 +377,9 @@ var UnzerPayment = /*#__PURE__*/function () {
         case UnzerPayment.PAYMENT_TYPES.ALIPAY:
           return this.createAlipay();
 
+        case UnzerPayment.PAYMENT_TYPES.TWINT:
+          return this.createTwint();
+
         case UnzerPayment.PAYMENT_TYPES.WECHAT_PAY:
           return this.createWeChatPay();
 
@@ -1026,6 +1029,18 @@ var UnzerPayment = /*#__PURE__*/function () {
       return this.unzerInstance.Alipay();
     }
     /**
+     * Create a new TWINT Payment Type.
+     *
+     * @see https://docs.unzer.com/payment-methods/twint/accept-twint-ui-component/
+     * @returns {{createResource: Function}} Twint Payment Type
+     */
+
+  }, {
+    key: "createTwint",
+    value: function createTwint() {
+      return this.unzerInstance.Twint();
+    }
+    /**
      * Create an new WeChat Pay Payment Type.
      *
      * @see https://docs.heidelpay.com/docs/redirect-ui-integration#wechat-pay
@@ -1123,7 +1138,8 @@ exports["default"] = UnzerPayment;
   PAYLATER_INVOICE: 'Paylater Invoice',
   BANCONTACT: 'Bancontact',
   PAYLATER_INSTALLMENT: 'Paylater Installment',
-  PAYLATER_DIRECT_DEBIT: 'Paylater Direct Debit'
+  PAYLATER_DIRECT_DEBIT: 'Paylater Direct Debit',
+  TWINT: 'Twint'
 });
 
 },{"../utils/errors":7,"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/defineProperty":10,"@babel/runtime/helpers/interopRequireDefault":11}],4:[function(require,module,exports){

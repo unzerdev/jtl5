@@ -567,3 +567,6 @@ msgstr "Gateway Händler ID"
 
 msgid "Die Webhooks wurden erfolgreich gespeichert."
 msgstr "Die Webhooks wurden erfolgreich registriert."
+
+msgid "twint"
+msgstr "TWINT"

@@ -672,3 +672,6 @@ msgstr "Country Code"
 
 msgid "Der Ländercode des Erwerbers (Standard: DK)"
 msgstr "The country code of the acquirer (default DK)."
+
+msgid "twint"
+msgstr "TWINT"

@@ -110,11 +110,16 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     {
         parent::init($nAgainCheckout);
 
-        $this->plugin = Shop::Container()->get(Config::PLUGIN_ID);
-        $this->sessionHelper = Shop::Container()->get(SessionHelper::class);
-        $this->handler = Shop::Container()->get(PaymentHandler::class);
-        $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
-        $this->handler->setPaymentMethod($this);
+        try {
+            $this->plugin = Shop::Container()->get(Config::PLUGIN_ID);
+            $this->sessionHelper = Shop::Container()->get(SessionHelper::class);
+            $this->handler = Shop::Container()->get(PaymentHandler::class);
+            $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
+            $this->handler->setPaymentMethod($this);
+        } catch (\Exception $exc) {
+            $this->state = self::STATE_INVALID;
+            $this->errorLog('Could not init PaymentMethod: ' . $exc->getMessage(), static::class);
+        }
 
         return $this;
     }
@@ -284,6 +289,10 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
      */
     public function isValidIntern($args = []): bool
     {
+        if ($this->state == self::STATE_INVALID) {
+            return false;
+        }
+
         if ($this->duringCheckout) {
             $this->state = self::STATE_DURING_CHECKOUT;
         }
@@ -378,13 +387,16 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             $payment = $this->adapter->fetchPayment();
             $transaction = $this->adapter->getPaymentTransaction($payment);
 
+            // update cBestellNummer because we already have generated it but have no way of telling JTL to use
+            // it in the notify.php so a new one gets generated resulting in mismatched order ids ...
+            $orderNumber = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID);
+            if (!empty($orderNumber) && $orderNumber != $order->cBestellNr) {
+                $order->cBestellNr = $orderNumber;
+                $order->updateInDB();
+            }
+
             // Preorder = 1 => Order was not finalized before and therefore no order mapping was saved. Do this now!
             if (isset($args['state']) && $args['state'] == self::STATE_DURING_CHECKOUT) {
-                // update cBestellNummer because we already have generated it but have no way of telling JTL to use
-                // it in the notify.php so a new one gets generated resulting in mismatched order ids ...
-                $order->cBestellNr = $transaction->getOrderId();
-                $order->updateInDB();
-
                 $this->handler->saveOrderMapping($transaction->getPayment(), $order);
             }
 
@@ -475,6 +487,10 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             $order->cBestellNr = \baueBestellnummer();
             $redirectError = PaymentHandler::REDIRECT_ON_FAILURE_URL;
             $this->state = self::STATE_DURING_CHECKOUT;
+
+            // Save the generated order id in the session so that we can use it later
+            // instead of generating a new one due to redirects etc.
+            $this->sessionHelper->set(SessionHelper::KEY_ORDER_ID, $order->cBestellNr);
         }
 
         try {

@@ -98,6 +98,11 @@ trait HasBasket
         $cumulatedDelta    += ($grossAmount - $roundedGrossAmount);
         $cumulatedDeltaNet += ($netAmount - $roundedNetAmount);
 
+        // Unzer API thinks that -0.0 is a negative amount and therefore not allowed (seen for SEPA secured and B2B)
+        if ($roundedNetAmount === -0.0) {
+            $roundedNetAmount = 0;
+        }
+
         // Set Basket Item
         $basketItem = new BasketItem(
             Text::convertUTF8($title),

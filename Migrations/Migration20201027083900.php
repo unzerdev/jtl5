@@ -22,7 +22,7 @@ class Migration20201027083900 extends Migration implements IMigration
         $this->execute('CREATE TABLE IF NOT EXISTS ' . Config::TABLE . ' (
             `key` VARCHAR(255) NOT NULL PRIMARY KEY,
             `value` VARCHAR(255) NOT NULL
-        );');
+        ) ENGINE=InnoDB CHARSET=utf8 COLLATE utf8_unicode_ci;');
 
         // Create Order Mapping Table
         $this->execute(
@@ -36,7 +36,7 @@ class Migration20201027083900 extends Migration implements IMigration
                 `payment_type_name` VARCHAR(255),   /* payment type name from heidelpay */
                 `payment_type_id` VARCHAR(255),     /* payment type id from heidelpay */
                 PRIMARY KEY (`jtl_order_id`, `payment_id`)
-            );'
+            ) ENGINE=InnoDB CHARSET=utf8 COLLATE utf8_unicode_ci;'
         );
 
         // Create Charge Mapping Table
@@ -46,7 +46,7 @@ class Migration20201027083900 extends Migration implements IMigration
                 `order_id`  INT(10) NOT NULL,    /* jtl order table id (kBestellung) */
                 `charge_id` VARCHAR(255),        /* charge id from heidelpay */
                 `payment_id` VARCHAR(255)       /* payment id from heidelpay */
-            );'
+            ) ENGINE=InnoDB CHARSET=utf8 COLLATE utf8_unicode_ci;'
         );
     }
 

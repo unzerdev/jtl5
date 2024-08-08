@@ -49,9 +49,14 @@ class HeidelpayEPS extends HeidelpayPaymentMethod implements RedirectPaymentInte
     {
         // Create / Update existing customer resource if needed
         $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+        $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
+        $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
+        $customer->setCompanyInfo(null);
+        $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         if ($customer->getId()) {
             $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
+            $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
         $charge = new Charge(

@@ -15,6 +15,10 @@
             </div>
         </div>
     </div>
+    <div class="field">
+        <div id="card-element-id-holder" class="unzerInput">
+        </div>
+    </div>
 </div>
 
 <script>

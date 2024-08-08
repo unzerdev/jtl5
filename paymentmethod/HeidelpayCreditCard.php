@@ -126,11 +126,17 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
      */
     protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
-        // Create / Update existing customer resource if needed
+        // Create or fetch customer resource
         $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+        $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
+        $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
+        $customer->setCompanyInfo(null);
+        $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
+        // Update existing customer resource if needed
         if ($customer->getId()) {
             $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
+            $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
         $charge = new Charge(

@@ -755,6 +755,13 @@ var UnzerPayment = /*#__PURE__*/function () {
         fontSize: styling.fontSize,
         fontColor: styling.fontColor // fontFamily: styling.fontFamily // messes with hidden font in firefox
 
+      });
+      Card.create('holder', {
+        containerId: 'card-element-id-holder',
+        onlyIframe: false,
+        fontSize: styling.fontSize,
+        fontColor: styling.fontColor,
+        fontFamily: styling.fontFamily
       }); // Enable pay button initially
 
       var self = this;

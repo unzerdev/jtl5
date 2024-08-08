@@ -1,29 +1,14 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines unit tests to verify functionality of the payment service.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Services;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -52,6 +37,7 @@ use UnzerSDK\Services\PaymentService;
 use UnzerSDK\Services\ResourceService;
 use UnzerSDK\test\BasePaymentTest;
 use PHPUnit\Framework\MockObject\MockObject;
+
 use function in_array;
 
 class PaymentServiceTest extends BasePaymentTest
@@ -86,6 +72,7 @@ class PaymentServiceTest extends BasePaymentTest
      * @test
      *
      * @param $card3ds
+     *
      * @dataProvider card3dsDataProvider
      */
     public function authorizeShouldCreateNewAuthorizationAndPayment($card3ds): void
@@ -129,6 +116,7 @@ class PaymentServiceTest extends BasePaymentTest
      * @test
      *
      * @param $card3ds
+     *
      * @dataProvider card3dsDataProvider
      */
     public function chargeShouldCreateNewPaymentAndCharge($card3ds): void
@@ -182,21 +170,55 @@ class PaymentServiceTest extends BasePaymentTest
     }
 
     /**
+     * @deprecated
      * Verify chargeAuthorization calls fetchPayment if the payment object is passed as id string.
      *
      * @test
      */
-    public function chargeAuthorizationShouldCallFetchPaymentIfThePaymentIsPassedAsIdString(): void
+    public function chargeAuthorizationShouldCallChargePaymentMethod(): void
     {
         /** @var ResourceServiceInterface|MockObject $resourceSrvMock */
         $resourceSrvMock = $this->getMockBuilder(ResourceService::class)->setMethods(['fetchPayment'])->disableOriginalConstructor()->getMock();
-        $resourceSrvMock->expects($this->once())->method('fetchPayment')->willReturn(new Payment());
         /** @var PaymentService|MockObject $paymentSrvMock */
-        $paymentSrvMock = $this->getMockBuilder(PaymentService::class)->setMethods(['chargePayment', 'getResourceService'])->disableOriginalConstructor()->getMock();
+        $paymentSrvMock = $this->getMockBuilder(PaymentService::class)->setMethods(['chargePayment'])->disableOriginalConstructor()->getMock();
         $paymentSrvMock->expects($this->once())->method('chargePayment')->withAnyParameters();
-        $paymentSrvMock->expects(self::once())->method('getResourceService')->willReturn($resourceSrvMock);
 
         $paymentSrvMock->chargeAuthorization('myPaymentId');
+    }
+
+    /**
+     * @deprecated
+     * Verify chargePayment calls fetchPayment if the payment object is passed as id string.
+     *
+     * @test
+     */
+    public function chargePaymentShouldCallerformChargeOnPaymentMethod(): void
+    {
+        /** @var ResourceServiceInterface|MockObject $resourceSrvMock */
+        $resourceSrvMock = $this->getMockBuilder(ResourceService::class)->setMethods(['fetchPayment'])->disableOriginalConstructor()->getMock();
+        /** @var PaymentService|MockObject $paymentSrvMock */
+        $paymentSrvMock = $this->getMockBuilder(PaymentService::class)->setMethods(['performChargeOnPayment'])->disableOriginalConstructor()->getMock();
+        $paymentSrvMock->expects($this->once())->method('performChargeOnPayment')->withAnyParameters();
+
+        $paymentSrvMock->chargePayment('myPaymentId');
+    }
+
+    /**
+     * Verify performChargeOnPayment calls fetchPayment if the payment object is passed as id string.
+     *
+     * @test
+     */
+    public function performChargeOnPaymentShouldCallFetchPaymentIfThePaymentIsPassedAsIdString(): void
+    {
+        /** @var ResourceServiceInterface|MockObject $resourceSrvMock */
+        $resourceSrvMock = $this->getMockBuilder(ResourceService::class)->setMethods(['fetchPayment', 'createResource'])->disableOriginalConstructor()->getMock();
+        $resourceSrvMock->expects($this->once())->method('fetchPayment')->willReturn(new Payment());
+        $resourceSrvMock->expects($this->once())->method('createResource')->willReturn(new Charge());
+        /** @var PaymentService|MockObject $paymentSrvMock */
+        $paymentSrvMock = $this->getMockBuilder(PaymentService::class)->setMethods(['getResourceService'])->disableOriginalConstructor()->getMock();
+        $paymentSrvMock->expects(self::exactly(2))->method('getResourceService')->willReturn($resourceSrvMock);
+
+        $paymentSrvMock->performChargeOnPayment('myPaymentId', new Charge());
     }
 
     /**
@@ -218,7 +240,6 @@ class PaymentServiceTest extends BasePaymentTest
                 $newPayment = $charge->getPayment();
                 return $charge instanceof Charge &&
                     $charge->getAmount() === 1.234 &&
-                    $charge->getCurrency() === 'myTestCurrency' &&
                     $charge->getOrderId() === null &&
                     $charge->getInvoiceId() === null &&
                     $newPayment instanceof Payment &&
@@ -227,7 +248,7 @@ class PaymentServiceTest extends BasePaymentTest
             }));
 
         $paymentSrv     = $unzer->setResourceService($resourceSrvMock)->getPaymentService();
-        $returnedCharge = $paymentSrv->chargePayment($payment, 1.234, 'myTestCurrency');
+        $returnedCharge = $paymentSrv->chargePayment($payment, 1.234);
         $this->assertEquals([$returnedCharge], $payment->getCharges());
     }
 
@@ -250,7 +271,6 @@ class PaymentServiceTest extends BasePaymentTest
                 $newPayment = $charge->getPayment();
                 return $charge instanceof Charge &&
                     $charge->getAmount() === 1.234 &&
-                    $charge->getCurrency() === 'myTestCurrency' &&
                     $charge->getOrderId() === 'orderId' &&
                     $charge->getInvoiceId() === 'invoiceId' &&
                     $newPayment instanceof Payment &&
@@ -259,7 +279,7 @@ class PaymentServiceTest extends BasePaymentTest
             }));
 
         $paymentSrv     = $unzer->setResourceService($resourceSrvMock)->getPaymentService();
-        $returnedCharge = $paymentSrv->chargePayment($payment, 1.234, 'myTestCurrency', 'orderId', 'invoiceId');
+        $returnedCharge = $paymentSrv->chargePayment($payment, 1.234, 'orderId', 'invoiceId');
         $this->assertEquals([$returnedCharge], $payment->getCharges());
     }
 
@@ -504,7 +524,9 @@ class PaymentServiceTest extends BasePaymentTest
                 'orderId' => 'id-4',
                 'returnUrl' => 'url',
                 'resources' => ['basketId' => 'id-2', 'customerId' => 'id-1', 'metadataId' => 'id-3', 'typeId' => 'id']
-            ], $returnedPayout->expose());
+            ],
+            $returnedPayout->expose()
+        );
     }
 
     //</editor-fold>

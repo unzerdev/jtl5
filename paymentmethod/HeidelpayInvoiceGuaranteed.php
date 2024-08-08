@@ -1,9 +1,11 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use JTL\Checkout\Bestellung;
+use JTL\Shop;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -14,6 +16,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
+use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
 use UnzerSDK\Constants\CancelReasonCodes;
 use UnzerSDK\Resources\Payment;
@@ -29,6 +32,7 @@ use UnzerSDK\Resources\TransactionTypes\Cancellation;
  * it carries out a risk check in advance.
  *
  * @see https://docs.heidelpay.com/docs/invoice-payment
+ * @deprecated
  */
 class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepAdditionalInterface, CancelableInterface
 {
@@ -52,7 +56,13 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
         AbstractTransactionType $transaction,
         Bestellung $order
     ): Cancellation {
-        return $transaction->cancel(null, CancelReasonCodes::REASON_CODE_CANCEL);
+        $reference = str_replace(
+            ['%ORDER_ID%', '%SHOPNAME%'],
+            [$order->cBestellNr, Shop::getSettingValue(CONF_GLOBAL, 'global_shopname')],
+            $this->trans(Config::LANG_CANCEL_PAYMENT_REFERENCE)
+        );
+
+        return $transaction->cancel(null, CancelReasonCodes::REASON_CODE_CANCEL, $reference);
     }
 
     /**
@@ -63,12 +73,14 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
      */
     public function handleStepAdditional(JTLSmarty $view): void
     {
+        $this->adapter->getConnectionForSession();
         $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
         $customer = $this->createOrFetchHeidelpayCustomer(
             $this->adapter,
             $this->sessionHelper,
             $this->isB2BCustomer($shopCustomer)
         );
+
         $customer->setShippingAddress(
             $this->createHeidelpayAddress(
                 $this->sessionHelper->getFrontendSession()->get('Lieferadresse')
@@ -110,7 +122,7 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
      * @inheritDoc
      * @return AbstractTransactionType|Charge
      */
-    protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
+    protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
         // Create or fetch customer resource
         $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
@@ -125,7 +137,7 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
 
         // Update existing customer resource if needed
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
             $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
@@ -139,13 +151,17 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
         );
         $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
 
-        return $this->adapter->getApi()->charge(
+        $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->cISO,
+            $order->Waehrung->getCode(),
+            $this->getReturnURL($order)
+        );
+        $charge->setOrderId($order->cBestellNr ?? null);
+
+        return $this->adapter->getCurrentConnection()->performCharge(
+            $charge,
             $payment->getId(),
-            $this->getReturnURL($order),
             $customer,
-            $order->cBestellNr ?? null,
             $this->createMetadata(),
             $basket
         );

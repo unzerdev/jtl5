@@ -73,4 +73,28 @@ class ChargeMappingModel extends Model
 
         return null;
     }
+
+     /**
+     * Get all charges which are delivered
+     *
+     * @param integer $orderId
+     * @return ChargeMappingEntity[]|array
+     */
+    public function getProcessedDeliveries(int $orderId): array
+    {
+        $rows = $this->database->selectAll($this->getTable(), 'order_id', $orderId);
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        $data = [];
+        foreach ($rows as $row) {
+            if ($row->delivery_id) {
+                $data[] = $this->createEntity($row);
+            }
+        }
+
+        return $data;
+    }
 }

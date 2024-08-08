@@ -1,32 +1,18 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines integration tests to verify interface and
  * functionality of the authorization transaction type.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\integration\TransactionTypes
  */
+
 namespace UnzerSDK\test\integration\TransactionTypes;
 
+use UnzerSDK\Constants\RecurrenceTypes;
 use UnzerSDK\Resources\AbstractUnzerResource;
 use UnzerSDK\Resources\Metadata;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
@@ -118,6 +104,7 @@ class AuthorizationTest extends BaseIntegrationTest
      * Verify authorization can be fetched.
      *
      * @depends authorizationWithCustomerId
+     *
      * @test
      *
      * @param Authorization $authorization
@@ -125,13 +112,14 @@ class AuthorizationTest extends BaseIntegrationTest
     public function authorizationCanBeFetched(Authorization $authorization): void
     {
         $fetchedAuthorization = $this->unzer->fetchAuthorization($authorization->getPaymentId());
-        $this->assertEquals($authorization->expose(), $fetchedAuthorization->expose());
+        $this->assertEquals($authorization->setCard3ds(false)->expose(), $fetchedAuthorization->expose());
     }
 
     /**
      * Verify authorization has the expected states.
      *
      * @test
+     *
      * @dataProvider authorizeHasExpectedStatesDP
      *
      * @param BasePaymentType|AbstractUnzerResource $paymentType
@@ -162,7 +150,60 @@ class AuthorizationTest extends BaseIntegrationTest
         $invoiceId = 'i' . self::generateRandomId();
         $paymentReference = 'paymentReference';
 
-        $authorize = $card->authorize(119.0, 'EUR', self::RETURN_URL, $customer, $orderId, $metadata, $basket, true, $invoiceId, $paymentReference);
+        $authorize = $card->authorize(119.0, 'EUR', self::RETURN_URL, $customer, $orderId, $metadata, $basket, true, $invoiceId, $paymentReference, RecurrenceTypes::ONE_CLICK);
+        $payment = $authorize->getPayment();
+
+        $this->assertSame($card, $payment->getPaymentType());
+        $this->assertEquals(119.0, $authorize->getAmount());
+        $this->assertEquals('EUR', $authorize->getCurrency());
+        $this->assertEquals(self::RETURN_URL, $authorize->getReturnUrl());
+        $this->assertSame($customer, $payment->getCustomer());
+        $this->assertEquals($orderId, $authorize->getOrderId());
+        $this->assertSame($metadata, $payment->getMetadata());
+        $this->assertSame($basket, $payment->getBasket());
+        $this->assertTrue($authorize->isCard3ds());
+        $this->assertEquals($invoiceId, $authorize->getInvoiceId());
+        $this->assertEquals($paymentReference, $authorize->getPaymentReference());
+
+        $fetchedAuthorize = $this->unzer->fetchAuthorization($authorize->getPaymentId());
+        $fetchedPayment = $fetchedAuthorize->getPayment();
+
+        $this->assertEquals($payment->getPaymentType()->expose(), $fetchedPayment->getPaymentType()->expose());
+        $this->assertEquals($authorize->getAmount(), $fetchedAuthorize->getAmount());
+        $this->assertEquals($authorize->getCurrency(), $fetchedAuthorize->getCurrency());
+        $this->assertEquals($authorize->getReturnUrl(), $fetchedAuthorize->getReturnUrl());
+        $this->assertEquals($payment->getCustomer()->expose(), $fetchedPayment->getCustomer()->expose());
+        $this->assertEquals($authorize->getOrderId(), $fetchedAuthorize->getOrderId());
+        $this->assertEquals($payment->getMetadata()->expose(), $fetchedPayment->getMetadata()->expose());
+        $this->assertEquals($payment->getBasket()->expose(), $fetchedPayment->getBasket()->expose());
+        $this->assertEquals($authorize->isCard3ds(), $fetchedAuthorize->isCard3ds());
+        $this->assertEquals($authorize->getInvoiceId(), $fetchedAuthorize->getInvoiceId());
+        $this->assertEquals($authorize->getPaymentReference(), $fetchedAuthorize->getPaymentReference());
+    }
+
+    /**
+     * Verify authorize accepts all parameters.
+     *
+     * @test
+     */
+    public function requestAuthorizationShouldAcceptAllParameters(): void
+    {
+        /** @var Card $card */
+        $card = $this->unzer->createPaymentType($this->createCardObject());
+        $customer = $this->getMinimalCustomer();
+        $orderId = 'o' . self::generateRandomId();
+        $metadata = (new Metadata())->addMetadata('key', 'value');
+        $basket = $this->createBasket();
+        $invoiceId = 'i' . self::generateRandomId();
+        $paymentReference = 'paymentReference';
+
+        $authorize = new Authorization(119.0, 'EUR', self::RETURN_URL);
+        $authorize->setRecurrenceType(RecurrenceTypes::ONE_CLICK, $card)
+            ->setOrderId($orderId)
+            ->setInvoiceId($invoiceId)
+            ->setPaymentReference($paymentReference);
+
+        $authorize = $this->unzer->performAuthorization($authorize, $card, $customer, $metadata, $basket);
         $payment = $authorize->getPayment();
 
         $this->assertSame($card, $payment->getPaymentType());

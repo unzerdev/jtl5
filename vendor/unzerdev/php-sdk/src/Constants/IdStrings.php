@@ -1,29 +1,12 @@
 <?php
+
+namespace UnzerSDK\Constants;
+
 /**
  * This file contains the different id strings to be handled within this SDK.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\Constants
  */
-namespace UnzerSDK\Constants;
-
 class IdStrings
 {
     // Transactions
@@ -32,6 +15,7 @@ class IdStrings
     public const CHARGE = 'chg';
     public const PAYOUT = 'out';
     public const SHIPMENT = 'shp';
+    public const CHARGEBACK = 'cbk';
 
     // Payment Types
     public const ALIPAY = 'ali';
@@ -40,6 +24,8 @@ class IdStrings
     public const CARD = 'crd';
     public const EPS = 'eps';
     public const GIROPAY = 'gro';
+    public const GOOGLE_PAY = 'gop';
+    public const CLICK_TO_PAY = 'ctp';
     public const HIRE_PURCHASE_DIRECT_DEBIT = 'hdd';
     public const IDEAL = 'idl';
     public const INSTALLMENT_SECURED = 'ins';
@@ -47,8 +33,15 @@ class IdStrings
     public const INVOICE_FACTORING = 'ivf';
     public const INVOICE_GUARANTEED = 'ivg';
     public const INVOICE_SECURED = 'ivs';
+    public const KLARNA = 'kla';
+    public const PAYLATER_DIRECT_DEBIT = 'pdd';
+    public const PAYLATER_INVOICE = 'piv';
+    public const PAYLATER_INSTALLMENT = 'pit';
     public const PAYMENT_PAGE = 'ppg';
     public const PAYPAL = 'ppl';
+    public const PAYU = 'pyu';
+    public const POST_FINANCE_CARD = 'pfc';
+    public const POST_FINANCE_EFINANCE = 'pfe';
     public const PIS = 'pis';
     public const PREPAYMENT = 'ppy';
     public const PRZELEWY24 = 'p24';
@@ -56,6 +49,7 @@ class IdStrings
     public const SEPA_DIRECT_DEBIT_GUARANTEED = 'ddg';
     public const SEPA_DIRECT_DEBIT_SECURED = 'dds';
     public const SOFORT = 'sft';
+    public const TWINT = 'twt';
     public const WECHATPAY = 'wcp';
 
     // Resources
@@ -72,6 +66,7 @@ class IdStrings
         self::CARD,
         self::EPS,
         self::GIROPAY,
+        self::GOOGLE_PAY,
         self::HIRE_PURCHASE_DIRECT_DEBIT,
         self::IDEAL,
         self::INSTALLMENT_SECURED,
@@ -79,8 +74,15 @@ class IdStrings
         self::INVOICE_FACTORING,
         self::INVOICE_GUARANTEED,
         self::INVOICE_SECURED,
+        self::KLARNA,
+        self::PAYLATER_DIRECT_DEBIT,
+        self::PAYLATER_INVOICE,
+        self::PAYLATER_INSTALLMENT,
         self::PAYMENT_PAGE,
         self::PAYPAL,
+        self::PAYU,
+        self::POST_FINANCE_CARD,
+        self::POST_FINANCE_EFINANCE,
         self::PIS,
         self::PREPAYMENT,
         self::PRZELEWY24,
@@ -88,6 +90,7 @@ class IdStrings
         self::SEPA_DIRECT_DEBIT_GUARANTEED,
         self::SEPA_DIRECT_DEBIT_SECURED,
         self::SOFORT,
+        self::TWINT,
         self::WECHATPAY,
     ];
 }

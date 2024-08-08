@@ -53,6 +53,8 @@ class OrderMappingEntity extends Entity
      */
     protected $invoiceId;
 
+    protected ?int $paymentMethodId = null;
+
     /**
      * @inheritDoc
      */
@@ -67,6 +69,7 @@ class OrderMappingEntity extends Entity
         $data->payment_state = $this->getPaymentState();
         $data->payment_type_name = $this->getPaymentTypeName();
         $data->payment_type_id = $this->getPaymentTypeId();
+        $data->payment_method_id = $this->getPaymentMethodId();
 
         return $data;
     }
@@ -86,6 +89,7 @@ class OrderMappingEntity extends Entity
         $entity->setPaymentState($data->payment_state);
         $entity->setPaymentTypeName($data->payment_type_name);
         $entity->setPaymentTypeId($data->payment_type_id);
+        $entity->setPaymentMethodId($data->payment_method_id ? (int) $data->payment_method_id : null);
         return $entity;
     }
 
@@ -218,6 +222,28 @@ class OrderMappingEntity extends Entity
     public function setPaymentTypeId(string $paymentTypeId): self
     {
         $this->paymentTypeId = $paymentTypeId;
+        return $this;
+    }
+
+    /**
+     * Get jtl payment method id.
+     *
+     * @return ?int
+     */
+    public function getPaymentMethodId(): ?int
+    {
+        return $this->paymentMethodId;
+    }
+
+    /**
+     * Set jtl payment method id.
+     *
+     * @param ?int $paymentMethodId  Heidelpay payment Method id.
+     * @return self
+     */
+    public function setPaymentMethodId(?int $paymentMethodId): self
+    {
+        $this->paymentMethodId = $paymentMethodId;
         return $this;
     }
 

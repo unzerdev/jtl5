@@ -1,4 +1,6 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments\Traits;
 
@@ -26,8 +28,9 @@ trait HasMetadata
 
         return (new Metadata())
             ->setShopType('JTL')
-            ->setShopVersion(Shop::getApplicationVersion())
-            ->addMetadata('Language', sprintf('PHP %s', phpversion()))
-            ->addMetadata('Plugin', sprintf('%s v%s', Config::PLUGIN_ID, $plugin->getMeta()->getVersion()));
+            ->setShopVersion(\APPLICATION_VERSION)
+            ->addMetadata('pluginType', 'unzerdev/jtl5')
+            ->addMetadata('pluginVersion', (string) $plugin->getMeta()->getVersion())
+            ->addMetadata('PHP', phpversion());
     }
 }

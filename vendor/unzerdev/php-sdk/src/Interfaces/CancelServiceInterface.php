@@ -2,26 +2,10 @@
 /**
  * The interface for the CancelService.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\Interfaces
  */
+
 namespace UnzerSDK\Interfaces;
 
 use UnzerSDK\Constants\CancelReasonCodes;
@@ -118,7 +102,7 @@ interface CancelServiceInterface
 
     /**
      * Performs a Cancellation transaction on the Payment.
-     * If no amount is given a full cancel will be performed i. e. all Charges and Authorizations will be cancelled.
+     * If no amount is given a full cancel will be performed i.e. all Charges and Authorizations will be cancelled.
      *
      * @param Payment|string $payment       The Payment object or the id of the Payment to be cancelled.
      * @param float|null     $amount        The amount to be canceled.
@@ -131,16 +115,44 @@ interface CancelServiceInterface
      * @return Cancellation[] An array holding all Cancellation objects created with this cancel call.
      *
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
-     * @throws RuntimeException  A RuntimeException is thrown when there is a error while using the SDK.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
     public function cancelPayment(
         $payment,
         float $amount = null,
-        $reasonCode = CancelReasonCodes::REASON_CODE_CANCEL,
+        ?string $reasonCode = CancelReasonCodes::REASON_CODE_CANCEL,
         string $referenceText = null,
         float $amountNet = null,
         float $amountVat = null
     ): array;
+
+    /**
+     * Performs a Cancellation transaction on the Payment. Should only be used for "paylater-invoice" payments.
+     * If no Cancellation is given a full cancel will be performed.
+     *
+     * @param Payment|string    $payment      The Payment object or the id of the Payment to be cancelled.
+     * @param Cancellation|null $cancellation
+     *
+     * @return Cancellation A Cancellation object created with this cancel call.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    public function cancelAuthorizedPayment($payment, ?Cancellation $cancellation = null): Cancellation;
+
+    /**
+     * Performs a Cancellation transaction on the Payment. Should only be used for "paylater-invoice" payments.
+     * If no Cancellation is given a full cancel will be performed.
+     *
+     * @param Payment|string    $payment      The Payment object or the id of the Payment to be cancelled.
+     * @param Cancellation|null $cancellation
+     *
+     * @return Cancellation A Cancellation object created with this cancel call.
+     *
+     * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
+     * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
+     */
+    public function cancelChargedPayment($payment, ?Cancellation $cancellation = null): Cancellation;
 
     /**
      * Cancel the given amount of the payments authorization.

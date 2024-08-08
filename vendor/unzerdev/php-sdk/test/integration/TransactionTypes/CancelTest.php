@@ -1,31 +1,17 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines integration tests to verify cancellation in general.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\integration\TransactionTypes
  */
+
 namespace UnzerSDK\test\integration\TransactionTypes;
 
+use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\test\BaseIntegrationTest;
 
 class CancelTest extends BaseIntegrationTest
@@ -65,6 +51,7 @@ class CancelTest extends BaseIntegrationTest
      */
     public function refundShouldBeFetchableViaUnzerObject(): void
     {
+        $this->useLegacyKey();
         $charge = $this->createCharge();
         $cancel = $charge->cancel();
         $fetchedCancel = $this->unzer->fetchRefundById($charge->getPayment()->getId(), $charge->getId(), $cancel->getId());
@@ -79,8 +66,10 @@ class CancelTest extends BaseIntegrationTest
      */
     public function refundShouldBeFetchableViaPaymentObject(): void
     {
+        $this->useLegacyKey();
         $charge = $this->createCharge();
-        $cancel = $charge->cancel();
+        $cancel = new Cancellation();
+        $this->getUnzerObject()->cancelChargedPayment($charge->getPayment(), $cancel);
         $fetchedCancel = $cancel->getPayment()->getCharge($charge->getId())->getCancellation($cancel->getId());
         $this->assertTransactionResourceHasBeenCreated($fetchedCancel);
         $this->assertEquals($cancel->expose(), $fetchedCancel->expose());
@@ -97,7 +86,7 @@ class CancelTest extends BaseIntegrationTest
         $reversal = $authorization->cancel();
         $fetchedPayment = $this->unzer->fetchPayment($authorization->getPayment()->getId());
 
-        $cancellation = $fetchedPayment->getCancellation($reversal->getId());
+        $cancellation = $fetchedPayment->getAuthorization()->getCancellation($reversal->getId());
         $this->assertTransactionResourceHasBeenCreated($cancellation);
         $this->assertEquals($cancellation->expose(), $reversal->expose());
     }
@@ -109,13 +98,14 @@ class CancelTest extends BaseIntegrationTest
      */
     public function chargeCancellationsShouldBeFetchableViaPaymentObject(): void
     {
+        $this->useLegacyKey();
         $charge = $this->createCharge();
-        $reversal = $charge->cancel();
+        $refund = $charge->cancel();
         $fetchedPayment = $this->unzer->fetchPayment($charge->getPayment()->getId());
 
-        $cancellation = $fetchedPayment->getCancellation($reversal->getId());
+        $cancellation = $fetchedPayment->getCharge($charge->getId())->getCancellation($refund->getId());
         $this->assertTransactionResourceHasBeenCreated($cancellation);
-        $this->assertEquals($cancellation->expose(), $reversal->expose());
+        $this->assertEquals($cancellation->expose(), $refund->expose());
     }
 
     /**
@@ -125,6 +115,7 @@ class CancelTest extends BaseIntegrationTest
      */
     public function cancelStatusIsSetCorrectly(): void
     {
+        $this->useLegacyKey();
         $charge = $this->createCharge();
         $reversal = $charge->cancel();
         $this->assertSuccess($reversal);

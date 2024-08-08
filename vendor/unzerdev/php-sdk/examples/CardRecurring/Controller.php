@@ -3,25 +3,8 @@
  * This is the controller for the Card recurring example.
  * It is called when the pay button on the index page is clicked.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\examples
  */
 
 /** Require the constants of this example */
@@ -34,6 +17,7 @@ require_once __DIR__ . '/../../../../autoload.php';
 use UnzerSDK\Constants\RecurrenceTypes;
 use UnzerSDK\examples\ExampleDebugHandler;
 use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\Unzer;
 
 session_start();
@@ -57,31 +41,35 @@ if (!isset($_POST['resourceId'])) {
 $paymentTypeId   = $_POST['resourceId'];
 
 // Just for this example: Use selected recurrence type. Scheduled will be used as default.
-$recurrenceTyp = $_POST['recurrence_type'] ?? RecurrenceTypes::SCHEDULED;
+$recurrenceType = $_POST['recurrence_type'] ?? RecurrenceTypes::SCHEDULED;
 
 // Catch API errors, write the message to your log and show the ClientMessage to the client.
 try {
     // Create an Unzer object using your private key and register a debug handler if you want to.
     $unzer = new Unzer(UNZER_PAPI_PRIVATE_KEY);
     $unzer->setDebugMode(true)->setDebugHandler(new ExampleDebugHandler());
+    $paymentType = $unzer->fetchPaymentType($paymentTypeId);
 
-    $recurring = $unzer->activateRecurringPayment($paymentTypeId, MY_RETURN_CONTROLLER_URL, $recurrenceTyp);
+    $charge = (new Charge(12.99, 'EUR', MY_RETURN_CONTROLLER_URL))
+        ->setRecurrenceType($recurrenceType, $paymentType);
+
+    $transaction = $unzer->performCharge($charge, $paymentTypeId);
 
     // You'll need to remember the paymentId for later in the ReturnController (in case of 3ds)
     $_SESSION['PaymentTypeId'] = $paymentTypeId;
-    $_SESSION['ShortId'] = $recurring->getShortId();
-    $_SESSION['recurrenceType'] = $recurring->getRecurrenceType();
+    $_SESSION['ShortId'] = $transaction->getShortId();
+    $_SESSION['recurrenceType'] = $transaction->getRecurrenceType();
 
     // Redirect to the 3ds page or to success depending on the state of the transaction
-    $redirect = !empty($recurring->getRedirectUrl());
-    if (!$redirect && $recurring->isSuccess()) {
+    $redirect = !empty($transaction->getRedirectUrl());
+    if (!$redirect && $transaction->isSuccess()) {
         redirect(SUCCESS_URL);
-    } elseif ($redirect && $recurring->isPending()) {
-        redirect($recurring->getRedirectUrl());
+    } elseif ($redirect && $transaction->isPending()) {
+        redirect($transaction->getRedirectUrl());
     }
 
     // Check the result message of the transaction to find out what went wrong.
-    $merchantMessage = $recurring->getMessage()->getCustomer();
+    $merchantMessage = $transaction->getMessage()->getCustomer();
 } catch (UnzerApiException $e) {
     $merchantMessage = $e->getMerchantMessage();
     $clientMessage = $e->getClientMessage();

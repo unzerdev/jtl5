@@ -1,31 +1,11 @@
 <?php
-/**
- * This is the implementation of the Pay Page which allows for displaying a page containing all
- * payment types of the merchant.
- *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\PaymentTypes
- */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
+use UnzerSDK\Constants\AdditionalAttributes;
+use UnzerSDK\Constants\ExemptionType;
+use UnzerSDK\Constants\RecurrenceTypes;
 use UnzerSDK\Constants\TransactionTypes;
 use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\AbstractUnzerResource;
@@ -39,8 +19,16 @@ use UnzerSDK\Traits\HasInvoiceId;
 use UnzerSDK\Traits\HasOrderId;
 use RuntimeException;
 use stdClass;
+
 use function in_array;
 
+/**
+ * This is the implementation of the Pay Page which allows for displaying a page containing all
+ * payment types of the merchant.
+ *
+ * @link  https://docs.unzer.com/
+ *
+ */
 class Paypage extends BasePaymentType
 {
     use CanDirectCharge;
@@ -116,8 +104,6 @@ class Paypage extends BasePaymentType
         $this->setReturnUrl($returnUrl);
     }
 
-    //<editor-fold desc="Getters/Setters">
-
     /**
      * @return float
      */
@@ -188,7 +174,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setLogoImage($logoImage): Paypage
+    public function setLogoImage(?string $logoImage): Paypage
     {
         $this->logoImage = $logoImage;
         return $this;
@@ -207,7 +193,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setFullPageImage($fullPageImage): Paypage
+    public function setFullPageImage(?string $fullPageImage): Paypage
     {
         $this->fullPageImage = $fullPageImage;
         return $this;
@@ -226,7 +212,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setShopName($shopName): Paypage
+    public function setShopName(?string $shopName): Paypage
     {
         $this->shopName = $shopName;
         return $this;
@@ -245,7 +231,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setShopDescription($shopDescription): Paypage
+    public function setShopDescription(?string $shopDescription): Paypage
     {
         $this->shopDescription = $shopDescription;
         return $this;
@@ -264,7 +250,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setTagline($tagline): Paypage
+    public function setTagline(?string $tagline): Paypage
     {
         $this->tagline = $tagline;
         return $this;
@@ -283,7 +269,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setTermsAndConditionUrl($termsAndConditionUrl): Paypage
+    public function setTermsAndConditionUrl(?string $termsAndConditionUrl): Paypage
     {
         $this->termsAndConditionUrl = $termsAndConditionUrl;
         return $this;
@@ -302,7 +288,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setPrivacyPolicyUrl($privacyPolicyUrl): Paypage
+    public function setPrivacyPolicyUrl(?string $privacyPolicyUrl): Paypage
     {
         $this->privacyPolicyUrl = $privacyPolicyUrl;
         return $this;
@@ -321,7 +307,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setImprintUrl($imprintUrl): Paypage
+    public function setImprintUrl(?string $imprintUrl): Paypage
     {
         $this->imprintUrl = $imprintUrl;
         return $this;
@@ -340,7 +326,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setHelpUrl($helpUrl): Paypage
+    public function setHelpUrl(?string $helpUrl): Paypage
     {
         $this->helpUrl = $helpUrl;
         return $this;
@@ -359,7 +345,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setContactUrl($contactUrl): Paypage
+    public function setContactUrl(?string $contactUrl): Paypage
     {
         $this->contactUrl = $contactUrl;
         return $this;
@@ -380,6 +366,7 @@ class Paypage extends BasePaymentType
      */
     public function setAction(String $action): Paypage
     {
+        $action = strtolower($action);
         if (in_array($action, [TransactionTypes::CHARGE, TransactionTypes::AUTHORIZATION], true)) {
             $this->action = $action;
         }
@@ -533,7 +520,7 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setCard3ds($card3ds): Paypage
+    public function setCard3ds(?bool $card3ds): Paypage
     {
         $this->card3ds = $card3ds;
         return $this;
@@ -552,20 +539,9 @@ class Paypage extends BasePaymentType
      *
      * @return Paypage
      */
-    public function setCss($styles): Paypage
+    public function setCss(?array $styles): Paypage
     {
         $this->css = empty($styles) ? null : $styles;
-        return $this;
-    }
-
-    /**
-     * @param float|null $effectiveInterestRate
-     *
-     * @return Paypage
-     */
-    public function setEffectiveInterestRate(float $effectiveInterestRate): Paypage
-    {
-        $this->setAdditionalAttribute('effectiveInterestRate', $effectiveInterestRate);
         return $this;
     }
 
@@ -574,29 +550,86 @@ class Paypage extends BasePaymentType
      */
     public function getEffectiveInterestRate(): ?float
     {
-        return $this->getAdditionalAttribute('effectiveInterestRate');
+        return $this->getAdditionalAttribute(AdditionalAttributes::EFFECTIVE_INTEREST_RATE);
     }
 
-    //</editor-fold>
+    /**
+     * @param float $effectiveInterestRate
+     *
+     * @return Paypage
+     */
+    public function setEffectiveInterestRate(float $effectiveInterestRate): Paypage
+    {
+        $this->setAdditionalAttribute(AdditionalAttributes::EFFECTIVE_INTEREST_RATE, $effectiveInterestRate);
+        return $this;
+    }
 
-    //<editor-fold desc="Overridable methods">
+    /**
+     * @return string|null
+     */
+    public function getRecurrenceType(): ?string
+    {
+        return $this->getAdditionalAttribute(AdditionalAttributes::RECURRENCE_TYPE);
+    }
+
+    /**
+     * @param string $recurrenceType
+     *
+     * @see RecurrenceTypes
+     *
+     * @return Paypage
+     */
+    public function setRecurrenceType(string $recurrenceType): Paypage
+    {
+        $this->setAdditionalAttribute(AdditionalAttributes::RECURRENCE_TYPE, $recurrenceType);
+        return $this;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getExemptionType(): ?string
+    {
+        return $this->getAdditionalAttribute(AdditionalAttributes::EXEMPTION_TYPE);
+    }
+
+    /**
+     * @param string $exemptionType
+     *
+     * @see ExemptionType
+     *
+     * @return Paypage
+     */
+    public function setExemptionType(string $exemptionType): Paypage
+    {
+        $this->setAdditionalAttribute(AdditionalAttributes::EXEMPTION_TYPE, $exemptionType);
+        return $this;
+    }
 
     /**
      * {@inheritDoc}
      * Change resource path.
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
+        $basePath = 'paypage';
+
+        if ($httpMethod === HttpAdapterInterface::REQUEST_GET) {
+            return $basePath;
+        }
+
         switch ($this->action) {
             case TransactionTypes::AUTHORIZATION:
-                return 'paypage/authorize';
+                $transactionType = TransactionTypes::AUTHORIZATION;
                 break;
             case TransactionTypes::CHARGE:
                 // intended Fall-Through
             default:
-                return 'paypage/charge';
+                $transactionType = TransactionTypes::CHARGE;
                 break;
         }
+
+        return $basePath . '/' . $transactionType;
     }
 
     /**
@@ -606,19 +639,33 @@ class Paypage extends BasePaymentType
      * @throws UnzerApiException An UnzerApiException is thrown if there is an error returned on API-request.
      * @throws RuntimeException  A RuntimeException is thrown when there is an error while using the SDK.
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         if (isset($response->impressumUrl)) {
             $response->imprintUrl = $response->impressumUrl;
             unset($response->impressumUrl);
         }
 
-        parent::handleResponse($response, $method);
-
         /** @var Payment $payment */
         $payment = $this->getPayment();
         if (isset($response->resources->paymentId)) {
-            $payment->setId($response->resources->paymentId);
+            $paymentId = $response->resources->paymentId;
+
+            if (null === $payment) {
+                $payment = new Payment($this->getUnzerObject());
+                $payment->setId($paymentId)
+                    ->setPayPage($this);
+                $this->setPayment($payment);
+                $this->fetchPayment();
+            }
+
+            $payment->setId($paymentId);
+        }
+
+        parent::handleResponse($response, $method);
+
+        if (isset($response->additionalAttributes)) {
+            $this->additionalAttributes = (array)$response->additionalAttributes;
         }
 
         if ($method !== HttpAdapterInterface::REQUEST_GET) {
@@ -647,14 +694,12 @@ class Paypage extends BasePaymentType
     public function getLinkedResources(): array
     {
         return [
-            'customer'=> $this->getCustomer(),
+            'customer' => $this->getCustomer(),
             'metadata' => $this->getMetadata(),
             'basket' => $this->getBasket(),
             'payment' => $this->getPayment()
         ];
     }
-
-    //</editor-fold>
 
     /**
      * Updates the referenced payment object if it exists and if this is not the payment object itself.

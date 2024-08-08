@@ -1,0 +1,1 @@
+<span class="unzer-instalment-info">{$info}</span>

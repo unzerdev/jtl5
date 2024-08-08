@@ -1,30 +1,15 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines integration tests to verify interface and
  * functionality of the Customer resource.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test\integration;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -33,6 +18,7 @@ use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\Customer;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\test\BaseIntegrationTest;
+
 use function microtime;
 
 class CustomerTest extends BaseIntegrationTest
@@ -90,8 +76,25 @@ class CustomerTest extends BaseIntegrationTest
     }
 
     /**
+     * Verify shipping type can be set for shipping address of customer resource.
+     *
+     * @test
+     */
+    public function customerWithShippingTypeCanBeCreatedAndFetched()
+    {
+        $customer   = $this->getMaximumCustomerInclShippingAddress();
+        $customer->getShippingAddress()->setShippingType('shippingType');
+
+        $this->unzer->createCustomer($customer);
+        $fetchedCustomer = $this->unzer->fetchCustomer($customer->getId());
+        $this->assertEquals('shippingType', $fetchedCustomer->getShippingAddress()->getShippingType());
+    }
+
+    /**
      * @param Customer $customer
+     *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedById(Customer $customer): void
@@ -102,6 +105,7 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedByCustomerId(): void
@@ -116,7 +120,9 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @param Customer $customer
+     *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedByObject(Customer $customer): void
@@ -128,7 +134,9 @@ class CustomerTest extends BaseIntegrationTest
 
     /**
      * @param Customer $customer
+     *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      */
     public function customerCanBeFetchedByObjectWithData(Customer $customer): void
@@ -210,6 +218,7 @@ class CustomerTest extends BaseIntegrationTest
      * Customer can be updated.
      *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      *
      * @param Customer $customer
@@ -230,6 +239,7 @@ class CustomerTest extends BaseIntegrationTest
      * Customer can be deleted.
      *
      * @depends maxCustomerCanBeCreatedAndFetched
+     *
      * @test
      *
      * @param Customer $customer
@@ -421,6 +431,22 @@ class CustomerTest extends BaseIntegrationTest
 
         $fetchedCustomer = $this->unzer->fetchCustomer($customer->getId());
         $this->assertEquals($customer->expose(), $fetchedCustomer->expose());
+    }
+
+    /**
+     * Customer should contain clientIp set via header.
+     *
+     * @test
+     */
+    public function customerShouldContainClientIpSetViaHeader()
+    {
+        $customer = $this->getMinimalCustomer();
+        $clientIp = '123.123.123.123';
+        $this->unzer->setClientIp($clientIp);
+        $this->unzer->createCustomer($customer);
+
+        $fetchedCustomer = $this->unzer->fetchCustomer($customer->getId());
+        $this->assertEquals($clientIp, $fetchedCustomer->getGeoLocation()->getClientIp());
     }
 
     //</editor-fold>

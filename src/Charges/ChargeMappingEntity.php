@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types = 1);
 
 namespace Plugin\s360_unzer_shop5\src\Charges;
@@ -29,6 +30,11 @@ class ChargeMappingEntity extends Entity
     private $orderId;
 
     /**
+     * @var int|null JTL Delivery Id (kLieferschein)
+     */
+    private $deliveryId = null;
+
+    /**
      * @var Bestellung|null
      */
     private $order;
@@ -43,6 +49,7 @@ class ChargeMappingEntity extends Entity
         $data->order_id = $this->getOrderId();
         $data->payment_id = $this->getPaymentId();
         $data->charge_id = $this->getChargeId();
+        $data->delivery_id = $this->getDeliveryId();
 
         return $data;
     }
@@ -58,6 +65,7 @@ class ChargeMappingEntity extends Entity
         $entity->setOrderId((int) $data->order_id);
         $entity->setPaymentId($data->payment_id);
         $entity->setChargeId($data->charge_id);
+        $entity->setDeliveryId($data->delivery_id ? (int) $data->delivery_id : null);
         return $entity;
     }
 
@@ -150,6 +158,28 @@ class ChargeMappingEntity extends Entity
     public function setOrder(?Bestellung $order): self
     {
         $this->order = $order;
+        return $this;
+    }
+
+    /**
+     * Get jTL Delivery Id (kLieferschein)
+     *
+     * @return int|null
+     */
+    public function getDeliveryId(): ?int
+    {
+        return $this->deliveryId;
+    }
+
+    /**
+     * Set jTL Delivery Id (kLieferschein)
+     *
+     * @param int|null $deliveryId  JTL Delivery Id (kLieferschein)
+     * @return self
+     */
+    public function setDeliveryId(?int $deliveryId): self
+    {
+        $this->deliveryId = $deliveryId;
         return $this;
     }
 }

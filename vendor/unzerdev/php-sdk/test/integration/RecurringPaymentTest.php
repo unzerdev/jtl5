@@ -1,40 +1,25 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * Test cases to verify functionality and integration of recurring payments.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test\integration;
 
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Constants\RecurrenceTypes;
 use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\test\Helper\TestEnvironmentService;
 use UnzerSDK\Unzer;
 use UnzerSDK\Resources\PaymentTypes\Card;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\Resources\PaymentTypes\SepaDirectDebit;
 use UnzerSDK\Resources\PaymentTypes\SepaDirectDebitSecured;
-use UnzerSDK\Services\EnvironmentService;
 use UnzerSDK\test\BaseIntegrationTest;
 use RuntimeException;
 
@@ -58,6 +43,8 @@ class RecurringPaymentTest extends BaseIntegrationTest
      * After recurring call the parameters are set.
      *
      * @test
+     *
+     * @deprecated since 1.2.1.0 Get removed with `activateRecurring` method.
      */
     public function recurringForCardWith3dsShouldReturnAttributes(): void
     {
@@ -78,10 +65,12 @@ class RecurringPaymentTest extends BaseIntegrationTest
      * Verify card without 3ds can activate recurring payments.
      *
      * @test
+     *
+     * @deprecated since 1.2.1.0 Get removed with `activateRecurring` method.
      */
     public function recurringForCardWithout3dsShouldActivateRecurringAtOnce(): void
     {
-        $privateKey = EnvironmentService::getTestPrivateKey(true);
+        $privateKey = TestEnvironmentService::getTestPrivateKey(true);
         if (empty($privateKey)) {
             $this->markTestIncomplete('No non 3ds private key set');
         }
@@ -110,7 +99,7 @@ class RecurringPaymentTest extends BaseIntegrationTest
     {
         /** @var Paypal $paypal */
         $paypal = $this->unzer->createPaymentType(new Paypal());
-        $recurring = $paypal->activateRecurring('https://dev.unzer.com', RecurrenceTypes::ONE_CLICK);
+        $recurring = $paypal->activateRecurring('https://dev.unzer.com');
         $this->assertPending($recurring);
         $this->assertNotEmpty($recurring->getReturnUrl());
     }
@@ -122,6 +111,7 @@ class RecurringPaymentTest extends BaseIntegrationTest
      */
     public function sepaDirectDebitShouldBeAbleToActivateRecurringPayments(): void
     {
+        $this->useLegacyKey();
         /** @var SepaDirectDebit $dd */
         $dd = $this->unzer->createPaymentType(new SepaDirectDebit('DE89370400440532013000'));
         $this->assertFalse($dd->isRecurring());
@@ -141,6 +131,7 @@ class RecurringPaymentTest extends BaseIntegrationTest
      */
     public function sepaDirectDebitSecuredShouldBeAbleToActivateRecurringPayments(): void
     {
+        $this->getUnzerObject()->setKey(TestEnvironmentService::getLegacyTestPrivateKey());
         /** @var SepaDirectDebitSecured $ddg */
         $ddg = $this->unzer->createPaymentType(new SepaDirectDebitSecured('DE89370400440532013000'));
         $this->assertFalse($ddg->isRecurring());
@@ -153,7 +144,7 @@ class RecurringPaymentTest extends BaseIntegrationTest
 
         $this->expectException(UnzerApiException::class);
         $this->expectExceptionCode(ApiResponseCodes::API_ERROR_RECURRING_ALREADY_ACTIVE);
-        $this->unzer->activateRecurringPayment($ddg, self::RETURN_URL, RecurrenceTypes::ONE_CLICK);
+        $this->unzer->activateRecurringPayment($ddg, self::RETURN_URL);
     }
 
     /**

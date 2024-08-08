@@ -1,44 +1,44 @@
 <?php
-/**
- * This represents the basket resource.
- *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\Resources
- */
+
 namespace UnzerSDK\Resources;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Resources\EmbeddedResources\BasketItem;
 use stdClass;
+
 use function count;
 
+/**
+ * This represents the basket resource.
+ *
+ * @link  https://docs.unzer.com/
+ *
+ */
 class Basket extends AbstractUnzerResource
 {
-    /** @var float $amountTotalGross */
+    /**
+     * @var float $amountTotalGross
+     *
+     * @deprecated since 1.1.5.0 @see $totalValueGross.
+     */
     protected $amountTotalGross = 0.0;
 
-    /** @var float $amountTotalDiscount */
+    /**
+     * @var float $amountTotalDiscount
+     *
+     * @deprecated since 1.1.5.0 @see Please set $amountDiscountPerUnitGross for each element of $basketItems instead.
+     */
     protected $amountTotalDiscount = 0.0;
 
-    /** @var float $amountTotalVat */
+    /**
+     * @var float $amountTotalVat
+     *
+     * @deprecated since 1.1.5.0  Please set the $vat in percent for each element of $basketItems instead, if not already happened. The actual amount is not required anymore.
+     */
     protected $amountTotalVat = 0.0;
+
+    /** @var float $totalValueGross */
+    protected $totalValueGross = 0.0;
 
     /** @var string $currencyCode */
     protected $currencyCode;
@@ -49,11 +49,13 @@ class Basket extends AbstractUnzerResource
     /** @var string $note */
     protected $note;
 
-    /** @var array $basketItems */
+    /** @var BasketItem[] $basketItems */
     private $basketItems;
 
     /**
      * Basket constructor.
+     *
+     * @deprecated since 1.1.5.0 Please call constructor without parameters and use setter functions instead.
      *
      * @param float  $amountTotalGross
      * @param string $currencyCode
@@ -72,10 +74,10 @@ class Basket extends AbstractUnzerResource
         $this->setBasketItems($basketItems);
     }
 
-    //<editor-fold desc="Getters/Setters">
-
     /**
      * @return float
+     *
+     * @deprecated since 1.1.5.0 @see getTotalValueGross().
      */
     public function getAmountTotalGross(): float
     {
@@ -84,6 +86,8 @@ class Basket extends AbstractUnzerResource
 
     /**
      * @param float $amountTotalGross
+     *
+     * @deprecated since 1.1.5.0 @see setTotalValueGross().
      *
      * @return Basket
      */
@@ -96,6 +100,27 @@ class Basket extends AbstractUnzerResource
     /**
      * @return float
      */
+    public function getTotalValueGross(): float
+    {
+        return $this->totalValueGross;
+    }
+
+    /**
+     * @param float $totalValueGross
+     *
+     * @return Basket
+     */
+    public function setTotalValueGross(float $totalValueGross): Basket
+    {
+        $this->totalValueGross = $totalValueGross;
+        return $this;
+    }
+
+    /**
+     * @return float
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
+     */
     public function getAmountTotalDiscount(): float
     {
         return $this->amountTotalDiscount;
@@ -103,6 +128,8 @@ class Basket extends AbstractUnzerResource
 
     /**
      * @param float $amountTotalDiscount
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
      *
      * @return Basket
      */
@@ -114,6 +141,8 @@ class Basket extends AbstractUnzerResource
 
     /**
      * @return float
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
      */
     public function getAmountTotalVat(): float
     {
@@ -122,6 +151,8 @@ class Basket extends AbstractUnzerResource
 
     /**
      * @param float $amountTotalVat
+     *
+     * @deprecated since 1.1.5.0 Property is redundant and is no longer needed.
      *
      * @return Basket
      */
@@ -171,7 +202,7 @@ class Basket extends AbstractUnzerResource
      *
      * @return Basket
      */
-    public function setNote($note): Basket
+    public function setNote(?string $note): Basket
     {
         $this->note = $note;
         return $this;
@@ -241,14 +272,10 @@ class Basket extends AbstractUnzerResource
      *
      * @return BasketItem|null
      */
-    public function getBasketItemByIndex($index): ?BasketItem
+    public function getBasketItemByIndex(int $index): ?BasketItem
     {
         return $this->basketItems[$index] ?? null;
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable Methods">
 
     /**
      * Add the dynamically set meta data.
@@ -270,6 +297,17 @@ class Basket extends AbstractUnzerResource
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getApiVersion(): string
+    {
+        if (!empty($this->getTotalValueGross())) {
+            return 'v2';
+        }
+        return parent::getApiVersion();
+    }
+
+    /**
      * Returns the key of the last BasketItem in the Array.
      *
      * @return int|string|null
@@ -283,7 +321,7 @@ class Basket extends AbstractUnzerResource
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return 'baskets';
     }
@@ -291,7 +329,7 @@ class Basket extends AbstractUnzerResource
     /**
      * {@inheritDoc}
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 
@@ -305,6 +343,4 @@ class Basket extends AbstractUnzerResource
             $this->setBasketItems($items);
         }
     }
-
-    //</editor-fold>
 }

@@ -1,29 +1,14 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines unit tests to verify functionality of the AbstractUnzerResource.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Resources;
 
 use DateTime;
@@ -83,6 +68,8 @@ class AbstractUnzerResourceTest extends BasePaymentTest
 
         $customer->setFetchedAt(new DateTime('2018-12-03'));
         $this->assertEquals(new DateTime('2018-12-03'), $customer->getFetchedAt());
+
+        $this->assertEquals(Unzer::API_VERSION, $customer->getApiVersion());
     }
 
     /**
@@ -188,7 +175,7 @@ class AbstractUnzerResourceTest extends BasePaymentTest
 
     /**
      * Verify that installment plans use the correct path for fetching. Special case, fetching Instalmentplans contains
-     * hinstallment-secured as parent resource that should appear in resource path.
+     * Installment-secured as parent resource that should appear in resource path.
      *
      * @test
      */
@@ -493,8 +480,8 @@ class AbstractUnzerResourceTest extends BasePaymentTest
             'Webhooks' => [new Webhook(), 'parent/resource/path/webhooks'],
             'Recurring' => [new Recurring('s-crd-123', ''), 'parent/resource/path/types/s-crd-123/recurring'],
             'Payout' => [new Payout(), 'parent/resource/path/payouts'],
-            'PayPage charge' => [new Paypage(123.4567, 'EUR', 'url'), 'parent/resource/path/paypage/charge'],
-            'PayPage authorize' => [(new Paypage(123.4567, 'EUR', 'url'))->setAction(TransactionTypes::AUTHORIZATION), 'parent/resource/path/paypage/authorize'],
+            'PayPage charge' => [new Paypage(123.4567, 'EUR', 'url'), 'parent/resource/path/paypage'],
+            'PayPage authorize' => [(new Paypage(123.4567, 'EUR', 'url'))->setAction(TransactionTypes::AUTHORIZATION), 'parent/resource/path/paypage'],
         ];
     }
 }

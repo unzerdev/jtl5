@@ -1,27 +1,5 @@
 <?php
-/**
- * This represents the customer resource.
- *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\Resources
- */
+
 namespace UnzerSDK\Resources;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
@@ -30,8 +8,15 @@ use UnzerSDK\Resources\EmbeddedResources\Address;
 use UnzerSDK\Resources\EmbeddedResources\CompanyInfo;
 use UnzerSDK\Traits\HasGeoLocation;
 use stdClass;
+
 use function in_array;
 
+/**
+ * This represents the customer resource.
+ *
+ * @link  https://docs.unzer.com/
+ *
+ */
 class Customer extends AbstractUnzerResource
 {
     use HasGeoLocation;
@@ -72,6 +57,9 @@ class Customer extends AbstractUnzerResource
     /** @var CompanyInfo $companyInfo */
     protected $companyInfo;
 
+    /** @var string $language */
+    protected $language;
+
     /**
      * Customer constructor.
      */
@@ -80,8 +68,6 @@ class Customer extends AbstractUnzerResource
         $this->billingAddress = new Address();
         $this->shippingAddress = new Address();
     }
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string|null
@@ -92,11 +78,11 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param string $firstname
+     * @param string|null $firstname
      *
      * @return Customer
      */
-    public function setFirstname($firstname): Customer
+    public function setFirstname(?string $firstname): Customer
     {
         $this->firstname = $firstname;
         return $this;
@@ -111,11 +97,11 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param string $lastname
+     * @param string|null $lastname
      *
      * @return Customer
      */
-    public function setLastname($lastname): Customer
+    public function setLastname(?string $lastname): Customer
     {
         $this->lastname = $lastname;
         return $this;
@@ -130,11 +116,11 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param string $salutation
+     * @param string|null $salutation
      *
      * @return Customer
      */
-    public function setSalutation($salutation): Customer
+    public function setSalutation(?string $salutation): Customer
     {
         $allowedSalutations = [Salutations::MR, Salutations::MRS, Salutations::UNKNOWN];
         $this->salutation = in_array($salutation, $allowedSalutations, true) ? $salutation : Salutations::UNKNOWN;
@@ -150,11 +136,11 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param string $birthday
+     * @param string|null $birthday
      *
      * @return Customer
      */
-    public function setBirthDate($birthday): Customer
+    public function setBirthDate(?string $birthday): Customer
     {
         $this->birthDate = $birthday;
         return $this;
@@ -169,11 +155,11 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param string $company
+     * @param string|null $company
      *
      * @return Customer
      */
-    public function setCompany($company): Customer
+    public function setCompany(?string $company): Customer
     {
         $this->company = $company;
         return $this;
@@ -188,11 +174,11 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param string $email
+     * @param string|null $email
      *
      * @return Customer
      */
-    public function setEmail($email): Customer
+    public function setEmail(?string $email): Customer
     {
         $this->email = $email;
         return $this;
@@ -207,11 +193,11 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param string $phone
+     * @param string|null $phone
      *
      * @return Customer
      */
-    public function setPhone($phone): Customer
+    public function setPhone(?string $phone): Customer
     {
         $this->phone = $phone;
         return $this;
@@ -226,11 +212,11 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param string $mobile
+     * @param string|null $mobile
      *
      * @return Customer
      */
-    public function setMobile($mobile): Customer
+    public function setMobile(?string $mobile): Customer
     {
         $this->mobile = $mobile;
         return $this;
@@ -283,11 +269,11 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param string $customerId
+     * @param string|null $customerId
      *
      * @return Customer
      */
-    public function setCustomerId($customerId): Customer
+    public function setCustomerId(?string $customerId): Customer
     {
         $this->customerId = $customerId;
         return $this;
@@ -302,31 +288,42 @@ class Customer extends AbstractUnzerResource
     }
 
     /**
-     * @param CompanyInfo $companyInfo
+     * @param CompanyInfo|null $companyInfo
      *
      * @return Customer
      */
-    public function setCompanyInfo(CompanyInfo $companyInfo): Customer
+    public function setCompanyInfo(?CompanyInfo $companyInfo): Customer
     {
         $this->companyInfo = $companyInfo;
         return $this;
     }
 
-    //</editor-fold>
+    /**
+     * @return string
+     */
+    public function getLanguage(): string
+    {
+        return $this->language;
+    }
 
-    //<editor-fold desc="Resource IF">
+    /**
+     * @param string|null $language
+     *
+     * @return Customer
+     */
+    public function setLanguage(?string $language): Customer
+    {
+        $this->language = $language;
+        return $this;
+    }
 
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         return 'customers';
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable methods">
 
     /**
      * {@inheritDoc}
@@ -339,14 +336,13 @@ class Customer extends AbstractUnzerResource
     /**
      * {@inheritDoc}
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         if (isset($response->companyInfo) && $this->companyInfo === null) {
             $this->companyInfo = new CompanyInfo();
+            $this->companyInfo->instantiateObjectsFromResponse($response->companyInfo);
         }
 
         parent::handleResponse($response, $method);
     }
-
-    //</editor-fold>
 }

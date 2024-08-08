@@ -1,27 +1,5 @@
 <?php
-/**
- * This service provides for all methods to manage webhooks/events.
- *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\Services
- */
+
 namespace UnzerSDK\Services;
 
 use UnzerSDK\Unzer;
@@ -30,9 +8,16 @@ use UnzerSDK\Interfaces\WebhookServiceInterface;
 use UnzerSDK\Resources\AbstractUnzerResource;
 use UnzerSDK\Resources\Webhook;
 use UnzerSDK\Resources\Webhooks;
-use function is_string;
 use RuntimeException;
 
+use function is_string;
+
+/**
+ * This service provides methods to manage webhooks/events.
+ *
+ * @link  https://docs.unzer.com/
+ *
+ */
 class WebhookService implements WebhookServiceInterface
 {
     /** @var Unzer $unzer */
@@ -51,8 +36,6 @@ class WebhookService implements WebhookServiceInterface
         $this->unzer = $unzer;
         $this->resourceService = $unzer->getResourceService();
     }
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return Unzer
@@ -92,10 +75,6 @@ class WebhookService implements WebhookServiceInterface
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Webhook resource">
-
     /**
      * {@inheritDoc}
      */
@@ -126,7 +105,7 @@ class WebhookService implements WebhookServiceInterface
     /**
      * {@inheritDoc}
      */
-    public function updateWebhook($webhook): Webhook
+    public function updateWebhook(Webhook $webhook): Webhook
     {
         $webhook->setParentResource($this->unzer);
         $this->resourceService->updateResource($webhook);
@@ -146,10 +125,6 @@ class WebhookService implements WebhookServiceInterface
 
         return $this->resourceService->deleteResource($webhookObject);
     }
-
-    //</editor-fold>
-
-    //<editor-fold desc="Webhooks pseudo resource">
 
     /**
      * {@inheritDoc}
@@ -187,14 +162,10 @@ class WebhookService implements WebhookServiceInterface
         return $webhooks->getWebhookList();
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Event handling">
-
     /**
      * {@inheritDoc}
      */
-    public function fetchResourceFromEvent($eventJson = null): AbstractUnzerResource
+    public function fetchResourceFromEvent(string $eventJson = null): AbstractUnzerResource
     {
         $resourceObject = null;
         $eventData = json_decode($eventJson ?? $this->readInputStream(), false);
@@ -221,6 +192,4 @@ class WebhookService implements WebhookServiceInterface
     {
         return file_get_contents('php://input');
     }
-
-    //</editor-fold>
 }

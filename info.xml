@@ -6,15 +6,20 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>1.0.2</Version>
+    <Version>1.6.1</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
-    <ExsID>eef84f33-97ff-4519-8e0f-6760ae06c51f</ExsID>
 
     <Install>
         <Adminmenu>
             <Customlink sort="10">
                 <Name><![CDATA[Bestellungen]]></Name>
+            </Customlink>
+            <Customlink sort="15">
+                <Name><![CDATA[Apple Pay]]></Name>
+            </Customlink>
+            <Customlink sort="17">
+                <Name><![CDATA[Key Pairs]]></Name>
             </Customlink>
             <Customlink sort="20">
                 <Name><![CDATA[Einstellungen]]></Name>
@@ -75,6 +80,55 @@
         </FrontendLink>
 
         <Locales>
+            <Variable>
+                <Name>s360_hp_cancel_payment_reference</Name>
+                <Description>
+                    <![CDATA[Die Referenz, die dem Kunden bei einer Stornierung/Rückerstattung auf seinem Kontoauszug angezeigt wird]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Stornierung der Bestellung %ORDER_ID% bei %SHOPNAME%]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Cancellation of the order %ORDER_ID% from %SHOPNAME%]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_apple_pay_not_supported</Name>
+                <Description>
+                    <![CDATA[Fehler falls Apple Pay vom Gerät nicht unterstützt wird]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Apple Pay steht auf diesem Gerät nicht zur Verfügung!]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[This device does not support Apple Pay!]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_apple_pay_cancel_by_user</Name>
+                <Description>
+                    <![CDATA[Fehler falls Apple Pay vom Kunden abgebrochen wird]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Zahlungsvorgang wurde vom Benutzer abgebrochen!]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Canceled payment process by user!]]>
+                </VariableLocalized>
+            </Variable>
+
+            <Variable>
+                <Name>s360_hp_error_validating_merchant</Name>
+                <Description>
+                    <![CDATA[Fehler bei Apple Pay Händler Validierung]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Es ist ein Fehler bei der Validierung des Händlers aufgetreten. Bitte versuchen Sie es später noch einmal.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[There has been an error validating the merchant. Please try again later.]]>
+                </VariableLocalized>
+            </Variable>
             <Variable>
                 <Name>s360_hp_invalid_form_token</Name>
                 <Description>
@@ -237,6 +291,18 @@
                     <![CDATA[Your basket has changed. Please try again.]]>
                 </VariableLocalized>
             </Variable>
+            <Variable>
+                <Name>s360_hp_instalment_info</Name>
+                <Description>
+                    <![CDATA[Hinweistext, dass sich die Gesamtsumme von der zu zahlenden Summe unterscheidet aufgrund des gewählten Ratenzahlungsplans.]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[<strong>Hinweis:</strong> Die angegebene Gesamtsumme unterscheidet sich von dem zu zahlenden Betrag. Den zu zahlenden Betrag entnehmen Sie bitte ihrem Ratenzahlungsplan.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[<strong>Note:</strong> The total amount shown differs from the amount to be paid. Please refer to your instalment plan for the amount to be paid.]]>
+                </VariableLocalized>
+            </Variable>
         </Locales>
 
         <PaymentMethod>
@@ -280,13 +346,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/sepa_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Unzer Lastschrift]]></Name>
-                    <ChargeName><![CDATA[Unzer Lastschrift]]></ChargeName>
+                    <Name><![CDATA[SEPA Lastschrift]]></Name>
+                    <ChargeName><![CDATA[SEPA Lastschrift]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Unzer Direct Debit]]></Name>
-                    <ChargeName><![CDATA[Unzer Direct Debit]]></ChargeName>
+                    <Name><![CDATA[SEPA Direct Debit]]></Name>
+                    <ChargeName><![CDATA[SEPA Direct Debit]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -305,13 +371,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/sepa_guaranteed_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Unzer Lastschrift]]></Name>
-                    <ChargeName><![CDATA[Unzer Lastschrift]]></ChargeName>
+                    <Name><![CDATA[(Veraltet) Lastschrift Gesichert]]></Name>
+                    <ChargeName><![CDATA[(Veraltet) Lastschrift Gesichert]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Unzer Direct Debit]]></Name>
-                    <ChargeName><![CDATA[Unzer Direct Debit]]></ChargeName>
+                    <Name><![CDATA[(Deprecated) Direct Debit Secured]]></Name>
+                    <ChargeName><![CDATA[(Deprecated) Direct Debit Secured]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -330,13 +396,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/invoice_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Unzer Rechnung]]></Name>
-                    <ChargeName><![CDATA[Unzer Rechnung]]></ChargeName>
+                    <Name><![CDATA[(Veraltet) Rechnungskauf]]></Name>
+                    <ChargeName><![CDATA[(Veraltet) Rechnungskauf]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Unzer Invoice]]></Name>
-                    <ChargeName><![CDATA[Unzer Invoice]]></ChargeName>
+                    <Name><![CDATA[(Deprecated) Invoice]]></Name>
+                    <ChargeName><![CDATA[(Deprecated) Invoice]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -355,13 +421,38 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/invoice_guaranteed_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Unzer Rechnung]]></Name>
-                    <ChargeName><![CDATA[Unzer Rechnung]]></ChargeName>
+                    <Name><![CDATA[(Veraltet) Rechnungskauf Gesichert]]></Name>
+                    <ChargeName><![CDATA[(Veraltet) Rechnungskauf Gesichert]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Unzer Invoice]]></Name>
-                    <ChargeName><![CDATA[Unzer Invoice]]></ChargeName>
+                    <Name><![CDATA[(Deprecated) Invoice Secured]]></Name>
+                    <ChargeName><![CDATA[(Deprecated) Invoice Secured]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Rechnung (Jetzt kaufen, Später bezahlen)]]></Name>
+                <Sort>0</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>INVOICE</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerPaylaterInvoice.php</ClassFile>
+                <ClassName>UnzerPaylaterInvoice</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/paylater_invoice_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Rechnungskauf]]></Name>
+                    <ChargeName><![CDATA[Rechnungskauf]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Invoice]]></Name>
+                    <ChargeName><![CDATA[Invoice]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -455,13 +546,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/giropay_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Giropay]]></Name>
-                    <ChargeName><![CDATA[Giropay]]></ChargeName>
+                    <Name><![CDATA[(Veraltet) Giropay]]></Name>
+                    <ChargeName><![CDATA[(Veraltet) Giropay]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[Giropay]]></Name>
-                    <ChargeName><![CDATA[Giropay]]></ChargeName>
+                    <Name><![CDATA[(Deprecated) Giropay]]></Name>
+                    <ChargeName><![CDATA[(Deprecated) Giropay]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>
@@ -671,6 +762,276 @@
                     </Description>
                     <ValueName>effectiveInterest</ValueName>
                 </Setting>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Apple Pay]]></Name>
+                <Sort>10</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerApplePay.php</ClassFile>
+                <ClassName>UnzerApplePay</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/applepay.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Apple Pay]]></Name>
+                    <ChargeName><![CDATA[Apple Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Apple Pay]]></Name>
+                    <ChargeName><![CDATA[Apple Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Bancontact]]></Name>
+                <Sort>20</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerBancontact.php</ClassFile>
+                <ClassName>UnzerBancontact</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/bancontact_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Unzer Bancontact]]></Name>
+                    <ChargeName><![CDATA[Unzer Bancontact]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Unzer Bancontact]]></Name>
+                    <ChargeName><![CDATA[Unzer Bancontact]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Ratenzahlung (Paylater)]]></Name>
+                <Sort>30</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerPaylaterInstallment.php</ClassFile>
+                <ClassName>UnzerPaylaterInstallment</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/paylater_installment_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Ratenkauf]]></Name>
+                    <ChargeName><![CDATA[Ratenkauf]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Installment]]></Name>
+                    <ChargeName><![CDATA[Installment]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Lastschrift (Paylater)]]></Name>
+                <Sort>40</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerPaylaterDirectDebit.php</ClassFile>
+                <ClassName>UnzerPaylaterDirectDebit</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/paylater_direct_debit_form.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Lastschrift]]></Name>
+                    <ChargeName><![CDATA[Lastschrift]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Direct Debit]]></Name>
+                    <ChargeName><![CDATA[Direct Debit]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+            <Method>
+                <Name><![CDATA[Unzer Google Pay]]></Name>
+                <Sort>50</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerGooglePay.php</ClassFile>
+                <ClassName>UnzerGooglePay</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/google_pay.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Google Pay]]></Name>
+                    <ChargeName><![CDATA[Google Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Google Pay]]></Name>
+                    <ChargeName><![CDATA[Google Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <!-- <Setting type="text" initialValue="" sort="0" conf="N">
+                    <Name><![CDATA[Allgmein]]></Name>
+                    <ValueName>general</ValueName>
+                </Setting> -->
+
+                <Setting type="selectbox" initialValue="charge" sort="10" conf="Y">
+                    <Name><![CDATA[Buchungsmodus]]></Name>
+                    <ValueName>booking_mode</ValueName>
+                    <SelectboxOptions>
+                        <Option value="authorize" sort="1">Authorisierung</Option>
+                        <Option value="charge" sort="2">Erfassen</Option>
+                    </SelectboxOptions>
+                </Setting>
+                <Setting type="text" initialValue="" sort="20" conf="Y">
+                    <Name><![CDATA[Gateway Merchant ID]]></Name>
+                    <Description>
+                        <![CDATA[Die von Unzer bereitgestellte Kanal-ID (wird automatisch geladen, falls nicht angegeben)]]>
+                    </Description>
+                    <ValueName>gateway_merchant_id</ValueName>
+                </Setting>
+                <Setting type="text" initialValue="" sort="21" conf="Y">
+                    <Name><![CDATA[Händler ID]]></Name>
+                    <Description>
+                        <![CDATA[Wird von Google im Feld "Händlerinformationen" bereitgestellt]]>
+                    </Description>
+                    <ValueName>merchant_id</ValueName>
+                </Setting>
+                <Setting type="text" initialValue="" sort="22" conf="Y">
+                    <Name><![CDATA[Händler Name]]></Name>
+                    <Description>
+                        <![CDATA[Wird von Google im Feld "Händlerinformationen" bereitgestellt]]>
+                    </Description>
+                    <ValueName>merchant_name</ValueName>
+                </Setting>
+                <Setting type="selectbox" initialValue="DK" sort="23" conf="Y">
+                    <Name><![CDATA[Ländercode]]></Name>
+                    <Description>
+                        <![CDATA[Der Ländercode des Erwerbers (Standard: DK)]]>
+                    </Description>
+                    <SelectboxOptions>
+                        <Option value="DK" sort="1">DK</Option>
+                        <Option value="CH" sort="2">CH</Option>
+                    </SelectboxOptions>
+                    <ValueName>country_code</ValueName>
+                </Setting>
+
+                <!-- <Setting type="text" initialValue="" sort="30" conf="N">
+                    <Name><![CDATA[Kreditkarten]]></Name>
+                    <ValueName>settings_credit_cards</ValueName>
+                </Setting> -->
+                <Setting type="selectbox" initialValue="Y" sort="31" conf="Y">
+                    <Name><![CDATA[Kreditkarten zulassen]]></Name>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
+                    </SelectboxOptions>
+                    <ValueName>allow_credit_cards</ValueName>
+                </Setting>
+                <Setting type="selectbox" initialValue="Y" sort="32" conf="Y">
+                    <Name><![CDATA[Prepaid-Karten zulassen]]></Name>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
+                    </SelectboxOptions>
+                    <ValueName>allow_prepaid_cards</ValueName>
+                </Setting>
+                <Setting type="selectbox" initialValue="Y" sort="33" conf="Y">
+                    <Name><![CDATA[Mastercard akzeptieren]]></Name>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
+                    </SelectboxOptions>
+                    <ValueName>accept_mastercard</ValueName>
+                </Setting>
+                <Setting type="selectbox" initialValue="Y" sort="34" conf="Y">
+                    <Name><![CDATA[VISA akzeptieren]]></Name>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
+                    </SelectboxOptions>
+                    <ValueName>accept_visa</ValueName>
+                </Setting>
+                <!-- <Setting type="selectbox" initialValue="Y" sort="35" conf="Y">
+                    <Name><![CDATA[Discover akzeptieren]]></Name>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
+                    </SelectboxOptions>
+                    <ValueName>accept_discover</ValueName>
+                </Setting>
+                <Setting type="selectbox" initialValue="Y" sort="36" conf="Y">
+                    <Name><![CDATA[JCB akzeptieren]]></Name>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
+                    </SelectboxOptions>
+                    <ValueName>accept_jcb</ValueName>
+                </Setting> -->
+                <!-- <Setting type="text" initialValue="" sort="40" conf="N">
+                    <Name><![CDATA[Google Button]]></Name>
+                    <ValueName>settings_google_btn</ValueName>
+                </Setting> -->
+                <Setting type="selectbox" initialValue="default" sort="41" conf="Y">
+                    <Name><![CDATA[Button Farbe]]></Name>
+                    <ValueName>btn_color</ValueName>
+                    <SelectboxOptions>
+                        <Option value="default" sort="1">Standard</Option>
+                        <Option value="black" sort="2">Schwarz</Option>
+                        <Option value="white" sort="3">Weiß</Option>
+                    </SelectboxOptions>
+                </Setting>
+                <Setting type="selectbox" initialValue="static" sort="42" conf="Y">
+                    <Name><![CDATA[Button Größe]]></Name>
+                    <ValueName>btn_size</ValueName>
+                    <SelectboxOptions>
+                        <Option value="static" sort="1">Fest</Option>
+                        <Option value="fill" sort="2">Ausfüllen</Option>
+                    </SelectboxOptions>
+                </Setting>
+            </Method>
+
+            <Method>
+                <Name><![CDATA[Unzer TWINT]]></Name>
+                <Sort>60</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerTwint.php</ClassFile>
+                <ClassName>UnzerTwint</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/twint.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[TWINT]]></Name>
+                    <ChargeName><![CDATA[TWINT]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[TWINT]]></Name>
+                    <ChargeName><![CDATA[TWINT]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
             </Method>
         </PaymentMethod>
     </Install>

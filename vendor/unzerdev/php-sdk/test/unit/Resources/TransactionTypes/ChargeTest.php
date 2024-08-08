@@ -1,29 +1,14 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines unit tests to verify functionality of the Authorization transaction type.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Resources\TransactionTypes;
 
 use UnzerSDK\Constants\RecurrenceTypes;
@@ -80,18 +65,16 @@ class ChargeTest extends BasePaymentTest
     }
 
     /**
-     * Setting recurrence type without a payment type Should raise Exception.
+     * Setting recurrence type without a payment type does not raise exception.
      *
      * @test
      */
-    public function SetRecurrenceTypeShouldRaiseExceptionWOPaymentType()
+    public function recurrenceTypeCanBeSetWithoutTypeParameter()
     {
         $charge = new Charge();
 
         $this->assertEmpty($charge->getAdditionalTransactionData());
         $this->assertEmpty($charge->getRecurrenceType());
-        $this->expectException(RuntimeException::class);
-        $this->expectExceptionMessage('Payment type can not be determined. Set it first or provide it via parameter $paymentType.');
 
         $charge->setRecurrenceType(RecurrenceTypes::ONE_CLICK);
     }
@@ -136,6 +119,28 @@ class ChargeTest extends BasePaymentTest
         $this->assertEquals('COBADEFFXXX', $charge->getBic());
         $this->assertEquals('Merchant Khang', $charge->getHolder());
         $this->assertEquals('4065.6865.6416', $charge->getDescriptor());
+    }
+
+    /**
+     * Verify response with empty account data can be handled.
+     *
+     * @test
+     */
+    public function verifyResponseWithEmptyAccountDataCanBeHandled()
+    {
+        $charge = new Charge();
+
+        $testResponse = new stdClass();
+        $testResponse->Iban = '';
+        $testResponse->Bic = '';
+        $testResponse->Holder = '';
+        $testResponse->Descriptor = '';
+
+        $charge->handleResponse($testResponse);
+        $this->assertNull($charge->getIban());
+        $this->assertNull($charge->getBic());
+        $this->assertNull($charge->getHolder());
+        $this->assertNull($charge->getDescriptor());
     }
 
     /**
@@ -211,11 +216,19 @@ class ChargeTest extends BasePaymentTest
         $charge = new Charge(123.4, 'myCurrency', 'https://my-return-url.test');
         $this->assertEquals(0.0, $charge->getCancelledAmount());
 
-        $cancellation1 = new Cancellation(10.0);
+        $cancellationJson = '{
+            "type": "cancel-charge",
+            "status": "success",
+            "amount": "10"
+        }';
+
+        $cancellation1 = new Cancellation();
+        $cancellation1->handleResponse(json_decode($cancellationJson));
         $charge->addCancellation($cancellation1);
         $this->assertEquals(10.0, $charge->getCancelledAmount());
 
-        $cancellation2 = new Cancellation(10.0);
+        $cancellation2 = new Cancellation();
+        $cancellation2->handleResponse(json_decode($cancellationJson));
         $charge->addCancellation($cancellation2);
         $this->assertEquals(20.0, $charge->getCancelledAmount());
     }

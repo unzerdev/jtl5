@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
+use JTL\Cart\Cart;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -22,6 +24,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
  * The payer himself only needs to provide credentials for logging into his online banking account
  * and authorize the payment transfer by his designated OTP-device - most likely via sms TAN.
  *
+ * @deprecated
  * @see https://docs.heidelpay.com/docs/flexipay-direct
  */
 class HeidelpayFlexiPayDirect extends HeidelpayPaymentMethod implements RedirectPaymentInterface
@@ -42,14 +45,36 @@ class HeidelpayFlexiPayDirect extends HeidelpayPaymentMethod implements Redirect
             $customer = $this->adapter->getApi()->updateCustomer($customer);
         }
 
-        return $this->adapter->getApi()->charge(
+        $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->cISO,
+            $order->Waehrung->getCode(),
+            $this->getReturnURL($order)
+        );
+        $charge->setOrderId($order->cBestellNr ?? null);
+
+        return $this->adapter->getApi()->performCharge(
+            $charge,
             $payment->getId(),
-            $this->getReturnURL($order),
             $customer,
-            $order->cBestellNr ?? null,
             $this->createMetadata()
         );
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isValid(object $customer, Cart $cart): bool
+    {
+        //! Note: Payment Method is deprecated -> should not be used anymore
+        return false;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function isSelectable(): bool
+    {
+        //! Note: Payment Method is deprecated -> should not be used anymore
+        return false;
     }
 }

@@ -1,29 +1,8 @@
 <?php
-/**
- * This represents the Recurring resource.
- *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\Resources
- */
+
 namespace UnzerSDK\Resources;
 
+use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Traits\HasAdditionalTransactionData;
 use UnzerSDK\Traits\HasCustomerMessage;
 use UnzerSDK\Traits\HasDate;
@@ -31,6 +10,12 @@ use UnzerSDK\Traits\HasRecurrenceType;
 use UnzerSDK\Traits\HasStates;
 use UnzerSDK\Traits\HasUniqueAndShortId;
 
+/**
+ * This represents the Recurring resource.
+ *
+ * @link  https://docs.unzer.com/
+ *
+ */
 class Recurring extends AbstractUnzerResource
 {
     use HasStates;
@@ -58,8 +43,6 @@ class Recurring extends AbstractUnzerResource
         $this->returnUrl     = $returnUrl;
         $this->paymentTypeId = $paymentType;
     }
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string
@@ -112,20 +95,16 @@ class Recurring extends AbstractUnzerResource
      *
      * @return Recurring
      */
-    protected function setRedirectUrl($redirectUrl): Recurring
+    protected function setRedirectUrl(?string $redirectUrl): Recurring
     {
         $this->redirectUrl = $redirectUrl;
         return $this;
     }
 
-    //</editor-fold>
-
-    //<editor-fold desc="Overridable Methods">
-
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         $parts = [
             'types',
@@ -135,6 +114,4 @@ class Recurring extends AbstractUnzerResource
 
         return implode('/', $parts);
     }
-
-    //</editor-fold>
 }

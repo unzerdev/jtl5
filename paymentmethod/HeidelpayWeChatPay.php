@@ -1,8 +1,10 @@
 <?php
+
 declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
+use JTL\Checkout\Bestellung;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -26,26 +28,45 @@ class HeidelpayWeChatPay extends HeidelpayPaymentMethod implements RedirectPayme
     use HasMetadata;
     use HasCustomer;
 
+    protected function getAllowedCountries(): array
+    {
+        return ['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'ES', 'GB', 'GR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LU', 'MT', 'NL', 'NO', 'PT', 'SE'];
+    }
+
+    protected function getAllowedCurrencies(): array
+    {
+        return ['CHF', 'CNY', 'EUR', 'GBP', 'USD'];
+    }
+
     /**
      * @inheritDoc
      * @return AbstractTransactionType|Charge
      */
-    protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
+    protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
         // Create / Update existing customer resource if needed
         $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+        $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
+        $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
+        $customer->setCompanyInfo(null);
+        $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         if ($customer->getId()) {
-            $customer = $this->adapter->getApi()->updateCustomer($customer);
+            $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
+            $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
-        return $this->adapter->getApi()->charge(
+        $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->cISO,
+            $order->Waehrung->getCode(),
+            $this->getReturnURL($order)
+        );
+        $charge->setOrderId($order->cBestellNr ?? null);
+
+        return $this->adapter->getCurrentConnection()->performCharge(
+            $charge,
             $payment->getId(),
-            $this->getReturnURL($order),
             $customer,
-            $order->cBestellNr ?? null,
             $this->createMetadata()
         );
     }

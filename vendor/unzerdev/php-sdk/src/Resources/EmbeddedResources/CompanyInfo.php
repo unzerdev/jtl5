@@ -1,33 +1,19 @@
 <?php
-/**
- * Company info class for B2B customer classes.
- *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\Resources\EmbeddedResources
- */
+
 namespace UnzerSDK\Resources\EmbeddedResources;
 
 use UnzerSDK\Constants\CompanyCommercialSectorItems;
 use UnzerSDK\Resources\AbstractUnzerResource;
+use stdClass;
+
 use function is_string;
 
+/**
+ * Company info class for B2B customer classes.
+ *
+ * @link  https://docs.unzer.com/
+ *
+ */
 class CompanyInfo extends AbstractUnzerResource
 {
     /** @var string $registrationType */
@@ -42,7 +28,11 @@ class CompanyInfo extends AbstractUnzerResource
     /** @var string $commercialSector */
     protected $commercialSector = CompanyCommercialSectorItems::OTHER;
 
-    //<editor-fold desc="Getters/Setters">
+    /** @var string|null $companyType */
+    protected $companyType;
+
+    /** @var CompanyOwner|null $owner */
+    protected $owner;
 
     /**
      * @return string|null
@@ -57,7 +47,7 @@ class CompanyInfo extends AbstractUnzerResource
      *
      * @return CompanyInfo
      */
-    public function setRegistrationType($registrationType): CompanyInfo
+    public function setRegistrationType(?string $registrationType): CompanyInfo
     {
         $this->registrationType = $this->removeRestrictedSymbols($registrationType);
         return $this;
@@ -76,7 +66,7 @@ class CompanyInfo extends AbstractUnzerResource
      *
      * @return CompanyInfo
      */
-    public function setCommercialRegisterNumber($commercialRegisterNumber): CompanyInfo
+    public function setCommercialRegisterNumber(?string $commercialRegisterNumber): CompanyInfo
     {
         $this->commercialRegisterNumber = empty($commercialRegisterNumber) ?
             $commercialRegisterNumber : $this->removeRestrictedSymbols($commercialRegisterNumber);
@@ -96,7 +86,7 @@ class CompanyInfo extends AbstractUnzerResource
      *
      * @return CompanyInfo
      */
-    public function setFunction($function): CompanyInfo
+    public function setFunction(?string $function): CompanyInfo
     {
         $this->function = $this->removeRestrictedSymbols($function);
         return $this;
@@ -121,9 +111,57 @@ class CompanyInfo extends AbstractUnzerResource
         return $this;
     }
 
-    //</editor-fold>
+    /**
+     * @return string|null
+     */
+    public function getCompanyType(): ?string
+    {
+        return $this->companyType;
+    }
 
-    //<editor-fold desc="Helpers">
+    /**
+     * @param string|null $companyType
+     *
+     * @return CompanyInfo
+     */
+    public function setCompanyType(?string $companyType): CompanyInfo
+    {
+        $this->companyType = $companyType;
+        return $this;
+    }
+
+    /**
+     * @return CompanyOwner|null
+     */
+    public function getOwner(): ?CompanyOwner
+    {
+        return $this->owner;
+    }
+
+    /**
+     * @param CompanyOwner|null $owner
+     *
+     * @return CompanyInfo
+     */
+    public function setOwner(?CompanyOwner $owner): CompanyInfo
+    {
+        $this->owner = $owner;
+        return $this;
+    }
+
+    /**
+     * Create instances of necessary properties to handle API responses.
+     *
+     * @param stdClass $response
+     *
+     * @return void
+     */
+    public function instantiateObjectsFromResponse(stdClass $response): void
+    {
+        if (isset($response->owner) && $this->owner === null) {
+            $this->owner = new CompanyOwner();
+        }
+    }
 
     /**
      * Removes some restricted symbols from the given value.
@@ -132,7 +170,7 @@ class CompanyInfo extends AbstractUnzerResource
      *
      * @return mixed
      */
-    private function removeRestrictedSymbols($value)
+    private function removeRestrictedSymbols(?string $value)
     {
         if (!is_string($value)) {
             return $value;
@@ -140,6 +178,4 @@ class CompanyInfo extends AbstractUnzerResource
 
         return str_replace(['<', '>'], '', $value);
     }
-
-    //</editor-fold>
 }

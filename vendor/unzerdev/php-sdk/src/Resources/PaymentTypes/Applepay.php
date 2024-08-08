@@ -1,27 +1,5 @@
 <?php
-/**
- * This represents the Applepay payment type.
- *
- * Copyright (C) 2021 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @link  https://docs.unzer.com/
- *
- * @author  David Owusu <development@unzer.com>
- *
- * @package  UnzerSDK\PaymentTypes
- */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use stdClass;
@@ -29,13 +7,11 @@ use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Resources\EmbeddedResources\ApplePayHeader;
 use UnzerSDK\Traits\CanAuthorize;
 use UnzerSDK\Traits\CanDirectCharge;
-use UnzerSDK\Traits\HasGeoLocation;
 
 class Applepay extends BasePaymentType
 {
     use CanDirectCharge;
     use CanAuthorize;
-    use HasGeoLocation;
 
     /** @var string|null $applicationExpirationDate */
     private $applicationExpirationDate;
@@ -65,7 +41,7 @@ class Applepay extends BasePaymentType
     protected $header;
 
     /**
-     * ApplePay constructor.
+     * Apple Pay constructor.
      *
      * @param string|null         $version
      * @param string|null         $data
@@ -83,8 +59,6 @@ class Applepay extends BasePaymentType
         $this->signature = $signature;
         $this->header = $header;
     }
-
-    //<editor-fold desc="Getters/Setters"
 
     /**
      * @return string|null
@@ -257,12 +231,10 @@ class Applepay extends BasePaymentType
         return $this;
     }
 
-    //</editor-fold>
-
     /**
      * @inheritDoc
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 

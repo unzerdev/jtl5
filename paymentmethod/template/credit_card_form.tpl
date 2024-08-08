@@ -15,11 +15,15 @@
             </div>
         </div>
     </div>
+    <div class="field">
+        <div id="card-element-id-holder" class="unzerInput">
+        </div>
+    </div>
 </div>
 
 <script>
 $(document).ready(function() {
-    var HpPayment = new window.HpPayment('{$hpPayment.config.publicKey}', window.HpPayment.PAYMENT_TYPES.CARD, {
+    var HpPayment = new window.HpPayment('{$hpPayment.publicKey}', window.HpPayment.PAYMENT_TYPES.CARD, {
         submitButton: $('{if $hpPayment.config.selectorSubmitButton}{$hpPayment.config.selectorSubmitButton}{else}#form_payment_extra .submit, #form_payment_extra .submit_once{/if}').get(0),
         locale: '{$hpPayment.locale}',
         {if $hpPayment.styling}

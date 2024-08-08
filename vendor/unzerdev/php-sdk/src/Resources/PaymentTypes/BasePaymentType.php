@@ -1,34 +1,24 @@
 <?php
-/**
- * This defines a base class for all payment types e.g. Card, GiroPay, etc.
- *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\PaymentTypes
- */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
 use UnzerSDK\Resources\AbstractUnzerResource;
+use UnzerSDK\Traits\HasGeoLocation;
 
+/**
+ * This represents a payment type.
+ *
+ * @link  https://docs.unzer.com/
+ *
+ */
 abstract class BasePaymentType extends AbstractUnzerResource
 {
+    use HasGeoLocation;
+
+    /** @var bool  */
+    protected const SUPPORT_DIRECT_PAYMENT_CANCEL = false;
+
     /**
      * Return true for invoice types.
      * This enables you to handle the invoice workflow correctly.
@@ -43,12 +33,15 @@ abstract class BasePaymentType extends AbstractUnzerResource
         return false;
     }
 
-    //<editor-fold desc="Overridable Methods">
+    public function supportsDirectPaymentCancel(): bool
+    {
+        return static::SUPPORT_DIRECT_PAYMENT_CANCEL;
+    }
 
     /**
      * {@inheritDoc}
      */
-    protected function getResourcePath($httpMethod = HttpAdapterInterface::REQUEST_GET): string
+    protected function getResourcePath(string $httpMethod = HttpAdapterInterface::REQUEST_GET): string
     {
         $path = 'types';
         if ($httpMethod !== HttpAdapterInterface::REQUEST_GET || $this->id === null) {
@@ -68,6 +61,4 @@ abstract class BasePaymentType extends AbstractUnzerResource
     {
         return [];
     }
-
-    //</editor-fold>
 }

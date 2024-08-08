@@ -3,6 +3,134 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.6.1] (August 2024)
+### Added
+- added "Card Holder" field to credit cards to comply with the visa card payment changes (https://docs.unzer.com/news/articles/visa-mandatory-field-updates-2024/)
+- added Customer Address to all customer objects
+
+## [1.6.0] (July 2024)
+### Added
+- add **TWINT** payment method
+- updated Unzer PHP SDK to 3.7.0
+
+## [1.5.3] (July 2024)
+### Changed
+- deactivate **Giropay** payment method, as GiroPay has discontinued the service
+
+## [1.5.2] (June 2024)
+### Added
+- added acquirer country code setting to Google Pay
+
+### Removed
+- removed "Discover" and "JCB" from supported card networks for Google Pay
+
+## [1.5.1] (June 2024)
+### Fixed
+- fixed error handling / error messages when deleting or saving an invalid key pair
+
+## [1.5.0] (May 2024)
+### Added
+- added new payment method **Google Pay**
+
+## [1.4.2] (May 2024)
+### Changed
+- only show the payment methods for their supported countries and currencies. This affects the following payment methods: *Alipay*, *EPS*, *Giropay*, *Prepayment*, *Przelewy24*, *SEPA Direct Debit*, *Direct Debit*, *SOFORT*, *WeChat Pay*, *iDEAL*, *Bancontact*, *Installment*, *Invoice*
+
+## [1.4.1] (April 2024)
+### Changed
+- reduce Unzer UI Component fields if they are already filled by the shop
+- Unzer Direct Debit only available for EUR
+
+### Fixed
+- Validation of the Unzer UI Components
+- use correct currency factor for instalments
+
+## [1.4.0] (April 2024)
+### Added
+- New Payment Method **Unzer Direct Debit**
+- Missing Translations
+
+### Fixed
+- prefill birthday field if alreay set by shop
+- fixed issue with unzer ui component validation
+- fixed issue with session new being cleared correctly when changing shipping/billing address in the checkout
+
+### Changed
+- updated payment and system requirements in the documenation
+
+## [1.3.2] (January 2024)
+### Fixed:
+- Fixed issue with API Call in Settings after fresh install
+
+## [1.3.1] (January 2024)
+### Added
+- Added Key Pair Management
+- Added new payment method **Unzer Instalment**
+- Added support for PHP 8.2 und PHP 8.3
+- Added improved error handling for api errors
+
+## Changed
+- updated Unzer SDK
+- highlight deprecated payment methods
+
+
+## [1.3.0] (August 2023)
+### Added
+- Added LICENSE and NOTICE
+
+### Changed
+- Changed Payment Method name from Unzer Invoice to Unzer Invoice (Paylater)
+
+### Fixed
+- Clear Plugin Session on the order status page in case that a user aborted its payment process
+
+### Removed
+- Removed deprecated Payment Method **Unzer Instalment**/**Unzer Ratenkauf**
+- Removed deprecated Payment Method **Unzer Bank Transfer**/**Unzer Direktüberweisung**
+
+## [1.2.1] (February 2023)
+### Added
+- Added compatability for **JTL 5.2 and PHP 8.1**
+- Added debug logs for the shipping API call
+- Added Reference Text for cancellations
+
+## Changed
+- Show Invoice ID in Order Detail only if either local invoice id or invoice id from the API response is available
+- Hide Unzer Insight Portal Button as the correct link to the order cannot be determined reliably
+
+### Fixed
+- Locale Mapping for Unzer UI Component
+- Fixed unzer applepay debugging when in sandbox mode
+- Fixed issue with submit button staying disabled on invalid input on the additional checkout step
+- Fixed rounding issue in total gross amount API field
+
+## [1.2.0] (November 2022)
+### Added
+- Added Bancontact as payment method
+- Added Unzer Rechnung (Buy Now, Pay Later) as payment method
+- Added option to disable automatic setting of incoming payments
+
+### Changed
+- Unzer SDK version updated to 1.2.0.0
+
+## [1.1.0] (July 2022)
+### Added
+- Added company info to customer object
+- Added verification and notification if frontend URLs have changed due to JTL/plugin updates and how to correct them
+- Added VAT amount to shopping cart object
+- Added ApplePay payment method
+
+### Changed
+- Unzer SDK version updated to 1.1.4.2
+- Remove default value for payment method selection, as the NOVA theme already has a back button in the additional payment step.
+
+### Fixed
+- Fixed an issue with instalments sending incorrect/temporary order numbers to Unzer
+- Fixed an unhandled error when retrieving refunds in the backend
+- Fixed problem with umlauts in intermediate payment step encoded with HTML entities instead of UTF-8
+- Fixed problem with cancelling Invoice (Secured) orders before they are completed
+- Fixed problem with wrong order number in order confirmation emails
+
 ## [1.0.2] (March 2022)
 ### Added
 - add minimum customer info (name and email) to all payments
@@ -16,6 +144,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - fix issue with -0.0 beeing interpreted as negative in the unzer api
 - potential fix for mismatch of order ids between the unzer insight portal and the shop
 - error in the placeholder of the public key setting in the backend
+
 
 ## [1.0.1] (November 2021)
 ### Added
@@ -31,7 +160,3 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 ## [1.0.0] (July 2021)
 ### Added
 - Initial Release
-
-[1.0.2]: https://github.com/unzerdev/jtl5/compare/1.0.1...1.0.2
-[1.0.1]: https://github.com/unzerdev/jtl5/compare/1.0.0...1.0.1
-[1.0.0]: https://github.com/unzerdev/jtl5

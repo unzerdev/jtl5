@@ -1,34 +1,20 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class is the base class for all tests of this SDK.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test;
 
 use DateInterval;
 use DateTime;
-use UnzerSDK\Unzer;
+use PHPUnit\Framework\TestCase;
+use RuntimeException;
 use UnzerSDK\Resources\Basket;
 use UnzerSDK\Resources\EmbeddedResources\BasketItem;
 use UnzerSDK\Resources\Payment;
@@ -40,14 +26,13 @@ use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\test\Fixtures\CustomerFixtureTrait;
-use PHPUnit\Framework\TestCase;
-use RuntimeException;
+use UnzerSDK\Unzer;
 
 class BasePaymentTest extends TestCase
 {
-    protected const RETURN_URL = 'https://dev.unzer.com';
-
     use CustomerFixtureTrait;
+    protected const RETURN_URL = 'https://dev.unzer.com';
+    public const API_VERSION_2 = 'v2';
 
     /** @var Unzer $unzer */
     protected $unzer;
@@ -200,13 +185,35 @@ class BasePaymentTest extends TestCase
     }
 
     /**
+     * Creates a v2 Basket resource and returns it.
+     *
+     * @return Basket
+     */
+    public function createV2Basket(): Basket
+    {
+        $orderId = 'b' . self::generateRandomId();
+        $basket = new Basket($orderId);
+        $basket->setTotalValueGross(99.99)
+            ->setCurrencyCode('EUR');
+
+        $basketItem = (new BasketItem())
+            ->setAmountPerUnitGross(99.99)
+            ->setQuantity(1)
+            ->setBasketItemReferenceId('item1')
+            ->setTitle('title');
+        $basket->addBasketItem($basketItem);
+        $this->unzer->createBasket($basket);
+        return $basket;
+    }
+
+    /**
      * Creates a Card object for tests.
      *
      * @param string $cardNumber
      *
      * @return Card
      */
-    protected function createCardObject(string $cardNumber = '5453010000059543'): Card
+    protected function createCardObject(string $cardNumber = '4711100000000000'): Card
     {
         $expiryDate = $this->getNextYearsTimestamp()->format('m/Y');
         $card = new Card($cardNumber, $expiryDate);

@@ -2,32 +2,18 @@
 /**
  * This represents the SEPA direct debit secured payment type.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\PaymentTypes
  */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use UnzerSDK\Traits\CanDirectChargeWithCustomer;
 use UnzerSDK\Traits\CanPayoutWithCustomer;
 use UnzerSDK\Traits\CanRecur;
 
+/** @deprecated please use PaylaterDirectDebit instead.
+ */
 class SepaDirectDebitSecured extends BasePaymentType
 {
     use CanDirectChargeWithCustomer;
@@ -44,14 +30,12 @@ class SepaDirectDebitSecured extends BasePaymentType
     protected $holder;
 
     /**
-     * @param string $iban
+     * @param string|null $iban
      */
-    public function __construct($iban)
+    public function __construct(?string $iban)
     {
         $this->iban = $iban;
     }
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string|null
@@ -62,11 +46,11 @@ class SepaDirectDebitSecured extends BasePaymentType
     }
 
     /**
-     * @param string $iban
+     * @param string|null $iban
      *
      * @return $this
      */
-    public function setIban($iban): self
+    public function setIban(?string $iban): self
     {
         $this->iban = $iban;
         return $this;
@@ -81,11 +65,11 @@ class SepaDirectDebitSecured extends BasePaymentType
     }
 
     /**
-     * @param string $bic
+     * @param string|null $bic
      *
      * @return $this
      */
-    public function setBic($bic): self
+    public function setBic(?string $bic): self
     {
         $this->bic = $bic;
         return $this;
@@ -100,15 +84,13 @@ class SepaDirectDebitSecured extends BasePaymentType
     }
 
     /**
-     * @param string $holder
+     * @param string|null $holder
      *
      * @return $this
      */
-    public function setHolder($holder): self
+    public function setHolder(?string $holder): self
     {
         $this->holder = $holder;
         return $this;
     }
-
-    //</editor-fold>
 }

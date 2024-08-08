@@ -109,9 +109,13 @@
         );
     };
 
-    $(document).ready(function () {
+    $(function () {
         // Colored Input
         $('.form-colored').each(previewColor).on('change keyup blur input focus', previewColor);
         window.hpAdmin = new HeidelpayAdmin(window.hpAdminAjaxUrl);
+
+        $('.hp-admin-content .custom-file-input').on('change',function(e) {
+            $(this).next('.custom-file-label').html(e.target.files[0].name);
+        });
     });
 })(jQuery, window);

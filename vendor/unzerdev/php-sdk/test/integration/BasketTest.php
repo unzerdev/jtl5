@@ -1,29 +1,14 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines integration tests to verify Basket functionalities.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test\integration;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -36,6 +21,8 @@ use UnzerSDK\test\BaseIntegrationTest;
 
 class BasketTest extends BaseIntegrationTest
 {
+    //<editor-fold desc="Basket v1 tests">
+
     /**
      * Verify basket can be created and fetched.
      *
@@ -65,17 +52,17 @@ class BasketTest extends BaseIntegrationTest
      *
      * @test
      */
-    public function maxBasketShouldBeCreatableAndFetchableWorkAround(): void
+    public function maxBasketShouldBeCreatableAndFetchable(): void
     {
         $basket = new Basket('b' . self::generateRandomId(), 123.4, 'EUR', []);
         $basket->setNote('This basket is creatable!');
         $basketItem = (new BasketItem('myItem', 1234, 2345, 12))
             ->setBasketItemReferenceId('refId')
             ->setAmountVat(1.24)
-            ->setVat(19)
+            ->setVat(19.5)
             ->setUnit('ert')
             ->setAmountDiscount(1234.9)
-            ->setImageUrl('https://dev.unzer.com/wp-content/uploads/2020/09/Unzer__PrimaryLogo_Raspberry_RGB.png')
+            ->setImageUrl('https://docs.unzer.com/card/card.png')
             ->setSubTitle('This is some subtitle for this item')
             ->setType('this is some type');
         $basket->addBasketItem($basketItem);
@@ -99,8 +86,8 @@ class BasketTest extends BaseIntegrationTest
      *
      * @dataProvider basketItemWithInvalidUrlWillThrowAnErrorDP
      *
-     * @param $expectException
-     * @param $imageUrl
+     * @param      $expectException
+     * @param      $imageUrl
      * @param null $exceptionCode
      */
     public function basketItemWithInvalidUrlWillThrowAnError($expectException, $imageUrl, $exceptionCode = null): void
@@ -158,10 +145,12 @@ class BasketTest extends BaseIntegrationTest
      */
     public function authorizeTransactionsShouldPassAlongTheBasketIdIfSet(): void
     {
+        $this->useLegacyKey();
+
         $orderId = 'o'. self::generateRandomId();
         $basket  = new Basket($orderId, 123.4, 'EUR', []);
         $basket->setNote('This basket is creatable!');
-        $basketItem = (new BasketItem('myItem', 123.4, 234.5, 12))->setBasketItemReferenceId('refId');
+        $basketItem = (new BasketItem('myItem', 123.4, 123.4, 12))->setBasketItemReferenceId('refId');
         $basket->addBasketItem($basketItem);
         $this->unzer->createBasket($basket);
         $this->assertNotEmpty($basket->getId());
@@ -181,6 +170,7 @@ class BasketTest extends BaseIntegrationTest
      */
     public function chargeTransactionsShouldPassAlongTheBasketIdIfSet(): void
     {
+        $this->useLegacyKey();
         $basket  = $this->createBasket();
         $this->assertNotEmpty($basket->getId());
 
@@ -201,6 +191,8 @@ class BasketTest extends BaseIntegrationTest
      */
     public function authorizeTransactionsShouldCreateBasketIfItDoesNotExistYet(): void
     {
+        $this->useLegacyKey();
+
         $orderId = 'o'. self::generateRandomId();
         $basket  = new Basket($orderId, 123.4, 'EUR', []);
         $basket->setNote('This basket is creatable!');
@@ -224,6 +216,8 @@ class BasketTest extends BaseIntegrationTest
      */
     public function chargeTransactionsShouldCreateBasketIfItDoesNotExistYet(): void
     {
+        $this->useLegacyKey();
+
         $orderId = 'o'. self::generateRandomId();
         $basket  = new Basket($orderId, 123.4, 'EUR', []);
         $basket->setNote('This basket is creatable!');
@@ -241,6 +235,8 @@ class BasketTest extends BaseIntegrationTest
         $this->assertEquals($basket->expose(), $fetchedPayment->getBasket()->expose());
     }
 
+    //</editor-fold>
+
     //<editor-fold desc="Data Providers">
 
     /**
@@ -249,7 +245,7 @@ class BasketTest extends BaseIntegrationTest
     public function basketItemWithInvalidUrlWillThrowAnErrorDP(): array
     {
         return [
-            'valid ' => [false, 'https://dev.unzer.com/wp-content/uploads/2020/09/Unzer__PrimaryLogo_Raspberry_RGB.png'],
+            'valid ' => [false, 'https://docs.unzer.com/card/card.png'],
             'valid null' => [false, null],
             'valid empty' => [false, ''],
             'invalid not available' => [true, 'https://files.readme.io/does-not-exist.jpg', ApiResponseCodes::API_ERROR_BASKET_ITEM_IMAGE_INVALID_URL]

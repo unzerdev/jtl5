@@ -1,29 +1,14 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines unit tests to verify functionality of the HasPaymentState trait.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\unit
  */
+
 namespace UnzerSDK\test\unit\Traits;
 
 use UnzerSDK\Constants\PaymentState;
@@ -35,6 +20,7 @@ class HasPaymentStateTest extends BasePaymentTest
      * Verify that getters and setters work properly.
      *
      * @test
+     *
      * @dataProvider gettersAndSettersShouldWorkProperlyDP
      *
      * @param mixed $state
@@ -45,6 +31,7 @@ class HasPaymentStateTest extends BasePaymentTest
      * @param mixed $partlyPaid
      * @param mixed $paymentReview
      * @param mixed $chargeBack
+     * @param mixed $create
      */
     public function gettersAndSettersShouldWorkProperly(
         $state,
@@ -54,7 +41,8 @@ class HasPaymentStateTest extends BasePaymentTest
         $canceled,
         $partlyPaid,
         $paymentReview,
-        $chargeBack
+        $chargeBack,
+        $create
     ): void {
         $traitDummy = new TraitDummyHasCancellationsHasPaymentState();
         $this->assertEquals(PaymentState::STATE_PENDING, $traitDummy->getState());
@@ -65,6 +53,7 @@ class HasPaymentStateTest extends BasePaymentTest
         $this->assertFalse($traitDummy->isPartlyPaid());
         $this->assertFalse($traitDummy->isPaymentReview());
         $this->assertFalse($traitDummy->isChargeBack());
+        $this->assertFalse($traitDummy->isCreate());
 
         $traitDummy->handleResponse((object)['state' => $state]);
         $this->assertEquals($state, $traitDummy->getState());
@@ -75,6 +64,7 @@ class HasPaymentStateTest extends BasePaymentTest
         $this->assertEquals($partlyPaid, $traitDummy->isPartlyPaid());
         $this->assertEquals($paymentReview, $traitDummy->isPaymentReview());
         $this->assertEquals($chargeBack, $traitDummy->isChargeBack());
+        $this->assertEquals($create, $traitDummy->isCreate());
     }
 
     //<editor-fold desc="Data providers">
@@ -95,6 +85,7 @@ class HasPaymentStateTest extends BasePaymentTest
                 false,
                 false,
                 false,
+                false,
                 false
             ],
             'completed'      => [
@@ -102,6 +93,7 @@ class HasPaymentStateTest extends BasePaymentTest
                 PaymentState::STATE_NAME_COMPLETED,
                 false,
                 true,
+                false,
                 false,
                 false,
                 false,
@@ -115,6 +107,7 @@ class HasPaymentStateTest extends BasePaymentTest
                 true,
                 false,
                 false,
+                false,
                 false
             ],
             'partly_paid'    => [
@@ -124,6 +117,7 @@ class HasPaymentStateTest extends BasePaymentTest
                 false,
                 false,
                 true,
+                false,
                 false,
                 false
             ],
@@ -135,11 +129,24 @@ class HasPaymentStateTest extends BasePaymentTest
                 false,
                 false,
                 true,
+                false,
                 false
             ],
             'chargeback'     => [
                 PaymentState::STATE_CHARGEBACK,
                 PaymentState::STATE_NAME_CHARGEBACK,
+                false,
+                false,
+                false,
+                false,
+                false,
+                true,
+                false
+            ],
+            'create'     => [
+                PaymentState::STATE_CREATE,
+                PaymentState::STATE_NAME_CREATE,
+                false,
                 false,
                 false,
                 false,

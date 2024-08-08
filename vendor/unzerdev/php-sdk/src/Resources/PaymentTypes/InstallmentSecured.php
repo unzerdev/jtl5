@@ -2,31 +2,18 @@
 /**
  * This represents the Installment Secured payment type.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\PaymentTypes
  */
+
 namespace UnzerSDK\Resources\PaymentTypes;
 
 use DateTime;
 use UnzerSDK\Resources\InstalmentPlan;
 
+/** @deprecated will be replaced by PaylaterInstallment.
+ * @see PaylaterInstallment
+ */
 class InstallmentSecured extends InstalmentPlan
 {
     /** @var string $iban */
@@ -51,8 +38,8 @@ class InstallmentSecured extends InstalmentPlan
     {
         parent::__construct();
 
-        $this->iban          = $iban;
-        $this->bic           = $bic;
+        $this->iban = $iban;
+        $this->bic = $bic;
         $this->accountHolder = $accountHolder;
         $this->setOrderDate($orderDate);
         $this->setInvoiceDate($invoiceDate);
@@ -67,15 +54,13 @@ class InstallmentSecured extends InstalmentPlan
      *
      * @return $this
      */
-    public function selectInstalmentPlan($plan): self
+    public function selectInstalmentPlan(?InstalmentPlan $plan): self
     {
         if ($plan instanceof InstalmentPlan) {
             $this->handleResponse((object)$plan->expose());
         }
         return $this;
     }
-
-    //<editor-fold desc="Getters/Setters">
 
     /**
      * @return string|null
@@ -90,7 +75,7 @@ class InstallmentSecured extends InstalmentPlan
      *
      * @return $this
      */
-    public function setIban($iban): self
+    public function setIban(?string $iban): self
     {
         $this->iban = $iban;
         return $this;
@@ -109,7 +94,7 @@ class InstallmentSecured extends InstalmentPlan
      *
      * @return $this
      */
-    public function setBic($bic): self
+    public function setBic(?string $bic): self
     {
         $this->bic = $bic;
         return $this;
@@ -128,11 +113,9 @@ class InstallmentSecured extends InstalmentPlan
      *
      * @return $this
      */
-    public function setAccountHolder($accountHolder): self
+    public function setAccountHolder(?string $accountHolder): self
     {
         $this->accountHolder = $accountHolder;
         return $this;
     }
-
-    //</editor-fold>
 }

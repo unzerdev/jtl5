@@ -1,29 +1,14 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines integration tests to verify Webhook features.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\integration
  */
+
 namespace UnzerSDK\test\integration;
 
 use UnzerSDK\Constants\ApiResponseCodes;
@@ -31,6 +16,7 @@ use UnzerSDK\Constants\WebhookEvents;
 use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\Webhook;
 use UnzerSDK\test\BaseIntegrationTest;
+
 use function count;
 use function in_array;
 
@@ -186,6 +172,7 @@ class WebhookTest extends BaseIntegrationTest
      * Verify setting multiple events at once.
      *
      * @test
+     *
      * @depends allWebhooksShouldBeRemovableAtOnce
      */
     public function bulkSettingWebhookEventsShouldBePossible(): void
@@ -249,7 +236,7 @@ class WebhookTest extends BaseIntegrationTest
     /**
      * Returns true if the given Webhook exists in the given array.
      *
-     * @param $webhooksArray
+     * @param         $webhooksArray
      * @param Webhook $webhook
      *
      * @return bool

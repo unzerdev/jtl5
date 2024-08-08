@@ -1,29 +1,13 @@
 <?php
+
+namespace UnzerSDK\Constants;
+
 /**
  * This file contains definitions of common response codes.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\Constants
  */
-namespace UnzerSDK\Constants;
-
 class ApiResponseCodes
 {
     // Status codes
@@ -62,6 +46,7 @@ class ApiResponseCodes
     public const API_ERROR_RECURRING_PAYMENT_NOT_SUPPORTED             = 'API.500.550.004';
     public const API_ERROR_WEBHOOK_EVENT_ALREADY_REGISTERED            = 'API.510.310.009';
     public const API_ERROR_WEBHOOK_CAN_NOT_BE_FOUND                    = 'API.510.310.008';
+    public const API_ERROR_BASKET_NOT_FOUND                            = 'API.600.410.024';
     public const API_ERROR_BASKET_ITEM_IMAGE_INVALID_URL               = 'API.600.630.004';
     public const API_ERROR_RECURRING_ALREADY_ACTIVE                    = 'API.640.550.006';
     public const API_ERROR_INVALID_KEY                                 = 'API.710.000.002';
@@ -70,6 +55,7 @@ class ApiResponseCodes
     public const API_ERROR_FIELD_IS_MISSING                            = 'API.710.200.100';
 
     public const CORE_ERROR_INVALID_OR_MISSING_LOGIN                   = 'COR.100.300.600';
+    public const CORE_INVALID_IP_NUMBER                                = 'COR.100.900.401';
     public const CORE_ERROR_INSURANCE_ALREADY_ACTIVATED                = 'COR.700.400.800';
 
     public const SDM_ERROR_CURRENT_INSURANCE_EVENT                     = 'SDM.CURRENT_INSURANCE_EVENT';

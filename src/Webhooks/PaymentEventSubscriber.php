@@ -1,5 +1,6 @@
 <?php
-declare(strict_types = 1);
+
+declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Webhooks;
 
@@ -23,20 +24,9 @@ class PaymentEventSubscriber extends EventSubscriber
 {
     use JtlLoggerTrait;
 
-    /**
-     * @var ChargeHandler
-     */
-    private $charges;
-
-    /**
-     * @var OrderMappingModel
-     */
-    private $model;
-
-    /**
-     * @var PaymentMethodModuleFactory
-     */
-    private $paymentMethodFactory;
+    private ChargeHandler $charges;
+    private OrderMappingModel $model;
+    private PaymentMethodModuleFactory $paymentMethodFactory;
 
     public function __construct()
     {
@@ -102,12 +92,14 @@ class PaymentEventSubscriber extends EventSubscriber
         }
 
         // Add incoming (successfull) payments
-        /** @var HeidelpayApiAdapter $api */
-        $api = Shop::Container()->get(HeidelpayApiAdapter::class);
+        /** @var HeidelpayApiAdapter $adapter */
+        $adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
+        $api = $adapter->getConnectionForPublicKey($payload->getPublicKey());
+
         foreach ($payment->getCharges() as $charge) {
             // we need to fetch the charge because the charge in the payment object might not contain all information.
             // Especially the isError, isPending, isSuccess flags
-            $charge = $api->getApi()->fetchCharge($charge);
+            $charge = $api->fetchCharge($charge);
             $this->charges->addCharge($charge, $paymentMethod, $orderMapping->getOrder());
         }
 

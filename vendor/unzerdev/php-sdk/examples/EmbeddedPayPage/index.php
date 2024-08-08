@@ -2,25 +2,8 @@
 /**
  * This file provides an example implementation of the  Embedded Payment Page.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\examples
  */
 
 /** Require the constants of this example */
@@ -37,8 +20,8 @@ require_once __DIR__ . '/../../../../autoload.php';
 <head>
     <meta charset="UTF-8">
     <title>Unzer UI Examples</title>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" crossorigin="anonymous"></script>
 
     <link rel="stylesheet" href="https://static.unzer.com/v1/unzer.css" />
     <script type="text/javascript" src="https://static.unzer.com/v1/unzer.js"></script>
@@ -71,7 +54,9 @@ require_once __DIR__ . '/../../../../autoload.php';
 
     <!-- The Payment Page needs to be initialized using the private key, that means it can only be done with a Server-To-Server call.
     Therefore we redirect to the controller without doing anything here. -->
-    <button class="unzerUI primary button fluid" id="submit-button" type="submit">Pay</button>
+    <div class="field">
+        <button class="unzerUI primary button fluid" id="submit-button" type="submit">Pay</button>
+    </div>
 </form>
 
 <script>
@@ -106,6 +91,9 @@ require_once __DIR__ . '/../../../../autoload.php';
                     checkout.success(function(data) {
                         // redirect to result handler
                         window.location.href = '<?php echo RETURN_CONTROLLER_URL; ?>';
+                    });
+                    checkout.error(function() {
+                        $errorHolder.html('Transaction Failure');
                     });
 
                 }).catch(function(error) {

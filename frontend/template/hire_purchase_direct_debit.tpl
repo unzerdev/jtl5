@@ -21,17 +21,17 @@ $(document).ready(function() {
 
                 <div class="row">
                     <div class="col-12 col-xs-12 col-md-6"><strong>{$hpInstalment.lang.totalPurchaseAmount}</strong></div>
-                    <div class="col-12 col-xs-12 col-md-6" id="total_purchase_amount">{$hpInstalment.totalPurchaseAmount|number_format:2} {$hpInstalment.currency}</div>
+                    <div class="col-12 col-xs-12 col-md-6" id="total_purchase_amount">{number_format($hpInstalment.totalPurchaseAmount|default:0, 2)} {$hpInstalment.currency}</div>
                 </div>
 
                 <div class="row">
                     <div class="col-12 col-xs-12 col-md-6"><strong>{$hpInstalment.lang.totalInterestAmount}</strong></div>
-                    <div class="col-12 col-xs-12 col-md-6" id="total_interest_amount">{$hpInstalment.totalInterestAmount|number_format:2} {$hpInstalment.currency}</div>
+                    <div class="col-12 col-xs-12 col-md-6" id="total_interest_amount">{number_format($hpInstalment.totalInterestAmount|default:0, 2)} {$hpInstalment.currency}</div>
                 </div>
 
                 <div class="row">
                     <div class="col-12 col-xs-12 col-md-6"><strong>{$hpInstalment.lang.totalAmount}</strong></div>
-                    <div class="col-12 col-xs-12 col-md-6" id="total_amount">{$hpInstalment.totalAmount|number_format:2} {$hpInstalment.currency}</div>
+                    <div class="col-12 col-xs-12 col-md-6" id="total_amount">{number_format($hpInstalment.totalAmount|default:0, 2)} {$hpInstalment.currency}</div>
                 </div>
                 <br/>
                 <p>

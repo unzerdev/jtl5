@@ -1,35 +1,19 @@
 <?php
+
 /** @noinspection PhpUnhandledExceptionInspection */
 /** @noinspection PhpDocMissingThrowsInspection */
 /**
  * This class defines integration tests to verify interface and
  * functionality of the payment method Installment Secured.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\test\integration\PaymentTypes
  */
+
 namespace UnzerSDK\test\integration\PaymentTypes;
 
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Exceptions\UnzerApiException;
-use UnzerSDK\Resources\AbstractUnzerResource;
 use UnzerSDK\Resources\Customer;
 use UnzerSDK\Resources\CustomerFactory;
 use UnzerSDK\Resources\EmbeddedResources\Address;
@@ -37,17 +21,24 @@ use UnzerSDK\Resources\InstalmentPlan;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use UnzerSDK\test\BaseIntegrationTest;
+use UnzerSDK\test\Helper\TestEnvironmentService;
+
 use function count;
 
 class InstallmentSecuredTest extends BaseIntegrationTest
 {
+    protected function setUp(): void
+    {
+        $this->getUnzerObject(TestEnvironmentService::getLegacyTestPrivateKey());
+    }
+
     /**
      * Verify the following features:
      * 1. fetching instalment plans.
      * 2. selecting plan
-     * 3. create hp resource
-     * 4. fetch hp resource
-     * 5 test update hp resource
+     * 3. create ins resource
+     * 4. fetch ins resource
+     * 5 test update ins resource
      *
      * @test
      */
@@ -77,99 +68,10 @@ class InstallmentSecuredTest extends BaseIntegrationTest
     }
 
     /**
-     * Verify, backwards compatibility regarding fetching payment type and map it to invoice secured class.
-     *
-     * @test
-     */
-    public function hddTypeShouldBeFetchable(): InstallmentSecured
-    {
-        // Mock a hdd Type
-        $date = $this->getTodaysDateString();
-        $requestData =
-            [
-                "iban" =>"DE89370400440532013000",
-                "bic" => "COBADEFFXXX",
-                "accountHolder" => "Max Mustermann",
-                "invoiceDueDate" => $date,
-                "numberOfRates" => 3,
-                "invoiceDate" => $date,
-                "dayOfPurchase" => $date,
-                "orderDate" => $date,
-                "totalPurchaseAmount" => 119,
-                "totalInterestAmount" => 0.96,
-                "totalAmount" => 119.96,
-                "effectiveInterestRate" => 4.99,
-                "nominalInterestRate" => 4.92,
-                "feeFirstRate" => 0,
-                "feePerRate" => 0,
-                "monthlyRate" => 39.99,
-                "lastRate" => 39.98,
-        ];
-
-        $payload = json_encode($requestData);
-        $hddMock = $this->getMockBuilder(InstallmentSecured::class)
-            ->setMethods(['getUri', 'jsonSerialize'])
-            ->getMock();
-        $hddMock->method('getUri')->willReturn('/types/hire-purchase-direct-debit');
-        $hddMock->method('jsonSerialize')->willReturn($payload);
-
-        // When
-        /** @var InstallmentSecured $insType */
-        $this->unzer->createPaymentType($hddMock);
-        $this->assertRegExp('/^s-hdd-[.]*/', $hddMock->getId());
-
-        // Then
-        $fetchedType = $this->unzer->fetchPaymentType($hddMock->getId());
-        $this->assertInstanceOf(InstallmentSecured::class, $fetchedType);
-        $this->assertRegExp('/^s-hdd-[.]*/', $fetchedType->getId());
-
-        return $fetchedType;
-    }
-
-    /**
-     * Verify fetched hdd type can be authorized and charged
-     *
-     * @test
-     * @depends hddTypeShouldBeFetchable
-     *
-     * @param InstallmentSecured $hddType fetched ins type.
-     *
-     * @return AbstractUnzerResource|Charge
-     *
-     * @throws UnzerApiException
-     */
-    public function hddTypeAuthorizeAndCharge(InstallmentSecured $hddType)
-    {
-        $customer = $this->getMaximumCustomer();
-        $basket = $this->createBasket();
-
-        $auth = $hddType->authorize(119.00, 'EUR', 'https://unzer.com', $customer, null, null, $basket);
-        $charge = $auth->getPayment()->charge();
-        $this->assertNotNull($auth);
-        $this->assertNotEmpty($auth->getId());
-        $this->assertTrue($auth->isSuccess());
-
-        return $charge;
-    }
-
-    /**
-     * Verify fetched hdd payment can be shipped.
-     *
-     * @test
-     * @depends hddTypeAuthorizeAndCharge
-     */
-    public function insTypeShouldBeShippable(Charge $hddCharge)
-    {
-        $invoiceId = 'i' . self::generateRandomId();
-        $ship = $this->unzer->ship($hddCharge->getPayment(), $invoiceId);
-
-        $this->assertNotNull($ship);
-    }
-
-    /**
      * Verify Installment Secured authorization (positive and negative).
      *
      * @test
+     *
      * @dataProvider CustomerRankingDataProvider
      *
      * @param $firstname
@@ -189,7 +91,7 @@ class InstallmentSecuredTest extends BaseIntegrationTest
 
         try {
             $authorize = $ins->authorize(119.0, 'EUR', self::RETURN_URL, $customer, null, null, $basket);
-            if ($errorCode!== null) {
+            if ($errorCode !== null) {
                 $this->assertTrue(false, 'Expected error for negative ranking test.');
             }
             $this->assertNotEmpty($authorize->getId());
@@ -275,8 +177,6 @@ class InstallmentSecuredTest extends BaseIntegrationTest
      * Verify full cancel of charged HP.
      *
      * @test
-     *
-     * @depends verifyChargingAnInitializedInstallmentSecured
      */
     public function verifyChargeAndFullCancelAnInitializedInstallmentSecured(): void
     {
@@ -300,8 +200,6 @@ class InstallmentSecuredTest extends BaseIntegrationTest
      * Verify full cancel of charged HP.
      *
      * @test
-     *
-     * @depends verifyChargingAnInitializedInstallmentSecured
      */
     public function verifyPartlyCancelChargedInstallmentSecured(): void
     {
@@ -326,8 +224,6 @@ class InstallmentSecuredTest extends BaseIntegrationTest
      * Verify full cancel of charged HP after shipment.
      *
      * @test
-     *
-     * @depends verifyChargingAnInitializedInstallmentSecured
      */
     public function verifyChargeAndFullCancelAnInitializedInstallmentSecuredAfterShipment(): void
     {
@@ -343,9 +239,9 @@ class InstallmentSecuredTest extends BaseIntegrationTest
         $authorize = $ins->authorize(119.0, 'EUR', self::RETURN_URL, $this->getCustomer(), null, null, $basket = $this->createBasket());
         $payment = $authorize->getPayment();
 
-        $hddCharge = $payment->charge();
+        $charge = $payment->charge();
         $invoiceId = 'i' . self::generateRandomId();
-        $ship = $this->unzer->ship($hddCharge->getPayment(), $invoiceId);
+        $ship = $this->unzer->ship($charge->getPayment(), $invoiceId);
         $this->assertNotNull($ship);
 
         $cancel = $payment->cancelAmount();
@@ -356,8 +252,6 @@ class InstallmentSecuredTest extends BaseIntegrationTest
      * Verify full cancel of charged HP after shipment.
      *
      * @test
-     *
-     * @depends verifyChargingAnInitializedInstallmentSecured
      */
     public function verifyPartlyCancelChargedInstallmentSecuredAfterShipment(): void
     {
@@ -373,9 +267,9 @@ class InstallmentSecuredTest extends BaseIntegrationTest
         $authorize = $ins->authorize(119.0, 'EUR', self::RETURN_URL, $this->getCustomer(), null, null, $basket = $this->createBasket());
         $payment = $authorize->getPayment();
 
-        $hddCharge = $payment->charge();
+        $charge = $payment->charge();
         $invoiceId = 'i' . self::generateRandomId();
-        $ship = $this->unzer->ship($hddCharge->getPayment(), $invoiceId);
+        $ship = $this->unzer->ship($charge->getPayment(), $invoiceId);
         $this->assertNotNull($ship);
 
         $cancel = $payment->cancelAmount(59.5, null, null, 50.0, 9.5);

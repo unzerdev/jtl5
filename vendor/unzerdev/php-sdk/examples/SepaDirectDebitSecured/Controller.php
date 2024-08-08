@@ -3,25 +3,8 @@
  * This is the controller for the SEPA direct debit secured example.
  * It is called when the pay button on the index page is clicked.
  *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @link  https://docs.unzer.com/
  *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\examples
  */
 
 /** Require the constants of this example */
@@ -67,10 +50,17 @@ try {
     $orderId = 'o' . str_replace(['0.', ' '], '', microtime(false));
 
     // A Basket is mandatory for SEPA direct debit secured payment type
-    $basketItem = (new BasketItem('Hat', 100.00, 119.00, 1))
-        ->setAmountGross(119.0)
-        ->setAmountVat(19.0);
-    $basket = new Basket($orderId, 119.0, 'EUR', [$basketItem]);
+    $basketItem = (new BasketItem())
+        ->setAmountPerUnitGross(119.00)
+        ->setVat(19.00)
+        ->setQuantity(1)
+        ->setBasketItemReferenceId('item1')
+        ->setTitle('Hat');
+
+    $basket = new Basket($orderId);
+    $basket->setTotalValueGross(119.00)
+        ->addBasketItem($basketItem)
+        ->setCurrencyCode('EUR');
 
     $transaction = $unzer->charge(119.0, 'EUR', $paymentTypeId, CONTROLLER_URL, $customerId, $orderId, null, $basket);
 

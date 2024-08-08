@@ -1,43 +1,26 @@
 <?php
-/**
- * This represents the metadata resource.
- *
- * Copyright (C) 2020 - today Unzer E-Com GmbH
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- * @link  https://docs.unzer.com/
- *
- * @author  Simon Gabriel <development@unzer.com>
- *
- * @package  UnzerSDK\Resources
- */
+
 namespace UnzerSDK\Resources;
 
 use UnzerSDK\Adapter\HttpAdapterInterface;
+use stdClass;
+
 use function count;
 use function in_array;
 use function is_callable;
-use stdClass;
 
+/**
+ * This represents the metadata resource.
+ *
+ * @link  https://docs.unzer.com/
+ *
+ */
 class Metadata extends AbstractUnzerResource
 {
     private $metadata = [];
 
     protected $shopType;
     protected $shopVersion;
-
-    //<editor-fold desc="Setters/Getters">
 
     /**
      * @return string|null
@@ -85,7 +68,7 @@ class Metadata extends AbstractUnzerResource
      *
      * @return Metadata
      */
-    public function addMetadata($name, $value): Metadata
+    public function addMetadata(string $name, string $value): Metadata
     {
         if (!in_array(strtolower($name), ['sdkversion', 'sdktype', 'shoptype', 'shopversion'])) {
             $this->metadata[$name] = $value;
@@ -101,14 +84,10 @@ class Metadata extends AbstractUnzerResource
      *
      * @return mixed
      */
-    public function getMetadata($name)
+    public function getMetadata(string $name)
     {
         return $this->metadata[$name] ?? null;
     }
-
-    //</editor-fold>>
-
-    //<editor-fold desc="Overridable Methods">
 
     /**
      * Add the dynamically set meta data.
@@ -121,10 +100,10 @@ class Metadata extends AbstractUnzerResource
     }
 
     /**
-     * Add custom properties (i. e. properties without setter) to the metadata array.
+     * Add custom properties (i.e. properties without setter) to the metadata array.
      * {@inheritDoc}
      */
-    public function handleResponse(stdClass $response, $method = HttpAdapterInterface::REQUEST_GET): void
+    public function handleResponse(stdClass $response, string $method = HttpAdapterInterface::REQUEST_GET): void
     {
         parent::handleResponse($response, $method);
 
@@ -135,6 +114,4 @@ class Metadata extends AbstractUnzerResource
             }
         }
     }
-
-    //</editor-fold>
 }

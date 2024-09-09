@@ -1005,11 +1005,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createEPS",
     value: function createEPS() {
-      var EPS = this.unzerInstance.EPS();
-      EPS.create('eps', {
-        containerId: 'eps-element'
-      });
-      return EPS;
+      return this.unzerInstance.EPS();
     }
     /**
      * Create a new FlexiPay Direct Payment Type.

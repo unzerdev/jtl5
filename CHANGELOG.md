@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.6.2] (September 2024)
+### Removed
+- removed bank field from EPS payment method
+
 ## [1.6.1] (August 2024)
 ### Added
 - added "Card Holder" field to credit cards to comply with the visa card payment changes (https://docs.unzer.com/news/articles/visa-mandatory-field-updates-2024/)

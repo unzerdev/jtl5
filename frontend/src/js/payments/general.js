@@ -508,33 +508,34 @@ export default class UnzerPayment {
         });
 
         // Enable pay button initially
-        var self = this;
         var formFieldValid = {};
 
         /** @type {HTMLElement} continueButton */
-        var continueButton = self.settings.submitButton || document.getElementById("submit-button");
+        var continueButton = this.settings.submitButton || document.getElementById("submit-button");
         continueButton.setAttribute('disabled', true);
 
-        var eventHandlerCardInput = function (e) {
+        Card.addEventListener('change', (e) => {
             if (e.success) {
                 formFieldValid[e.type] = true;
-                self.errorHandler.hide();
+                this.errorHandler.hide();
             }
 
             if (e.error) {
                 formFieldValid[e.type] = false;
-                self.errorHandler.show(e.error);
+                this.errorHandler.show(e.error);
             }
 
-            if (formFieldValid.number && formFieldValid.expiry && formFieldValid.cvc) {
+            if (e.reset) {
+                formFieldValid[e.type] = false;
+            }
+
+            if (formFieldValid.number && formFieldValid.expiry && formFieldValid.cvc && formFieldValid.holder) {
                 continueButton.removeAttribute('disabled');
                 return;
             }
 
             continueButton.setAttribute('disabled', true);
-        };
-
-        Card.addEventListener('change', eventHandlerCardInput);
+        });
 
         return Card;
     }

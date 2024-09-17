@@ -121,8 +121,10 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
             $this->handler->setPaymentMethod($this);
         } catch (\Exception $exc) {
+            //! NOTE: JTL can also call this if the plugin is deactivated (so nothing else from the plugin is available)
             $this->state = self::STATE_INVALID;
-            $this->errorLog('Could not init PaymentMethod: ' . $exc->getMessage(), static::class);
+            $logger = Shop::Container()->getLogService();
+            $logger->log(\JTLLOG_LEVEL_ERROR, '[Unzer] ' . static::class . ': Could not init PaymentMethod (maybe the plugin is deactivated): ' . $exc->getMessage());
         }
 
         return $this;
@@ -612,7 +614,7 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             try {
                 $payment = $this->adapter->getConnectionForOrder($order)->fetchPaymentByOrderId($order->cBestellNr);
                 $this->handler->saveOrderMapping($payment, $order);
-            } catch (Exception $err) {
+            } catch (Throwable $err) {
                 $key = $this->adapter->getCurrentConnection()->getKey();
                 $key = substr($key, 0, -16) . str_repeat('&bull;', 16);
                 $this->errorLog('An error occured in the payment process: ' . $err->getMessage() . "\nCurrent API Connection: " . $key, static::class);

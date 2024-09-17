@@ -722,6 +722,8 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createCard",
     value: function createCard() {
+      var _this4 = this;
+
       var Card = this.unzerInstance.Card();
       var styling = {
         fontSize: null,
@@ -764,33 +766,35 @@ var UnzerPayment = /*#__PURE__*/function () {
         fontFamily: styling.fontFamily
       }); // Enable pay button initially
 
-      var self = this;
       var formFieldValid = {};
       /** @type {HTMLElement} continueButton */
 
-      var continueButton = self.settings.submitButton || document.getElementById("submit-button");
+      var continueButton = this.settings.submitButton || document.getElementById("submit-button");
       continueButton.setAttribute('disabled', true);
-
-      var eventHandlerCardInput = function eventHandlerCardInput(e) {
+      Card.addEventListener('change', function (e) {
         if (e.success) {
           formFieldValid[e.type] = true;
-          self.errorHandler.hide();
+
+          _this4.errorHandler.hide();
         }
 
         if (e.error) {
           formFieldValid[e.type] = false;
-          self.errorHandler.show(e.error);
+
+          _this4.errorHandler.show(e.error);
         }
 
-        if (formFieldValid.number && formFieldValid.expiry && formFieldValid.cvc) {
+        if (e.reset) {
+          formFieldValid[e.type] = false;
+        }
+
+        if (formFieldValid.number && formFieldValid.expiry && formFieldValid.cvc && formFieldValid.holder) {
           continueButton.removeAttribute('disabled');
           return;
         }
 
         continueButton.setAttribute('disabled', true);
-      };
-
-      Card.addEventListener('change', eventHandlerCardInput);
+      });
       return Card;
     }
     /**
@@ -841,7 +845,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createSepa",
     value: function createSepa() {
-      var _this4 = this;
+      var _this5 = this;
 
       var Sepa = this.unzerInstance.SepaDirectDebit();
       Sepa.create('sepa-direct-debit', {
@@ -855,7 +859,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.success) {
           continueButton.removeAttribute('disabled');
 
-          _this4.errorHandler.hide();
+          _this5.errorHandler.hide();
 
           return;
         }
@@ -874,7 +878,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createSepaGuaranteed",
     value: function createSepaGuaranteed() {
-      var _this5 = this;
+      var _this6 = this;
 
       var SepaGuaranteed = this.unzerInstance.SepaDirectDebitSecured();
       SepaGuaranteed.create('sepa-direct-debit-guaranteed', {
@@ -888,7 +892,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.success) {
           continueButton.removeAttribute('disabled');
 
-          _this5.errorHandler.hide();
+          _this6.errorHandler.hide();
 
           return;
         }
@@ -960,7 +964,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createIdeal",
     value: function createIdeal() {
-      var _this6 = this;
+      var _this7 = this;
 
       var Ideal = this.unzerInstance.Ideal();
       Ideal.create('ideal', {
@@ -974,7 +978,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.value) {
           continueButton.removeAttribute('disabled');
 
-          _this6.errorHandler.hide();
+          _this7.errorHandler.hide();
 
           return;
         }

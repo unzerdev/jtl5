@@ -120,7 +120,16 @@ class PaymentHandler
             }
 
             // Preorder=1, order not finalized yet -> finalize and save the order
-            if (Compatibility::isShopAtLeast52()) {
+            if (Compatibility::isShopAtLeast54()) {
+                // for some reason JTL decided to remove the getOrderHandler() function...
+                $finalizedOrder = (new \JTL\Checkout\OrderHandler(
+                    Shop::Container()->getDB(),
+                    Frontend::getCustomer(),
+                    Frontend::getCart()
+                ))->finalizeOrder(
+                    $this->session->get(SessionHelper::KEY_ORDER_ID) ?? ''
+                );
+            } else if (Compatibility::isShopAtLeast52()) {
                 $finalizedOrder = getOrderHandler()->finalizeOrder(
                     $this->session->get(SessionHelper::KEY_ORDER_ID) ?? ''
                 );

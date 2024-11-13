@@ -51,8 +51,9 @@ class ApplePayController extends Controller
      */
     public function __construct(PluginInterface $plugin, CertificationService $certificationService, IO $io)
     {
-        parent::__construct($plugin);
-
+        /** @var Config $config */
+        $this->config = Shop::Container()->get(Config::class);
+        $this->plugin = $plugin;
         $this->sessionHelper = Shop::Container()->get(SessionHelper::class);
         $this->certificationService = $certificationService;
         $this->io = $io;

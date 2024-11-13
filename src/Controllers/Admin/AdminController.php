@@ -4,6 +4,7 @@ namespace Plugin\s360_unzer_shop5\src\Controllers\Admin;
 
 use JTL\Link\Link;
 use JTL\Plugin\PluginInterface;
+use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\Controllers\Controller;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 
@@ -38,14 +39,14 @@ abstract class AdminController extends Controller
      * @SuppressWarnings(PHPMD.Superglobals)
      * @param PluginInterface $plugin
      */
-    public function __construct(PluginInterface $plugin)
+    public function __construct(PluginInterface $plugin, JTLSmarty $smarty)
     {
         $this->errors = [];
         $this->warnings = [];
         $this->messages = [];
         $this->successes = [];
 
-        parent::__construct($plugin);
+        parent::__construct($plugin, $smarty);
     }
 
     /**

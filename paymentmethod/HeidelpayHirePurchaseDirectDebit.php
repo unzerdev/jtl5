@@ -15,6 +15,7 @@ use JTL\Cart\Cart;
 use JTL\Checkout\Bestellung;
 use JTL\Checkout\ZahlungsInfo;
 use JTL\Helpers\Text;
+use JTL\Session\Frontend;
 use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
@@ -338,7 +339,14 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
     {
         // We need to register an order id here otherwise the auth call will fail!
         // @see: BillPay for similiar behavior
-        if (Compatibility::isShopAtLeast52()) {
+        if (Compatibility::isShopAtLeast54()) {
+            // for some reason JTL decided to remove the getOrderHandler() function...
+            $orderId = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID) ?? (new \JTL\Checkout\OrderHandler(
+                Shop::Container()->getDB(),
+                Frontend::getCustomer(),
+                Frontend::getCart()
+            ))->createOrderNo();
+        } else if (Compatibility::isShopAtLeast52()) {
             $orderId = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID) ?? getOrderHandler()->createOrderNo();
         } else {
             $orderId = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID) ?? \baueBestellnummer();

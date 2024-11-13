@@ -16,6 +16,7 @@ use JTL\Helpers\Request;
 use JTL\Helpers\Text;
 use JTL\Plugin\Payment\Method;
 use JTL\Plugin\PluginInterface;
+use JTL\Session\Frontend;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\NotificationInterface;
@@ -536,7 +537,15 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
 
         // Preorder State (Preorder = 1), order not finalized
         if ($this->duringCheckout) {
-            if (Compatibility::isShopAtLeast52()) {
+            if (Compatibility::isShopAtLeast54()) {
+                // for some reason JTL decided to remove the getOrderHandler() function...
+                $order->cBestellNr = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID)
+                    ?? (new \JTL\Checkout\OrderHandler(
+                        Shop::Container()->getDB(),
+                        Frontend::getCustomer(),
+                        Frontend::getCart()
+                    ))->createOrderNo();
+            } else if (Compatibility::isShopAtLeast52()) {
                 $order->cBestellNr = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID)
                     ?? getOrderHandler()->createOrderNo();
             } else {

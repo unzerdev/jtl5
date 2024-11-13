@@ -49,8 +49,9 @@ class SyncController extends Controller
      */
     public function __construct(PluginInterface $plugin)
     {
-        parent::__construct($plugin);
-
+        /** @var Config $config */
+        $this->config = Shop::Container()->get(Config::class);
+        $this->plugin = $plugin;
         $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
         $this->chargeHandler = Shop::Container()->get(ChargeHandler::class);
         $this->model = new OrderMappingModel(Shop::Container()->getDB());

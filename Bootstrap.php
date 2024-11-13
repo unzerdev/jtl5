@@ -97,10 +97,10 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
         $dispatcher->listen('shop.hook.' . \HOOK_SMARTY_OUTPUTFILTER, function () {
             // Hook into template output.
             try {
-                $paymentController = new PaymentController($this->getPlugin());
+                $paymentController = new PaymentController($this->getPlugin(), Shop::Smarty());
                 $paymentController->handle();
 
-                $controller = new FrontendOutputController($this->getPlugin());
+                $controller = new FrontendOutputController($this->getPlugin(), Shop::Smarty());
                 $controller->handle();
             } catch (Throwable $th) {
                 Logger::error(

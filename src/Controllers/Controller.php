@@ -42,12 +42,12 @@ abstract class Controller
      * @param PluginInterface $plugin
      * @param JTLSmarty|null $smarty
      */
-    public function __construct(PluginInterface $plugin, JTLSmarty $smarty = null)
+    public function __construct(PluginInterface $plugin, JTLSmarty $smarty)
     {
         /** @var Config $config */
         $this->config = Shop::Container()->get(Config::class);
         $this->plugin = $plugin;
-        $this->smarty = $smarty ?? Shop::Smarty();
+        $this->smarty = $smarty;
 
         $this->prepare();
     }

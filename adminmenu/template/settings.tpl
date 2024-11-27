@@ -263,6 +263,28 @@
                                 <small class="form-text help-block text-muted">{__('hpSettingsPqMethodInstalmentInfoHelp')}</small>
                             </div>
                         </div>
+
+                        {* PQ Selector Bestellabschluss Form *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-pqSelectorOrderConfirmForm">{__('hpSettingsPqSelectorOrderConfirmForm')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="text" class="form-control" name="pqSelectorOrderConfirmForm" id="hpSettings-pqSelectorOrderConfirmForm" placeholder="#complete_order" value="{if isset($hpSettings.config.pqSelectorOrderConfirmForm)}{$hpSettings.config.pqSelectorOrderConfirmForm}{else}#complete_order{/if}" />
+                                <small class="form-text help-block text-muted">{__('hpSettingsPqSelectorOrderConfirmFormHelp')}</small>
+                            </div>
+                        </div>
+
+                        {* PQ Selector buy button *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-pqSelectorPlaceOrderButton">{__('hpSettingsPqSelectorPlaceOrderButton')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="text" class="form-control" name="pqSelectorPlaceOrderButton" id="hpSettings-pqSelectorPlaceOrderButton" placeholder="#complete-order-button" value="{if isset($hpSettings.config.pqSelectorPlaceOrderButton)}{$hpSettings.config.pqSelectorPlaceOrderButton}{else}#complete-order-button{/if}" />
+                                <small class="form-text help-block text-muted">{__('hpSettingsPqSelectorPlaceOrderButtonHelp')}</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -34,7 +34,9 @@ use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Utils\Logger;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
+use Smarty;
 use Smarty_Internal_Template;
+use SmartyException;
 use Throwable;
 
 /**
@@ -96,6 +98,8 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
 
         $dispatcher->listen('shop.hook.' . \HOOK_SMARTY_OUTPUTFILTER, function () {
             // Hook into template output.
+            $this->registerSmartyPhpFunctions(Shop::Smarty());
+
             try {
                 $paymentController = new PaymentController($this->getPlugin(), Shop::Smarty());
                 $paymentController->handle();
@@ -237,6 +241,8 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
             }
         }
 
+        $this->addApplePayVerification();
+
         Shop::Container()->getCache()->flushTags([
             CACHING_GROUP_CORE,
             CACHING_GROUP_LANGUAGE,
@@ -267,6 +273,8 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
             }
         }
 
+        $this->addApplePayVerification();
+
         Shop::Container()->getCache()->flushTags([
             CACHING_GROUP_CORE,
             CACHING_GROUP_LANGUAGE,
@@ -282,6 +290,8 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
     public function renderAdminMenuTab(string $tabName, int $menuID, JTLSmarty $smarty): string
     {
         try {
+            $this->registerSmartyPhpFunctions($smarty);
+
             switch ($tabName) {
                 case JtlLinkHelper::ADMIN_TAB_ORDERS:
                     $model = new OrderMappingModel(Shop::Container()->getDB());
@@ -352,5 +362,41 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
             HeidelpayHirePurchaseDirectDebit::class,
             HeidelpayFlexiPayDirect::class
         ];
+    }
+
+    private function addApplePayVerification()
+    {
+        if (!file_exists(PFAD_ROOT . '.well-known')) {
+            mkdir(PFAD_ROOT . '.well-known', 0775);
+        }
+
+        $result = copy(
+            __DIR__ . '/apple-developer-merchantid-domain-association',
+            PFAD_ROOT . '.well-known/apple-developer-merchantid-domain-association'
+        );
+
+        if (!$result) {
+            Logger::notice(
+                'Could not place Apple Pay Verification file at .well-known/apple-developer-merchantid-domain-association'
+            );
+        }
+    }
+
+
+    private function registerSmartyPhpFunctions(JTLSmarty $smarty): void
+    {
+        if (\version_compare(Smarty::SMARTY_VERSION, '4.5', '<')) {
+            return;
+        }
+
+        // try to register
+        try {
+            $smarty->registerPlugin(Smarty::PLUGIN_MODIFIER, 'constant', '\constant');
+            $smarty->registerPlugin(Smarty::PLUGIN_MODIFIER, 'password_hash', '\password_hash');
+            $smarty->registerPlugin(Smarty::PLUGIN_MODIFIER, 'number_format', '\number_format');
+            $smarty->registerClass("\\UnzerSDK\\Constants\\PaymentState", "\\UnzerSDK\\Constants\\PaymentState");
+        } catch (SmartyException $e) {
+            // probably already registered by different plugin
+        }
     }
 }

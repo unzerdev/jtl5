@@ -66,12 +66,15 @@ class Config
     public const ADD_INCOMING_PAYMENTS = 'addIncomingPayments';
     public const PQ_METHOD_INSTALMENT_INFO = 'pqMethodInstalmentInfo';
     public const PQ_SELECTOR_INSTALMENT_INFO = 'pqSelectorInstalmentInfo';
+    public const PQ_SELECTOR_PLACE_ORDER_BUTTON = 'pqSelectorPlaceOrderButton';
+    public const PQ_SELECTOR_ORDER_CONFIRM_FORM = 'pqSelectorOrderConfirmForm';
 
     // Apple Pay Config Keys
     public const APPLEPAY_MERCHANT_IDENTIFIER = 'applepay_merchant_identifier';
     public const APPLEPAY_MERCHANT_DOMAIN = 'applepay_merchant_domain';
     public const APPLEPAY_UNZER_PRIVATE_KEY_ID = 'applepay_unzer_private_key_id';
     public const APPLEPAY_UNZER_CERTIFICATE_ID = 'applepay_unzer_certificate_id';
+    public const APPLEPAY_BOOKING_MODE = 'booking_mode';
 
     // Google Pay Config Keys
     public const GPAY_BOOKING_MODE = 'booking_mode';

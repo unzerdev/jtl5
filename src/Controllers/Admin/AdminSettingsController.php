@@ -127,6 +127,8 @@ class AdminSettingsController extends AdminController
             Config::PQ_METHOD_INSTALMENT_INFO,
             Request::postVar('pqMethodInstalmentInfo')
         );
+        $this->config->set(Config::PQ_SELECTOR_PLACE_ORDER_BUTTON, Request::postVar('pqSelectorPlaceOrderButton'));
+        $this->config->set(Config::PQ_SELECTOR_ORDER_CONFIRM_FORM, Request::postVar('pqSelectorOrderConfirmForm'));
         $this->config->set(Config::PQ_SELECTOR_ERRORS, Request::postVar('pqSelectorErrors'));
         $this->config->set(Config::PQ_METHOD_ERRORS, Request::postVar('pqMethodErrors'));
         $this->config->set(Config::PQ_SELECTOR_REVIEW_STEP, Request::postVar('pqSelectorReviewStep'));

@@ -3,10 +3,16 @@
 namespace Plugin\s360_unzer_shop5\src\Controllers\Admin;
 
 use JTL\Link\Link;
+use JTL\Plugin\Data\PaymentMethod;
 use JTL\Plugin\PluginInterface;
 use JTL\Smarty\JTLSmarty;
+use JTL\Shop;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePay;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePayV2;
 use Plugin\s360_unzer_shop5\src\Controllers\Controller;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
+
+use function Functional\first;
 
 /**
  * Abstract Admin Controller
@@ -84,7 +90,37 @@ abstract class AdminController extends Controller
             }
         }
 
+        //  Check if deprecated apple pay method is active, if so, show migration note
+        if ($this->isPaymentMethodInUse(UnzerApplePay::class)) {
+            $this->addMessage(nl2br(__('hpApplePayMigrationNotification')));
+        }
+
+        if (
+            $this->isPaymentMethodInUse(UnzerApplePayV2::class) &&
+            !is_readable(PFAD_ROOT . '/.well-known/apple-developer-merchantid-domain-association')
+        ) {
+            $this->addError(nl2br(sprintf(__('hpApplePayMissingMerchantIdDomainAssociation'), Shop::getURL(true))));
+        }
+
         $this->smarty->assign('hpAdmin', $data);
+    }
+
+    protected function isPaymentMethodInUse(string $paymentMethod)
+    {
+        $method = first(
+            $this->plugin->getPaymentMethods()->getMethods(),
+            static fn(PaymentMethod $method) => $method->getClassName() === $paymentMethod && $method->getActive()
+        );
+
+        if ($method) {
+            return  Shop::Container()->getDB()->select(
+                'tversandartzahlungsart',
+                'kZahlungsart',
+                $method->getMethodID()
+            );
+        }
+
+        return false;
     }
 
     /**

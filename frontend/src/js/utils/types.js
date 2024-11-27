@@ -2,7 +2,7 @@
 
 /**
  * @typedef {{
- *  submitButton: HTMLElement|HTMLButtonElement|null,
+ *  submitButton?: HTMLElement|HTMLButtonElement|null,
  *  form: ?HTMLElement,
  *  locale: string
  * }} ApplePaySettings

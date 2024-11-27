@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use Exception;
+use JTL\Backend\Notification;
+use JTL\Backend\NotificationEntry;
 use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\ApplePay\CertificationService;
@@ -13,6 +15,7 @@ use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Interfaces\NotificationInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
@@ -25,11 +28,36 @@ use Plugin\s360_unzer_shop5\src\Utils\Config;
  *
  * @see https://docs.unzer.com/payment-methods/applepay/
  */
-class UnzerApplePay extends HeidelpayPaymentMethod implements HandleStepAdditionalInterface
+class UnzerApplePay extends HeidelpayPaymentMethod implements HandleStepAdditionalInterface, NotificationInterface
 {
     use HasCustomer;
     use HasMetadata;
     use HasBasket;
+
+    /**
+     * @inheritDoc
+     */
+    public function initBackendNotification(): void
+    {
+        // Add deprecation notice IF paymethod is used (ie assigned to a shipping method)
+        $payMethod = $this->plugin->getPaymentMethods()->getMethodByID($this->moduleID);
+
+        if ($payMethod !== null && $payMethod->getActive()) {
+            $this->kZahlungsart = $payMethod->getMethodID();
+            $result = Shop::Container()->getDB()->select('tversandartzahlungsart', 'kZahlungsart', $this->kZahlungsart);
+
+            if ($result) {
+                $notification = new NotificationEntry(
+                    NotificationEntry::TYPE_INFO,
+                    sprintf(__('hpDeprecationPaymentMethodTitle'), __($payMethod->getName())),
+                    nl2br(__('hpApplePayMigrationNotification'))
+                );
+
+                $notification->setPluginId((string) $this->plugin->getID());
+                Notification::getInstance()->addNotify($notification);
+            }
+        }
+    }
 
     /**
      * @param JTLSmarty $view

@@ -675,3 +675,30 @@ msgstr "The country code of the acquirer (default DK)."
 
 msgid "twint"
 msgstr "TWINT"
+
+msgid "Apple Pay"
+msgstr "(Deprecated) Apple Pay"
+
+msgid "Unzer Apple Pay"
+msgstr "(Deprecated) Unzer Apple Pay"
+
+msgid "Unzer Apple Pay v2"
+msgstr "Unzer Apple Pay"
+
+msgid "hpApplePayMigrationNotification"
+msgstr ""
+"We have updated our integration with Apple Pay, but since you already have it set up, you don't need to do anything just now.\n"
+"\n"
+"However, when your Apple Pay certificates are about to expire, you can change to the new integration.\n"
+"\n"
+"You can of course change to the new integration now, if you want and then you don't have to worry about expiring certificates, changing integration etc. in the future.\n"
+"\n"
+"Before you activate Apple Pay v2, please make sure you have read our checklist.\n"
+"<ol>"
+"<li>Allow access from <a href=\"https://developer.apple.com/documentation/apple_pay_on_the_web/setting_up_your_server#3179116\" target=\"_blank\">these IPs</a> to your server.</li>"
+"<li><a href=\"https://docs.unzer.com/apple-pay/apple-developer-merchant-id-domain-association\" target=\"_blank\">Upload the verification file</a> from Apple to your server as follows: https://yourdomain.com/.well-known/apple-developer-merchantid-domain-association </li>"
+"<li>Inform your Unzer representative on which domain you are using the Apple Pay button. Then the onboarding process will begin on the Unzer side. If you have a developer domain and want to test from there, please inform us because we need to add this domain too</li>"
+"</ol>"
+
+msgid "hpApplePayMissingMerchantIdDomainAssociation"
+msgstr "Could not find Apple Pay Verification File. Upload the verification file from Apple to your server as follows: <a href=\"%1$s/.well-known/apple-developer-merchantid-domain-association\" target=\"_blank\">%1$s/.well-known/apple-developer-merchantid-domain-association</a>"

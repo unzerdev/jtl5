@@ -570,3 +570,31 @@ msgstr "Die Webhooks wurden erfolgreich registriert."
 
 msgid "twint"
 msgstr "TWINT"
+
+msgid "Apple Pay"
+msgstr "(Veraltet) Apple Pay"
+
+msgid "Unzer Apple Pay"
+msgstr "(Veraltet) Unzer Apple Pay"
+
+msgid "Unzer Apple Pay v2"
+msgstr "Unzer Apple Pay"
+
+msgid "hpApplePayMigrationNotification"
+msgstr ""
+"Wir haben unsere Integration mit Apple Pay aktualisiert, aber da Sie sie bereits eingerichtet haben, müssen Sie im Moment nichts tun.\n"
+"\n"
+"Wenn Ihre Apple Pay-Zertifikate jedoch bald ablaufen, können Sie auf die neue Integration umsteigen.\n"
+"\n"
+"Sie können natürlich auch jetzt zur neuen Integration wechseln, wenn Sie möchten, und müssen sich dann in Zukunft keine Gedanken mehr über ablaufende Zertifikate, die Änderung der Integration usw. machen.\n"
+"\n"
+"Bevor Sie Apple Pay v2 aktivieren, vergewissern Sie sich bitte, dass Sie unsere Checkliste gelesen haben."
+"<ol>"
+"<li>Erlauben Sie den Zugriff von <a href=\"https://developer.apple.com/documentation/apple_pay_on_the_web/setting_up_your_server#3179116\" target=\"_blank\">diesen IPs</a> auf Ihren Server.</li>"
+"<li><a href=\"https://docs.unzer.com/apple-pay/apple-developer-merchant-id-domain-association\" target=\"_blank\">Laden Sie die Verifizierungsdatei: </a> von Apple wie folgt auf Ihren Server hoch: https://yourdomain.com/.well-known/apple-developer-merchantid-domain-association </li>"
+"<li>Informieren Sie Ihren Unzer-Vertreter, auf welcher Domain Sie den Apple Pay-Button verwenden. Dann beginnt der Onboarding-Prozess auf der Unzer-Seite. Wenn Sie eine Entwickler-Domain haben und von dort aus testen möchten, informieren Sie uns bitte, da wir auch diese Domain hinzufügen müssen</li>"
+"</ol>"
+
+
+msgid "hpApplePayMissingMerchantIdDomainAssociation"
+msgstr "Die Apple Pay-Verifizierungsdatei konnte nicht gefunden werden. Laden Sie die Verifizierungsdatei von Apple wie folgt auf Ihren Server hoch: <a href=\"%1$s/.well-known/apple-developer-merchantid-domain-association\" target=\"_blank\" >%1$s/.well-known/apple-developer-merchantid-domain-association</a>"

@@ -10,6 +10,7 @@ use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HasPayButton;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
@@ -25,7 +26,7 @@ use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Cancellation;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 
-class UnzerGooglePay extends HeidelpayPaymentMethod implements RedirectPaymentInterface, CancelableInterface
+class UnzerGooglePay extends HeidelpayPaymentMethod implements HasPayButton, RedirectPaymentInterface, CancelableInterface
 {
     use HasMetadata;
     use HasCustomer;

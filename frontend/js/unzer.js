@@ -5,6 +5,8 @@ var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefau
 
 var _applepay = _interopRequireDefault(require("./payments/applepay"));
 
+var _applepay_v = _interopRequireDefault(require("./payments/applepay_v2"));
+
 var _general = _interopRequireDefault(require("./payments/general"));
 
 var _googlepay = _interopRequireDefault(require("./payments/googlepay"));
@@ -14,9 +16,10 @@ var _instalment = _interopRequireDefault(require("./payments/instalment"));
 window.HpPayment = _general["default"];
 window.HpInstalment = _instalment["default"];
 window.UnzerApplePay = _applepay["default"];
+window.UnzerApplePayV2 = _applepay_v["default"];
 window.UnzerGooglePay = _googlepay["default"];
 
-},{"./payments/applepay":2,"./payments/general":3,"./payments/googlepay":4,"./payments/instalment":5,"@babel/runtime/helpers/interopRequireDefault":11}],2:[function(require,module,exports){
+},{"./payments/applepay":2,"./payments/applepay_v2":3,"./payments/general":4,"./payments/googlepay":5,"./payments/instalment":6,"@babel/runtime/helpers/interopRequireDefault":15}],2:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -261,7 +264,221 @@ var ApplePay = /*#__PURE__*/function () {
 
 exports["default"] = ApplePay;
 
-},{"../utils/debugging":6,"../utils/errors":7,"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/interopRequireDefault":11}],3:[function(require,module,exports){
+},{"../utils/debugging":7,"../utils/errors":8,"@babel/runtime/helpers/classCallCheck":10,"@babel/runtime/helpers/createClass":13,"@babel/runtime/helpers/interopRequireDefault":15}],3:[function(require,module,exports){
+"use strict";
+
+var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports["default"] = void 0;
+
+var _classCallCheck2 = _interopRequireDefault(require("@babel/runtime/helpers/classCallCheck"));
+
+var _createClass2 = _interopRequireDefault(require("@babel/runtime/helpers/createClass"));
+
+var _defineProperty2 = _interopRequireDefault(require("@babel/runtime/helpers/defineProperty"));
+
+var _classPrivateFieldGet2 = _interopRequireDefault(require("@babel/runtime/helpers/classPrivateFieldGet"));
+
+var _errors = _interopRequireDefault(require("../utils/errors"));
+
+var _debugging2 = _interopRequireDefault(require("../utils/debugging"));
+
+function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+
+function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+
+function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+
+function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+/** @type {ApplePaySnippets} */
+var ApplePaySnippetsDefaults = {
+  NOT_SUPPORTED: "This device does not support Apple Pay!",
+  CANCEL_BY_USER: "Canceled payment process by user!"
+};
+
+var _errorHandler = /*#__PURE__*/new WeakMap();
+
+var _debugging = /*#__PURE__*/new WeakMap();
+
+var _applePayAuthorizedCallback = /*#__PURE__*/new WeakSet();
+
+var _abortPaymentSession = /*#__PURE__*/new WeakSet();
+
+var _unsupportedDevice = /*#__PURE__*/new WeakSet();
+
+var ApplePayV2 = /*#__PURE__*/function () {
+  /** @type {ApplePaySettings} */
+
+  /** @type {ApplePaySnippets} */
+
+  /** @type {HTMLFormElement} */
+
+  /** @type {ApplePayPaymentRequest} */
+
+  /**
+   * @class
+   * @param {String} pubKey
+   * @param {ApplePayPaymentRequest} applePayPaymentRequest
+   * @param {ApplePaySnippets} snippets
+   * @param {ApplePaySettings} settings
+   */
+  function ApplePayV2(pubKey, applePayPaymentRequest, snippets, settings) {
+    (0, _classCallCheck2["default"])(this, ApplePayV2);
+
+    _classPrivateMethodInitSpec(this, _unsupportedDevice);
+
+    _classPrivateMethodInitSpec(this, _abortPaymentSession);
+
+    _classPrivateMethodInitSpec(this, _applePayAuthorizedCallback);
+
+    (0, _defineProperty2["default"])(this, "settings", void 0);
+    (0, _defineProperty2["default"])(this, "snippets", void 0);
+    (0, _defineProperty2["default"])(this, "form", void 0);
+    (0, _defineProperty2["default"])(this, "applePayPaymentRequest", void 0);
+
+    _classPrivateFieldInitSpec(this, _errorHandler, {
+      writable: true,
+      value: new _errors["default"]()
+    });
+
+    _classPrivateFieldInitSpec(this, _debugging, {
+      writable: true,
+      value: new _debugging2["default"]($('.unzerUI'))
+    });
+
+    this.settings = settings;
+    this.snippets = Object.assign(ApplePaySnippetsDefaults, snippets);
+    this.form = this.settings.form || document.getElementById('complete_order');
+    this.applePayPaymentRequest = applePayPaymentRequest;
+    this.unzerInstance = new unzer(pubKey, {
+      locale: this.settings.locale || 'de-DE'
+    });
+    window.UNZER_DEBUG = !!this.unzerInstance._isSandbox || this.unzerInstance.config.hasSandboxKey; // Enable Debugging in sandbox mode
+
+    if (!window.ApplePaySession || !window.ApplePaySession.canMakePayments()) {
+      _classPrivateMethodGet(this, _unsupportedDevice, _unsupportedDevice2).call(this);
+
+      return;
+    } // Register Events
+
+
+    this.initPaymentType = this.initPaymentType.bind(this); // it's a trick! needed in order to overcome the remove event listener
+
+    this.form.addEventListener('submit', this.initPaymentType);
+    $('.apple-pay-button').on('click', this.initPaymentType.bind(this));
+  }
+  /**
+   * @param {Event} event
+   */
+
+
+  (0, _createClass2["default"])(ApplePayV2, [{
+    key: "initPaymentType",
+    value: function initPaymentType(event) {
+      var _this = this;
+
+      event.preventDefault();
+      var applePayInstance = this.unzerInstance.ApplePay();
+      var session = applePayInstance.initApplePaySession(this.applePayPaymentRequest); // setup session with default merchant validation
+
+      (0, _classPrivateFieldGet2["default"])(this, _debugging).log('[> Init Payment Type]', {
+        paymentRequest: this.applePayPaymentRequest
+      });
+
+      if (!window.ApplePaySession || !window.ApplePaySession.canMakePayments()) {
+        _classPrivateMethodGet(this, _unsupportedDevice, _unsupportedDevice2).call(this);
+
+        return;
+      }
+      /** @param {Event} event */
+
+
+      session.onpaymentauthorized = function (event) {
+        _classPrivateMethodGet(_this, _applePayAuthorizedCallback, _applePayAuthorizedCallback2).call(_this, event, applePayInstance, session);
+      };
+      /** @param {Event} event */
+
+
+      session.oncancel = function (event) {
+        (0, _classPrivateFieldGet2["default"])(_this, _debugging).log('[> Cancel]', {
+          event: event
+        });
+        (0, _classPrivateFieldGet2["default"])(_this, _errorHandler).show(_this.snippets.CANCEL_BY_USER);
+      };
+
+      session.begin();
+    }
+    /**
+     * Create Apple Pay resource with unzer and save the resource id to charge it later.
+     *
+     * @param {Event & {payment: {token: {paymentData: object}}}} event
+     * @param {Object} applePayInstance
+     * @param {ApplePaySession} session
+     */
+
+  }]);
+  return ApplePayV2;
+}();
+
+exports["default"] = ApplePayV2;
+
+function _applePayAuthorizedCallback2(event, applePayInstance, session) {
+  var _this2 = this;
+
+  var paymentData = event.payment.token.paymentData;
+  (0, _classPrivateFieldGet2["default"])(this, _debugging).log('[> Payment Authorization]', {
+    applePayInstance: applePayInstance,
+    event: event,
+    paymentData: paymentData
+  }); // Create an Unzer instance with your public key
+
+  applePayInstance.createResource(paymentData).then(function (createdResource) {
+    (0, _classPrivateFieldGet2["default"])(_this2, _debugging).log('[> Payment Authorization Resource]', {
+      createdResource: createdResource
+    });
+    session.completePayment({
+      status: window.ApplePaySession.STATUS_SUCCESS
+    }); // Hand over the payment type ID (createdResource.id)
+
+    var typeId = JSON.stringify(createdResource.id);
+    var hiddenInput = document.createElement('input');
+    hiddenInput.setAttribute('type', 'hidden');
+    hiddenInput.setAttribute('name', 'unzer-payment-type-id');
+    hiddenInput.setAttribute('value', typeId);
+
+    _this2.form.appendChild(hiddenInput);
+
+    _this2.form.removeEventListener('submit', _this2.initPaymentType);
+
+    _this2.form.submit();
+  })["catch"](function (error) {
+    (0, _classPrivateFieldGet2["default"])(_this2, _debugging).log('[> Payment Authorization Error]', error);
+    (0, _classPrivateFieldGet2["default"])(_this2, _errorHandler).show(error.message);
+
+    _classPrivateMethodGet(_this2, _abortPaymentSession, _abortPaymentSession2).call(_this2, session);
+  });
+}
+
+function _abortPaymentSession2(session) {
+  (0, _classPrivateFieldGet2["default"])(this, _debugging).log('[> Abort Payment Session]', {
+    status: window.ApplePaySession.STATUS_FAILURE
+  });
+  session.completePayment({
+    status: window.ApplePaySession.STATUS_FAILURE
+  });
+  session.abort();
+}
+
+function _unsupportedDevice2() {
+  (0, _classPrivateFieldGet2["default"])(this, _errorHandler).show(this.snippets.NOT_SUPPORTED);
+  console.error(this.snippets.NOT_SUPPORTED);
+}
+
+},{"../utils/debugging":7,"../utils/errors":8,"@babel/runtime/helpers/classCallCheck":10,"@babel/runtime/helpers/classPrivateFieldGet":12,"@babel/runtime/helpers/createClass":13,"@babel/runtime/helpers/defineProperty":14,"@babel/runtime/helpers/interopRequireDefault":15}],4:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1149,7 +1366,7 @@ exports["default"] = UnzerPayment;
   TWINT: 'Twint'
 });
 
-},{"../utils/errors":7,"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/defineProperty":10,"@babel/runtime/helpers/interopRequireDefault":11}],4:[function(require,module,exports){
+},{"../utils/errors":8,"@babel/runtime/helpers/classCallCheck":10,"@babel/runtime/helpers/createClass":13,"@babel/runtime/helpers/defineProperty":14,"@babel/runtime/helpers/interopRequireDefault":15}],5:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1257,7 +1474,7 @@ var GooglePay = /*#__PURE__*/function () {
 
 exports["default"] = GooglePay;
 
-},{"../utils/errors":7,"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/interopRequireDefault":11}],5:[function(require,module,exports){
+},{"../utils/errors":8,"@babel/runtime/helpers/classCallCheck":10,"@babel/runtime/helpers/createClass":13,"@babel/runtime/helpers/interopRequireDefault":15}],6:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1291,7 +1508,7 @@ var Installment = function Installment(modalSelector, btn, $form) {
 var _default = Installment;
 exports["default"] = _default;
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1345,7 +1562,7 @@ var Debugging = /*#__PURE__*/function () {
 
 exports["default"] = Debugging;
 
-},{"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/interopRequireDefault":11}],7:[function(require,module,exports){
+},{"@babel/runtime/helpers/classCallCheck":10,"@babel/runtime/helpers/createClass":13,"@babel/runtime/helpers/interopRequireDefault":15}],8:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1397,7 +1614,17 @@ var ErrorHandler = /*#__PURE__*/function () {
 
 exports["default"] = ErrorHandler;
 
-},{"@babel/runtime/helpers/classCallCheck":8,"@babel/runtime/helpers/createClass":9,"@babel/runtime/helpers/interopRequireDefault":11}],8:[function(require,module,exports){
+},{"@babel/runtime/helpers/classCallCheck":10,"@babel/runtime/helpers/createClass":13,"@babel/runtime/helpers/interopRequireDefault":15}],9:[function(require,module,exports){
+function _classApplyDescriptorGet(receiver, descriptor) {
+  if (descriptor.get) {
+    return descriptor.get.call(receiver);
+  }
+
+  return descriptor.value;
+}
+
+module.exports = _classApplyDescriptorGet, module.exports.__esModule = true, module.exports["default"] = module.exports;
+},{}],10:[function(require,module,exports){
 function _classCallCheck(instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -1405,7 +1632,28 @@ function _classCallCheck(instance, Constructor) {
 }
 
 module.exports = _classCallCheck, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{}],9:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
+function _classExtractFieldDescriptor(receiver, privateMap, action) {
+  if (!privateMap.has(receiver)) {
+    throw new TypeError("attempted to " + action + " private field on non-instance");
+  }
+
+  return privateMap.get(receiver);
+}
+
+module.exports = _classExtractFieldDescriptor, module.exports.__esModule = true, module.exports["default"] = module.exports;
+},{}],12:[function(require,module,exports){
+var classApplyDescriptorGet = require("./classApplyDescriptorGet.js");
+
+var classExtractFieldDescriptor = require("./classExtractFieldDescriptor.js");
+
+function _classPrivateFieldGet(receiver, privateMap) {
+  var descriptor = classExtractFieldDescriptor(receiver, privateMap, "get");
+  return classApplyDescriptorGet(receiver, descriptor);
+}
+
+module.exports = _classPrivateFieldGet, module.exports.__esModule = true, module.exports["default"] = module.exports;
+},{"./classApplyDescriptorGet.js":9,"./classExtractFieldDescriptor.js":11}],13:[function(require,module,exports){
 function _defineProperties(target, props) {
   for (var i = 0; i < props.length; i++) {
     var descriptor = props[i];
@@ -1426,7 +1674,7 @@ function _createClass(Constructor, protoProps, staticProps) {
 }
 
 module.exports = _createClass, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{}],10:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 function _defineProperty(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {
@@ -1443,7 +1691,7 @@ function _defineProperty(obj, key, value) {
 }
 
 module.exports = _defineProperty, module.exports.__esModule = true, module.exports["default"] = module.exports;
-},{}],11:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {
     "default": obj

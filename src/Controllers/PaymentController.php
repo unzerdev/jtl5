@@ -7,10 +7,10 @@ namespace Plugin\s360_unzer_shop5\src\Controllers;
 use JTL\Helpers\Request;
 use JTL\Plugin\Payment\Method;
 use JTL\Shop;
-use Plugin\s360_unzer_shop5\paymentmethod\UnzerGooglePay;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInstallment;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepReviewOrderInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HasPayButton;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
 
@@ -82,11 +82,12 @@ class PaymentController extends Controller
                 );
             }
 
-            // Google Pay Info
-            if ($paymentMethod instanceof UnzerGooglePay) {
-                pq('#complete-order-button'
-                    //$this->config->get(Config::PQ_SELECTOR_INSTALMENT_INFO, '#complete-order-button')
-                )->replaceWith($this->view($paymentMethod->addPayButton($this->smarty)));
+            // Pay Button
+            if ($paymentMethod instanceof HasPayButton) {
+                pq(
+                    $this->config->get(Config::PQ_SELECTOR_INSTALMENT_INFO, '#complete-order-button')
+                )
+                    ->replaceWith($this->view($paymentMethod->addPayButton($this->smarty)));
             }
 
             // Review Order => plugin session contains checkoutSession

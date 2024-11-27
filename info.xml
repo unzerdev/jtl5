@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>1.6.3</Version>
+    <Version>1.7.0</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
 
@@ -1032,6 +1032,41 @@
                     <ChargeName><![CDATA[TWINT]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
+            </Method>
+
+            <Method>
+                <Name><![CDATA[Unzer Apple Pay v2]]></Name>
+                <Sort>15</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>0</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerApplePayV2.php</ClassFile>
+                <ClassName>UnzerApplePayV2</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <!-- <AdditionalTemplateFile>template/applepay.tpl</AdditionalTemplateFile> -->
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Apple Pay]]></Name>
+                    <ChargeName><![CDATA[Apple Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Apple Pay]]></Name>
+                    <ChargeName><![CDATA[Apple Pay]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+
+                <Setting type="selectbox" initialValue="charge" sort="10" conf="Y">
+                    <Name><![CDATA[Buchungsmodus]]></Name>
+                    <ValueName>booking_mode</ValueName>
+                    <SelectboxOptions>
+                        <Option value="authorize" sort="1">Authorisierung</Option>
+                        <Option value="charge" sort="2">Erfassen</Option>
+                    </SelectboxOptions>
+                </Setting>
             </Method>
         </PaymentMethod>
     </Install>

@@ -9,6 +9,7 @@ use JTL\Plugin\PluginInterface;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\src\Foundation\EventPayload;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
+use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Webhooks\PaymentEventSubscriber;
 
 /**
@@ -22,8 +23,9 @@ class WebhookController extends Controller
 
     public function __construct(PluginInterface $plugin)
     {
-        parent::__construct($plugin);
-
+        /** @var Config $config */
+        $this->config = Shop::Container()->get(Config::class);
+        $this->plugin = $plugin;
         $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
     }
 

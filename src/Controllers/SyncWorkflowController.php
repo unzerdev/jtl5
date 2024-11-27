@@ -13,6 +13,7 @@ use JTL\Shop;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingModel;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
+use Plugin\s360_unzer_shop5\src\Utils\Config;
 use RuntimeException;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 
@@ -37,8 +38,9 @@ class SyncWorkflowController extends Controller
      */
     public function __construct(PluginInterface $plugin)
     {
-        parent::__construct($plugin);
-
+        /** @var Config $config */
+        $this->config = Shop::Container()->get(Config::class);
+        $this->plugin = $plugin;
         $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
         $this->model = new OrderMappingModel(Shop::Container()->getDB());
     }

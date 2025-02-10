@@ -15,8 +15,8 @@ namespace UnzerSDK\test\integration\PaymentTypes;
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Constants\ExemptionType;
 use UnzerSDK\Exceptions\UnzerApiException;
-use UnzerSDK\Resources\EmbeddedResources\CardTransactionData;
 use UnzerSDK\Resources\EmbeddedResources\CardDetails;
+use UnzerSDK\Resources\EmbeddedResources\CardTransactionData;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Card;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -133,6 +133,7 @@ class CardTest extends BaseIntegrationTest
      * @test
      *
      * @param mixed $recurrenceType
+     *
      * @throws UnzerApiException
      *
      * @dataProvider invalidRecurrenceTypesDP
@@ -259,6 +260,7 @@ class CardTest extends BaseIntegrationTest
      * Verfify card transaction can be used with exemptionType
      *
      * @test
+     * @group CC-1144
      *
      * @dataProvider cardTransactionAcceptsExemptionTypeDP
      */
@@ -728,7 +730,9 @@ class CardTest extends BaseIntegrationTest
     {
         return [
             'lvp' => [ExemptionType::LOW_VALUE_PAYMENT],
-            'tra' => [ExemptionType::TRANSACTION_RISK_ANALYSIS]
+            'tra' => [ExemptionType::TRANSACTION_RISK_ANALYSIS],
+            'scp' => [ExemptionType::SECURE_CORPORATE_PAYMENT],
+            'no_exemption' => [ExemptionType::NO_EXEMPTION]
         ];
     }
 }

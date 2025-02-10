@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] (February 2025)
+### Added
+- added new Unzer Direct Bank Transfer
+
+### Changed
+- updated Unzer PHP SDK to 3.11.0
+- set client ip on api requests
+
+### Fixed
+- only set payment status to paid and send confirmation mail if current status is not paid yet
+
 ## [1.7.0] (November 2024)
 ### Added
 - added new Apple Pay v2

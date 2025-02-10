@@ -615,6 +615,9 @@ var UnzerPayment = /*#__PURE__*/function () {
         case UnzerPayment.PAYMENT_TYPES.PAYLATER_DIRECT_DEBIT:
           return this.createPaylaterDirectDebit();
 
+        case UnzerPayment.PAYMENT_TYPES.OPEN_BANKING:
+          return this.createOpenBanking();
+
         default:
           throw new Error('Unkown Payment Type: ' + type);
       }
@@ -1265,6 +1268,17 @@ var UnzerPayment = /*#__PURE__*/function () {
       return this.unzerInstance.Twint();
     }
     /**
+     * Create a new Open Banking Payment Type.
+     *
+     * @returns {{createResource: Function}} Twint Payment Type
+     */
+
+  }, {
+    key: "createOpenBanking",
+    value: function createOpenBanking() {
+      return this.unzerInstance.OpenBanking();
+    }
+    /**
      * Create an new WeChat Pay Payment Type.
      *
      * @see https://docs.heidelpay.com/docs/redirect-ui-integration#wechat-pay
@@ -1363,7 +1377,8 @@ exports["default"] = UnzerPayment;
   BANCONTACT: 'Bancontact',
   PAYLATER_INSTALLMENT: 'Paylater Installment',
   PAYLATER_DIRECT_DEBIT: 'Paylater Direct Debit',
-  TWINT: 'Twint'
+  TWINT: 'Twint',
+  OPEN_BANKING: 'Open Banking'
 });
 
 },{"../utils/errors":8,"@babel/runtime/helpers/classCallCheck":10,"@babel/runtime/helpers/createClass":13,"@babel/runtime/helpers/defineProperty":14,"@babel/runtime/helpers/interopRequireDefault":15}],5:[function(require,module,exports){

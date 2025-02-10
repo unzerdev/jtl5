@@ -243,7 +243,7 @@ class ChargeHandler
      */
     public function markAsPaid(HeidelpayPaymentMethod $paymentMethod, Bestellung $order): void
     {
-        if ($this->config->get(Config::ADD_INCOMING_PAYMENTS, true)) {
+        if ($order->cStatus != BESTELLUNG_STATUS_BEZAHLT && $this->config->get(Config::ADD_INCOMING_PAYMENTS, true)) {
             $this->debugLog(
                 'No remaining amount to capture. Mark order ' . $order->cBestellNr . ' as paid.',
                 static::class

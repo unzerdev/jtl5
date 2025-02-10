@@ -22,6 +22,7 @@ use Plugin\s360_unzer_shop5\src\Orders\OrderViewStruct;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use RuntimeException;
+use UnzerSDK\Resources\TransactionTypes\Chargeback;
 
 /**
  * Admin Orders Controller
@@ -185,6 +186,19 @@ class AdminOrdersController extends AdminController implements AjaxResponse
             } catch (UnzerApiException $exc) {
                 $this->errorLog(
                     'Error while loading cancellation: ' . $exc->getMerchantMessage()
+                    . ' | Error-Code: ' . $exc->getCode(),
+                    static::class
+                );
+            }
+        }
+
+        foreach ($payment->getChargebacks() as $chargeback) {
+            /** @var Chargeback $chargeback */
+            try {
+                $cancellations[$chargeback->getId()] = $api->fetchChargeback($chargeback);
+            } catch (UnzerApiException $exc) {
+                $this->errorLog(
+                    'Error while loading chargebacks: ' . $exc->getMerchantMessage()
                     . ' | Error-Code: ' . $exc->getCode(),
                     static::class
                 );

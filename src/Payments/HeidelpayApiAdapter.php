@@ -18,6 +18,7 @@ use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use JTL\Cart\Cart;
 use JTL\Checkout\Bestellung;
+use JTL\Helpers\Request;
 use JTL\Helpers\Text;
 use JTL\Session\Frontend;
 use JTL\Shop;
@@ -103,6 +104,7 @@ class HeidelpayApiAdapter
             $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
         );
 
+        $this->connections[$key]->setClientIp(Request::getRealIP());
         $this->currentConnection = $this->connections[$key];
 
         return $this->currentConnection;
@@ -122,6 +124,7 @@ class HeidelpayApiAdapter
             );
         }
 
+        $this->defaultConnection->setClientIp(Request::getRealIP());
         return $this->defaultConnection;
     }
 
@@ -155,6 +158,7 @@ class HeidelpayApiAdapter
             $privateKey,
             $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
         );
+        $this->currentConnection->setClientIp(Request::getRealIP());
 
         return $this->currentConnection;
     }

@@ -41,7 +41,7 @@ msgid "Unzer PayPal"
 msgstr "Unzer PayPal"
 
 msgid "Unzer SOFORT"
-msgstr "Unzer SOFORT"
+msgstr "(Veraltet) Unzer SOFORT"
 
 msgid "Unzer Giropay"
 msgstr "(Veraltet) Unzer Giropay"
@@ -62,7 +62,7 @@ msgid "Unzer FlexiPay Direct"
 msgstr "Unzer FlexiPay Direct"
 
 msgid "Unzer Direktüberweisung"
-msgstr "Unzer Direktüberweisung"
+msgstr "(Veraltet) Unzer Direktüberweisung"
 
 msgid "Unzer Alipay"
 msgstr "Unzer Alipay"
@@ -598,3 +598,9 @@ msgstr ""
 
 msgid "hpApplePayMissingMerchantIdDomainAssociation"
 msgstr "Die Apple Pay-Verifizierungsdatei konnte nicht gefunden werden. Laden Sie die Verifizierungsdatei von Apple wie folgt auf Ihren Server hoch: <a href=\"%1$s/.well-known/apple-developer-merchantid-domain-association\" target=\"_blank\" >%1$s/.well-known/apple-developer-merchantid-domain-association</a>"
+
+msgid "Unzer Direct Bank Transfer"
+msgstr "Unzer Direktüberweisung"
+
+msgid "openbanking-pis"
+msgstr "Unzer Direktüberweisung"

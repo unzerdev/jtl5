@@ -24,6 +24,7 @@ export default class UnzerPayment {
         PAYLATER_INSTALLMENT: 'Paylater Installment',
         PAYLATER_DIRECT_DEBIT: 'Paylater Direct Debit',
         TWINT: 'Twint',
+        OPEN_BANKING: 'Open Banking',
     };
 
     /**
@@ -140,6 +141,9 @@ export default class UnzerPayment {
 
             case UnzerPayment.PAYMENT_TYPES.PAYLATER_DIRECT_DEBIT:
                 return this.createPaylaterDirectDebit();
+
+            case UnzerPayment.PAYMENT_TYPES.OPEN_BANKING:
+                return this.createOpenBanking();
 
             default:
                 throw new Error('Unkown Payment Type: ' + type);
@@ -757,6 +761,15 @@ export default class UnzerPayment {
      */
     createTwint() {
         return this.unzerInstance.Twint();
+    }
+
+    /**
+     * Create a new Open Banking Payment Type.
+     *
+     * @returns {{createResource: Function}} Twint Payment Type
+     */
+    createOpenBanking() {
+        return this.unzerInstance.OpenBanking();
     }
 
     /**

@@ -116,12 +116,14 @@ trait HasCustomer
 
         if (!empty($customer->cFirma)) {
             $customerObj->setCompany(
-                html_entity_decode(utf8_encode($customer->cFirma), ENT_COMPAT, 'UTF-8')
+                html_entity_decode(mb_convert_encoding($customer->cFirma, 'UTF-8', 'ISO-8859-1'), ENT_COMPAT, 'UTF-8')
             );
         }
 
         // Set external customer so we do not have to map it ourself.
-        $customerObj->setCustomerId((string) $customer->kKunde);
+        if (!empty($customer->kKunde)) {
+            $customerObj->setCustomerId((string) $customer->kKunde);
+        }
 
         return $customerObj;
     }

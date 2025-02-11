@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>1.7.0</Version>
+    <Version>1.8.0</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
 
@@ -1067,6 +1067,33 @@
                         <Option value="charge" sort="2">Erfassen</Option>
                     </SelectboxOptions>
                 </Setting>
+            </Method>
+
+
+            <Method>
+                <Name><![CDATA[Unzer Direct Bank Transfer]]></Name>
+                <Sort>70</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerDirectBankTransfer.php</ClassFile>
+                <ClassName>UnzerDirectBankTransfer</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/direct_bank_transfer.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Direktüberweisung]]></Name>
+                    <ChargeName><![CDATA[Direktüberweisung]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Direct Bank Transfer]]></Name>
+                    <ChargeName><![CDATA[Direct Bank Transfer]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
             </Method>
         </PaymentMethod>
     </Install>

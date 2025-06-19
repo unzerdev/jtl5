@@ -5,17 +5,17 @@
         </td>
         <td class="hp-order-table-column hp-shop-order-status">
             {if isset($hpOrder->getOrder()->cStatus)}
-                {if $hpOrder->getOrder()->cStatus === "-1"}
+                {if $hpOrder->getOrder()->cStatus == "-1"}
                     {__('hpStateCanceled')}
-                {elseif $hpOrder->getOrder()->cStatus === "1"}
+                {elseif $hpOrder->getOrder()->cStatus == "1"}
                     {__('hpStateOpen')}
-                {elseif $hpOrder->getOrder()->cStatus === "2"}
+                {elseif $hpOrder->getOrder()->cStatus == "2"}
                     {__('hpStateInProgress')}
-                {elseif $hpOrder->getOrder()->cStatus === "3"}
+                {elseif $hpOrder->getOrder()->cStatus == "3"}
                     {__('hpStatePaid')}
-                {elseif $hpOrder->getOrder()->cStatus === "4"}
+                {elseif $hpOrder->getOrder()->cStatus == "4"}
                     {__('hpStateShipped')}
-                {elseif $hpOrder->getOrder()->cStatus === "5"}
+                {elseif $hpOrder->getOrder()->cStatus == "5"}
                     {__('hpStatePartlyShipped')}
                 {else}
                     {$hpOrder->getOrder()->cStatus}

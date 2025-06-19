@@ -152,7 +152,7 @@ class OrderMappingModel extends Model
             $order->kVersandart          = (int)$row->kVersandart;
             $order->kSprache             = (int)$row->kSprache;
             $order->kWaehrung            = (int)$row->kWaehrung;
-            $order->fGuthaben            = $row->fGuthaben;
+            $order->fGuthaben            = $row->fGuthaben ?? '';
             $order->fGesamtsumme         = $row->fGesamtsumme;
             $order->cSession             = $row->cSession;
             $order->cVersandartName      = $row->cVersandartName;
@@ -166,13 +166,13 @@ class OrderMappingModel extends Model
             $order->dBewertungErinnerung = $row->dBewertungErinnerung;
             $order->cTracking            = $row->cTracking;
             $order->cKommentar           = $row->cKommentar;
-            $order->cLogistiker          = $row->cLogistiker;
-            $order->cTrackingURL         = $row->cTrackingURL;
-            $order->cIP                  = $row->cIP;
-            $order->cAbgeholt            = $row->cAbgeholt;
-            $order->cStatus              = $row->cStatus;
+            $order->cLogistiker          = $row->cLogistiker ?? '';
+            $order->cTrackingURL         = $row->cTrackingURL ?? '';
+            $order->cIP                  = $row->cIP ?? '';
+            $order->cAbgeholt            = $row->cAbgeholt ?? '';
+            $order->cStatus              = $row->cStatus ? (int)$row->cStatus : null;
             $order->dErstellt            = $row->dErstellt;
-            $order->fWaehrungsFaktor     = $row->fWaehrungsFaktor;
+            $order->fWaehrungsFaktor     = $row->fWaehrungsFaktor ? (float)$row->fWaehrungsFaktor : 1.0;
             $order->cPUIZahlungsdaten    = $row->cPUIZahlungsdaten;
 
             if (isset($order->nLongestMinDelivery, $order->nLongestMaxDelivery)) {

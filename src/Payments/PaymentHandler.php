@@ -415,7 +415,7 @@ class PaymentHandler
             (int) Frontend::getCurrency()->getID(),
             (int) Frontend::get('AktiveZahlungsart')
         );
-        $data['publicKey'] = $publicKey ?? $this->adapter->getKeypairService()->getDefaultPublicKey();
+        $data['publicKey'] = trim($publicKey ?? $this->adapter->getKeypairService()->getDefaultPublicKey() ?? '');
 
         $smarty->assign('hpPayment', $data);
     }

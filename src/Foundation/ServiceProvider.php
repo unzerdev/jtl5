@@ -47,6 +47,8 @@ class ServiceProvider
      */
     public function register(): void
     {
+        require_once __DIR__ . '/../../vendor/autoload.php';
+
         // Wrap Helper in a singleton because it does not cache it (=> many initializations during a request!)
         $this->app->setSingleton(Config::PLUGIN_ID, function () {
             return Helper::getPluginById(Config::PLUGIN_ID);

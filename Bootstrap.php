@@ -51,7 +51,6 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
     public function boot(Dispatcher $dispatcher): void
     {
         parent::boot($dispatcher);
-        require_once __DIR__ . '/vendor/autoload.php';
 
         /**
          * Register Services

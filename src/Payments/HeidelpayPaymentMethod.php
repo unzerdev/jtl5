@@ -5,6 +5,7 @@ namespace Plugin\s360_unzer_shop5\src\Payments;
 
 use Exception;
 use JTL\Alert\Alert;
+use Plugin\s360_unzer_shop5\src\Foundation\ServiceProvider;
 use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
@@ -114,6 +115,9 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     public function init($nAgainCheckout = 0): self
     {
         parent::init($nAgainCheckout);
+
+        // For some reason JTL does not always call the Plugin::boot() method before calling payment methods
+        (new ServiceProvider(Shop::Container()))->register();
 
         try {
             $this->plugin = Shop::Container()->get(Config::PLUGIN_ID);

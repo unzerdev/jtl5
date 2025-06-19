@@ -46,8 +46,8 @@ class KeyPairEntity extends Entity
     public static function create(stdClass $data): Entity
     {
         $entity = new self(
-            $data->private_key,
-            $data->public_key,
+            trim($data->private_key),
+            trim($data->public_key),
             (bool) $data->is_b2b,
             (int) $data->currency_id,
             (int) $data->payment_method_id

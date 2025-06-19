@@ -136,7 +136,7 @@ trait HasCustomer
      */
     protected function createHeidelpayAddress($address): Address
     {
-        $type = $_SESSION['Bestellung'] && $_SESSION['Bestellung']->kLieferadresse == -1
+        $type = isset($_SESSION['Bestellung']) && $_SESSION['Bestellung']->kLieferadresse == -1
             ? ShippingTypes::DIFFERENT_ADDRESS
             : ShippingTypes::EQUALS_BILLING;
 

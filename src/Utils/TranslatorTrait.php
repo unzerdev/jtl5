@@ -21,7 +21,7 @@ trait TranslatorTrait
      * @param string $languageIso
      * @return string|null
      */
-    public function trans(string $key, string $languageIso = null): ?string
+    public function trans(string $key, ?string $languageIso = null): ?string
     {
         /** @var PluginInterface $plugin */
         $plugin = Shop::Container()->get(Config::PLUGIN_ID);

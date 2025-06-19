@@ -795,6 +795,8 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "hideFormFields",
     value: function hideFormFields(paymentMethodName) {
+      var _this = this;
+
       var field = $('#customer');
       field.find('.field').filter('.city, .company, :has(.country), .street, .zip, .firstname, .lastname').hide();
       field.find('.salutation-customer').hide();
@@ -808,6 +810,10 @@ var UnzerPayment = /*#__PURE__*/function () {
         field.find('.unzerUI.form>.checkboxLabel').hide();
         field.find('.unzerUI.form>.salutation-unzer-' + paymentMethodName + '-customer').hide();
       }
+
+      field.find('.companyType').on('change', function (e) {
+        return _this.hideFormFields(paymentMethodName);
+      });
     }
     /**
      * Create Paylayter Installment Payment Type
@@ -819,7 +825,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createPaylaterInstallment",
     value: function createPaylaterInstallment() {
-      var _this = this;
+      var _this2 = this;
 
       this.customerResource = this.createCustomer('paylater-installment', true);
       var continueButton = this.settings.submitButton || document.getElementById("submit-button");
@@ -847,7 +853,7 @@ var UnzerPayment = /*#__PURE__*/function () {
 
         var isValid = e.action === 'validate' && e.success;
 
-        _this.onPaylaterInputValidation(e, isValid, 'paylater-installment', continueButton);
+        _this2.onPaylaterInputValidation(e, isValid, 'paylater-installment', continueButton);
       });
       return paylaterInstallment;
     }
@@ -861,7 +867,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createPaylaterInvoice",
     value: function createPaylaterInvoice() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.customerResource = this.createCustomer('paylater-invoice', true);
       var continueButton = this.settings.submitButton || document.getElementById("submit-button");
@@ -872,7 +878,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         customerType: this.settings.isB2B ? 'B2B' : 'B2C'
       });
       paylaterInvoice.addEventListener('change', function (e) {
-        return _this2.onPaylaterInputValidation(e, e.success, 'paylater-invoice', continueButton);
+        return _this3.onPaylaterInputValidation(e, e.success, 'paylater-invoice', continueButton);
       });
       return paylaterInvoice;
     }
@@ -886,7 +892,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createPaylaterDirectDebit",
     value: function createPaylaterDirectDebit() {
-      var _this3 = this;
+      var _this4 = this;
 
       this.customerResource = this.createCustomer('paylater-direct-debit', true);
       var continueButton = this.settings.submitButton || document.getElementById("submit-button");
@@ -897,7 +903,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         customerType: this.settings.isB2B ? 'B2B' : 'B2C'
       });
       paylaterDirectDebit.addEventListener('change', function (e) {
-        return _this3.onPaylaterInputValidation(e, e.success, 'paylater-direct-debit', continueButton);
+        return _this4.onPaylaterInputValidation(e, e.success, 'paylater-direct-debit', continueButton);
       });
       return paylaterDirectDebit;
     }
@@ -942,7 +948,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createCard",
     value: function createCard() {
-      var _this4 = this;
+      var _this5 = this;
 
       var Card = this.unzerInstance.Card();
       var styling = {
@@ -995,13 +1001,13 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.success) {
           formFieldValid[e.type] = true;
 
-          _this4.errorHandler.hide();
+          _this5.errorHandler.hide();
         }
 
         if (e.error) {
           formFieldValid[e.type] = false;
 
-          _this4.errorHandler.show(e.error);
+          _this5.errorHandler.show(e.error);
         }
 
         if (e.reset) {
@@ -1065,7 +1071,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createSepa",
     value: function createSepa() {
-      var _this5 = this;
+      var _this6 = this;
 
       var Sepa = this.unzerInstance.SepaDirectDebit();
       Sepa.create('sepa-direct-debit', {
@@ -1079,7 +1085,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.success) {
           continueButton.removeAttribute('disabled');
 
-          _this5.errorHandler.hide();
+          _this6.errorHandler.hide();
 
           return;
         }
@@ -1098,7 +1104,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createSepaGuaranteed",
     value: function createSepaGuaranteed() {
-      var _this6 = this;
+      var _this7 = this;
 
       var SepaGuaranteed = this.unzerInstance.SepaDirectDebitSecured();
       SepaGuaranteed.create('sepa-direct-debit-guaranteed', {
@@ -1112,7 +1118,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.success) {
           continueButton.removeAttribute('disabled');
 
-          _this6.errorHandler.hide();
+          _this7.errorHandler.hide();
 
           return;
         }
@@ -1184,7 +1190,7 @@ var UnzerPayment = /*#__PURE__*/function () {
   }, {
     key: "createIdeal",
     value: function createIdeal() {
-      var _this7 = this;
+      var _this8 = this;
 
       var Ideal = this.unzerInstance.Ideal();
       Ideal.create('ideal', {
@@ -1198,7 +1204,7 @@ var UnzerPayment = /*#__PURE__*/function () {
         if (e.value) {
           continueButton.removeAttribute('disabled');
 
-          _this7.errorHandler.hide();
+          _this8.errorHandler.hide();
 
           return;
         }

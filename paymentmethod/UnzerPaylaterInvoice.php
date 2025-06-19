@@ -216,7 +216,7 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
             $shopCustomer->cNachname = $names['lastname'] ?: $shopCustomer->cNachname;
 
             if ($this->isB2BCustomer($shopCustomer)) {
-                $shopCustomer->cBundesland = $customer->getBillingAddress()->getState();
+                $shopCustomer->cBundesland = $customer->getBillingAddress()->getState() ?? '';
                 $shopCustomer->cPLZ = $customer->getBillingAddress()->getZip();
                 $shopCustomer->cOrt = $customer->getBillingAddress()->getCity();
                 $shopCustomer->cLand = $customer->getBillingAddress()->getCountry();

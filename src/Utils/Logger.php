@@ -26,7 +26,7 @@ class Logger
      */
     public static function debug(string $message, array $context = []): void
     {
-        self::log($message, LOGLEVEL_DEBUG, $context);
+        self::log($message, JTLLOG_LEVEL_DEBUG, $context);
     }
 
     /**
@@ -38,7 +38,7 @@ class Logger
      */
     public static function notice(string $message, array $context = []): void
     {
-        self::log($message, LOGLEVEL_NOTICE, $context);
+        self::log($message, JTLLOG_LEVEL_NOTICE, $context);
     }
 
     /**
@@ -50,7 +50,7 @@ class Logger
      */
     public static function error(string $message, array $context = []): void
     {
-        self::log($message, LOGLEVEL_ERROR, $context);
+        self::log($message, JTLLOG_LEVEL_ERROR, $context);
     }
 
     public static function log(string $message, int $level, array $context = []): void

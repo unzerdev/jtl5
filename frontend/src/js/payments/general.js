@@ -337,6 +337,8 @@ export default class UnzerPayment {
             field.find('.unzerUI.form>.checkboxLabel').hide();
             field.find('.unzerUI.form>.salutation-unzer-' + paymentMethodName + '-customer').hide();
         }
+
+        field.find('.companyType').on('change', e => this.hideFormFields(paymentMethodName));
     }
 
     /**

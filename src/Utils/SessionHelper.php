@@ -245,7 +245,7 @@ class SessionHelper
      * @param string|null $context
      * @return void
      */
-    public function addErrorAlert(string $merchant, string $customer, string $key, string $redirect = null, string $context = null): void
+    public function addErrorAlert(string $merchant, string $customer, string $key, ?string $redirect = null, ?string $context = null): void
     {
         if (empty($redirect)) {
             $this->clear();
@@ -264,13 +264,12 @@ class SessionHelper
      * @param string $url
      * @return void
      */
-    public function redirectError(string $message, string $errorKey, string $url = null): void
+    public function redirectError(string $message, string $errorKey, ?string $url = null): void
     {
         if ($url) {
             $this->alerts->addAlert(Alert::TYPE_ERROR, $message, $errorKey, ['saveInSession' => true]);
             header('Location: ' . $url);
             exit;
-            return;
         }
 
         $this->alerts->addAlert(Alert::TYPE_ERROR, $message, $errorKey);

@@ -173,7 +173,9 @@ class PaymentHandler
      */
     public function finishPayment(string $paymentHash): void
     {
-        $paymentId = $this->session->has(SessionHelper::KEY_PAYMENT_ID);
+        $paymentId = $this->session->get(SessionHelper::KEY_PAYMENT_ID);
+
+        $this->debugLog('finishPayment paymentId: ' . $paymentId, static::class);
 
         if (!empty($paymentId)) {
             $this->paymentMethod->setPayStatus(HeidelpayPaymentMethod::PAYSTATUS_SUCCESS);

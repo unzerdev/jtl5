@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>1.8.1</Version>
+    <Version>1.8.2</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
 
@@ -308,6 +308,7 @@
         <PaymentMethod>
             <Method>
                 <Name><![CDATA[Unzer Kreditkarte]]></Name>
+                <PictureURL>images/Card.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -333,6 +334,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift]]></Name>
+                <PictureURL>images/SEPA.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -358,6 +360,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift (secured)]]></Name>
+                <PictureURL>images/SEPA.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -383,6 +386,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Rechnung]]></Name>
+                <PictureURL>images/InvoiceWL.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -408,6 +412,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Rechnung (secured)]]></Name>
+                <PictureURL>images/InvoiceWL.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -433,6 +438,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Rechnung (Jetzt kaufen, Später bezahlen)]]></Name>
+                <PictureURL>images/InvoiceWL.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -483,6 +489,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer PayPal]]></Name>
+                <PictureURL>images/Paypal.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -508,6 +515,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer SOFORT]]></Name>
+                <PictureURL>images/Sofort.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -533,6 +541,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Giropay]]></Name>
+                <PictureURL>images/Giropay.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -558,6 +567,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Przelewy24]]></Name>
+                <PictureURL>images/Przelewy24.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -583,6 +593,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer iDEAL]]></Name>
+                <PictureURL>images/Ideal.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -608,6 +619,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Vorkasse]]></Name>
+                <PictureURL>images/PrepaymentWL.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -633,6 +645,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer EPS]]></Name>
+                <PictureURL>images/EPS.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -683,6 +696,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Alipay]]></Name>
+                <PictureURL>images/Alipay.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -708,6 +722,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer WeChat Pay]]></Name>
+                <PictureURL>images/WeChatPay.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -765,6 +780,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Apple Pay]]></Name>
+                <PictureURL>images/ApplePay.svg</PictureURL>
                 <Sort>10</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -790,6 +806,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Bancontact]]></Name>
+                <PictureURL>images/Bancontact.svg</PictureURL>
                 <Sort>20</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -815,6 +832,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Ratenzahlung (Paylater)]]></Name>
+                <PictureURL>images/InstalmentWL.svg</PictureURL>
                 <Sort>30</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -840,6 +858,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift (Paylater)]]></Name>
+                <PictureURL>images/Default.svg</PictureURL>
                 <Sort>40</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -865,6 +884,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Google Pay]]></Name>
+                <PictureURL>images/GooglePay.svg</PictureURL>
                 <Sort>50</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -1010,6 +1030,7 @@
 
             <Method>
                 <Name><![CDATA[Unzer TWINT]]></Name>
+                <PictureURL>images/Twint.svg</PictureURL>
                 <Sort>60</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -1036,6 +1057,7 @@
 
             <Method>
                 <Name><![CDATA[Unzer Apple Pay v2]]></Name>
+                <PictureURL>images/ApplePay.svg</PictureURL>
                 <Sort>15</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -1072,6 +1094,7 @@
 
             <Method>
                 <Name><![CDATA[Unzer Direct Bank Transfer]]></Name>
+                <PictureURL>images/DirectBankTransferWL.svg</PictureURL>
                 <Sort>70</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>

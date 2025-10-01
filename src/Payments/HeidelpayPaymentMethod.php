@@ -476,7 +476,7 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             // If the payment is neither successful nor pending, something went wrong.
             $this->sessionHelper->clear();
             $this->sessionHelper->clear(SessionHelper::KEY_CUSTOMER_ID);
-            $this->handler->revokePayment($order, $hash, $transaction);
+            // $this->handler->revokePayment($order, $hash, $transaction);
             $this->sessionHelper->getFrontendSession()->cleanUp();
 
             $this->errorLog(Text::convertUTF8($transaction->getMessage()->getMerchant()), static::class);
@@ -487,7 +487,9 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
                 ['saveInSession' => true]
             );
         } catch (UnzerApiException $exc) {
-            $merchant = $exc->getMerchantMessage() . ' | Id: ' . $exc->getErrorId() . ' | Code: ' . $exc->getCode();
+            $key = $this->adapter->getCurrentConnection()->getKey();
+            $key = substr($key, 0, -16) . str_repeat('&bull;', 16);
+            $merchant = $exc->getMerchantMessage() . ' | Id: ' . $exc->getErrorId() . ' | Code: ' . $exc->getCode() . ' | API Key: ' . $key;
             $this->errorLog($merchant, static::class);
             $this->sessionHelper->getAlertService()->addAlert(
                 Alert::TYPE_ERROR,
@@ -496,8 +498,11 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
                 ['saveInSession' => true]
             );
         } catch (RuntimeException $exc) {
+            $key = $this->adapter->getCurrentConnection()->getKey();
+            $key = substr($key, 0, -16) . str_repeat('&bull;', 16);
             $merchant = 'An exception was thrown while using the Heidelpay SDK: ';
             $merchant .= Text::convertUTF8($exc->getMessage());
+            $merchant .= "\n | API Key: " . $key;
 
             $this->errorLog($merchant, static::class);
             $this->sessionHelper->getAlertService()->addAlert(
@@ -507,7 +512,11 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
                 ['saveInSession' => true]
             );
         } catch (Throwable $exc) {
-            $merchant = 'An error occured in the payment process: ' . $exc->getMessage();
+            $key = $this->adapter->getCurrentConnection()->getKey();
+            $key = substr($key, 0, -16) . str_repeat('&bull;', 16);
+            $merchant = 'An error occured in the payment process: ' . $exc->getMessage() . "\nAPI Key: " . $key;
+            $merchant .= "\n" . $exc->getTraceAsString();
+
             $this->errorLog($merchant, static::class);
             $this->sessionHelper->getAlertService()->addAlert(
                 Alert::TYPE_ERROR,

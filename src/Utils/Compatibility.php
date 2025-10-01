@@ -13,6 +13,16 @@ namespace Plugin\s360_unzer_shop5\src\Utils;
  */
 final class Compatibility
 {
+    public static function isShopAtLeast56()
+    {
+        return version_compare(\APPLICATION_VERSION, '5.6.0-beta', '>=');
+    }
+
+    public static function isShopAtLeast55()
+    {
+        return version_compare(\APPLICATION_VERSION, '5.5.0-beta', '>=');
+    }
+
     public static function isShopAtLeast54()
     {
         return version_compare(\APPLICATION_VERSION, '5.4.0-beta', '>=');

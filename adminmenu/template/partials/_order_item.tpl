@@ -90,10 +90,6 @@
                     {__($hpOrder->getPaymentTypeName())}
                 {/if}
             {/if}
-
-            {if $hpOrder->getPaymentTypeId()}
-                <em>({$hpOrder->getPaymentTypeId()})</em>
-            {/if}
         </td>
         <td class="hp-order-table-column hp-amount tright">
             {\JTL\Catalog\Product\Preise::getLocalizedPriceString($hpOrder->getOrder()->fGesamtsumme, $hpOrder->getOrder()->Waehrung)}

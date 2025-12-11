@@ -18,6 +18,7 @@ use function Functional\first;
  * Abstract Admin Controller
  *
  * @package Plugin\s360_unzer_shop5\src\Controllers\Admin
+ * @deprecated
  */
 abstract class AdminController extends Controller
 {

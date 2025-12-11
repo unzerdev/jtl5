@@ -12,6 +12,7 @@ use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HasPayButton;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasAuthorization;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
@@ -28,6 +29,7 @@ use UnzerSDK\Resources\TransactionTypes\Charge;
 
 class UnzerGooglePay extends HeidelpayPaymentMethod implements HasPayButton, RedirectPaymentInterface, CancelableInterface
 {
+    use HasAuthorization;
     use HasMetadata;
     use HasCustomer;
     use HasBasket;
@@ -95,11 +97,12 @@ class UnzerGooglePay extends HeidelpayPaymentMethod implements HasPayButton, Red
         $config = Shop::Container()->get(Config::class);
         // $channelId = $config->getPaymentSetting(Config::GPAY_GATEWAY_MERCHANT_ID, $this->moduleID);
 
-        // if (empty($channelId)) {
-            $this->adapter->getConnectionForSession();
-            $channelId = $this->adapter->getChannelIdForPaymentType(Googlepay::getResourceName());
+        $this->adapter->getConnectionForSession();
+        $channelId = $this->adapter->getChannelIdForPaymentType(Googlepay::getResourceName());
+
+        if (!empty($channelId)) {
             $config->savePaymentSetting(Config::GPAY_GATEWAY_MERCHANT_ID, $this->moduleID, $channelId);
-        // }
+        }
 
         $this->sessionHelper->setCheckoutSession(null, $channelId);
 
@@ -212,15 +215,8 @@ class UnzerGooglePay extends HeidelpayPaymentMethod implements HasPayButton, Red
 
         // Authorize payment
         if ($config->getPaymentSetting(Config::GPAY_BOOKING_MODE, $this->moduleID) === 'authorize') {
-            $authorization = new Authorization(
-                $this->getTotalPriceCustomerCurrency($order),
-                $order->Waehrung->getCode(),
-                $this->getReturnURL($order)
-            );
-            $authorization->setOrderId($order->cBestellNr ?? null);
-
             return $this->adapter->getCurrentConnection()->performAuthorization(
-                $authorization,
+                $this->createAuthorization($shopCustomer, $order),
                 $payment->getId(),
                 $customer,
                 $this->createMetadata(),

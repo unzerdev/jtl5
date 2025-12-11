@@ -20,6 +20,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
+use UnzerSDK\Resources\PaymentTypes\Clicktopay;
 
 /**
  * HeidelpayCreditCard Payment Method.
@@ -61,33 +62,35 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
     public function getOrderAttributes(Bestellung $order, AbstractTransactionType $transaction): array
     {
         try {
-            /** @var Card $type */
+            /** @var Card|Clicktopay $type */
             $type = $transaction->getPayment()->getPaymentType();
 
-            // Save Payment Info
-            $oPaymentInfo = new ZahlungsInfo(0, $order->kBestellung);
-            $oPaymentInfo->kKunde       = $order->kKunde;
-            $oPaymentInfo->kBestellung  = $order->kBestellung;
-            $oPaymentInfo->cInhaber     = Text::convertUTF8($type->getCardHolder() ?? '');
-            $oPaymentInfo->cKartenNr    = Text::convertUTF8($type->getNumber() ?? '');
-            $oPaymentInfo->cGueltigkeit = Text::convertUTF8($type->getExpiryDate() ?? '');
-            $oPaymentInfo->cCVV         = Text::convertUTF8($type->getCvc() ?? '');
-            $oPaymentInfo->cKartenTyp   = Text::convertUTF8($type->getBrand() ?? '');
-            $oPaymentInfo->cBankName    = '';
-            $oPaymentInfo->cKartenNr    = '';
-            $oPaymentInfo->cCVV         = '';
+            if ($type instanceof Card) {
+                // Save Payment Info
+                $oPaymentInfo = new ZahlungsInfo(0, $order->kBestellung);
+                $oPaymentInfo->kKunde       = $order->kKunde;
+                $oPaymentInfo->kBestellung  = $order->kBestellung;
+                $oPaymentInfo->cInhaber     = Text::convertUTF8($type->getCardHolder() ?? '');
+                $oPaymentInfo->cKartenNr    = Text::convertUTF8($type->getNumber() ?? '');
+                $oPaymentInfo->cGueltigkeit = Text::convertUTF8($type->getExpiryDate() ?? '');
+                $oPaymentInfo->cCVV         = Text::convertUTF8($type->getCvc() ?? '');
+                $oPaymentInfo->cKartenTyp   = Text::convertUTF8($type->getBrand() ?? '');
+                $oPaymentInfo->cBankName    = '';
+                $oPaymentInfo->cKartenNr    = '';
+                $oPaymentInfo->cCVV         = '';
 
 
-            isset($oPaymentInfo->kZahlungsInfo) ? $oPaymentInfo->updateInDB() : $oPaymentInfo->insertInDB();
+                isset($oPaymentInfo->kZahlungsInfo) ? $oPaymentInfo->updateInDB() : $oPaymentInfo->insertInDB();
 
-            // Order Attributes
-            return [
-                self::ATTR_CARD_HOLDER      => $oPaymentInfo->cInhaber,
-                self::ATTR_CARD_NUMBER      => $oPaymentInfo->cKartenNr,
-                self::ATTR_CARD_EXPIRY_DATE => $oPaymentInfo->cGueltigkeit,
-                self::ATTR_CARD_CVC         => $oPaymentInfo->cCVV,
-                self::ATTR_CARD_TYPE        => $oPaymentInfo->cKartenTyp
-            ];
+                // Order Attributes
+                return [
+                    self::ATTR_CARD_HOLDER      => $oPaymentInfo->cInhaber,
+                    self::ATTR_CARD_NUMBER      => $oPaymentInfo->cKartenNr,
+                    self::ATTR_CARD_EXPIRY_DATE => $oPaymentInfo->cGueltigkeit,
+                    self::ATTR_CARD_CVC         => $oPaymentInfo->cCVV,
+                    self::ATTR_CARD_TYPE        => $oPaymentInfo->cKartenTyp
+                ];
+            }
         } catch (Exception $exc) {
             $this->errorLog(
                 'An exception was thrown while trying to get the order attributes '
@@ -115,6 +118,7 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
             Config::FONT_FAMILY => $config->get(Config::FONT_FAMILY),
             Config::FONT_SIZE   => $config->get(Config::FONT_SIZE),
         ];
+        $data['enableCTP'] = $config->getPaymentSetting(Config::ENABLE_CTP, $this->moduleID) === 'Y';
         $view->assign('hpPayment', $data);
     }
 

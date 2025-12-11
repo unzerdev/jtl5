@@ -119,13 +119,13 @@ class SyncController extends Controller
         // Action routing
         if ($this->action == self::ACTION_SHIPMENT) {
             $this->handleShipment($mappedOrder);
-            $this->model->save($mappedOrder);
+            $this->updatePaymentState($mappedOrder);
             return self::ACTION_SHIPMENT;
         }
 
         if ($this->action == self::ACTION_CANCEL) {
             $this->handleCancel($mappedOrder);
-            $this->model->save($mappedOrder);
+            $this->updatePaymentState($mappedOrder);
             return self::ACTION_CANCEL;
         }
 
@@ -262,7 +262,7 @@ class SyncController extends Controller
         // Most payment types probably contain only one charge, but for a full cancelation we have to cancel all.
         foreach ($payment->getCharges() as $charge) {
             /** @var Charge $charge */
-            $charge = $api->fetchCharge($charge);
+            $charge = $api->fetchChargeById($payment, $charge->getId());
 
             if (!$charge->isError()) {
                 try {
@@ -274,9 +274,11 @@ class SyncController extends Controller
                         continue;
                     }
 
+                    $key = $this->adapter->getCurrentConnection()->getKey();
+                    $key = substr($key, 0, -16) . str_repeat('&bull;', 16);
                     $this->errorLog(
                         'An API error occured while trying to cancel the transaction: ' .
-                        $exc->getMerchantMessage() . ' | ' . $exc->getCode()
+                        $exc->getMerchantMessage() . ' | Id: ' . $exc->getErrorId() . ' | Code: ' . $exc->getCode() . ' | API-Key: ' . $key
                     );
                 }
             }
@@ -331,5 +333,14 @@ class SyncController extends Controller
             'Canceled payment: ' . print_r($payment->jsonSerialize(), true),
             static::class
         );
+    }
+
+    private function updatePaymentState(OrderMappingEntity $entity): void
+    {
+        $this->adapter->getConnectionForOrder($this->order);
+        $payment = $this->adapter->fetchPayment($entity->getPaymentId());
+        $entity->setPaymentState($payment->getStateName());
+
+        $this->model->save($entity);
     }
 }

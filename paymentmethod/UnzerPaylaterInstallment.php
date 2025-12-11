@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
-use DateTime;
 use JTL\Cart\Cart;
 use JTL\Checkout\Bestellung;
 use JTL\Checkout\ZahlungsInfo;
@@ -17,13 +16,13 @@ use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepReviewOrderInterface;
 use Plugin\s360_unzer_shop5\src\Payments\PaymentHandler;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasAuthorization;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
-use UnzerSDK\Resources\EmbeddedResources\RiskData;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\Payment;
@@ -35,6 +34,7 @@ class UnzerPaylaterInstallment extends HeidelpayPaymentMethod implements
     HandleStepReviewOrderInterface,
     CancelableInterface
 {
+    use HasAuthorization;
     use HasMetadata;
     use HasCustomer;
     use HasBasket;
@@ -178,6 +178,11 @@ class UnzerPaylaterInstallment extends HeidelpayPaymentMethod implements
     {
         $postPaymentData = $_POST['paymentData'] ?? [];
 
+        // Save Threat Metrix ID
+        if (isset($postPaymentData['threatMetrixId'])) {
+            $this->sessionHelper->set(SessionHelper::KEY_THREAT_METRIX_ID, $postPaymentData['threatMetrixId']);
+        }
+
         // Save Customer ID if it exists
         if (isset($postPaymentData['customerId'])) {
             $this->sessionHelper->set(SessionHelper::KEY_CUSTOMER_ID, $postPaymentData['customerId']);
@@ -201,6 +206,7 @@ class UnzerPaylaterInstallment extends HeidelpayPaymentMethod implements
     /**
      * Generate and add threat metrix id (fraud prevention).
      *
+     * @deprecated ThreatMetrix Only used for backwards compatibility (UI Components v1)
      * @param JTLSmarty $view
      * @return null|string
      */
@@ -277,23 +283,8 @@ class UnzerPaylaterInstallment extends HeidelpayPaymentMethod implements
         $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
 
         // Authorize Transaction
-        $riskData = (new RiskData())
-            ->setThreatMetrixId($this->sessionHelper->get(SessionHelper::KEY_THREAT_METRIX_ID))
-            ->setRegistrationLevel($shopCustomer->nRegistriert == '1' ? '1' : '0')
-            ->setRegistrationDate(
-                DateTime::createFromFormat('Y-m-d', $shopCustomer->dErstellt ?? date('Y-m-d'))->format('Ymd')
-            );
-
-        $authorization = new Authorization(
-            $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->getCode(),
-            $this->getReturnURL($order)
-        );
-        $authorization->setOrderId($order->cBestellNr ?? null);
-        $authorization->setRiskData($riskData);
-
         return $this->adapter->getCurrentConnection()->performAuthorization(
-            $authorization,
+            $this->createAuthorization($shopCustomer, $order),
             $payment->getId(),
             $customer,
             $this->createMetadata(),

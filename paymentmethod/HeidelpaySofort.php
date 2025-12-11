@@ -27,6 +27,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
  * and those who prefer online payment methods over invoices.
  *
  * @see https://docs.heidelpay.com/docs/sofort-payment
+ * @deprecated
  */
 class HeidelpaySofort extends HeidelpayPaymentMethod implements RedirectPaymentInterface
 {
@@ -41,6 +42,16 @@ class HeidelpaySofort extends HeidelpayPaymentMethod implements RedirectPaymentI
     protected function getAllowedCurrencies(): array
     {
         return ['EUR', 'CHF'];
+    }
+
+    /**
+     * Deactivate as the payment method is deprecated
+     * @param array $args
+     * @return bool
+     */
+    public function isValidIntern($args = []): bool
+    {
+        return false;
     }
 
     /**

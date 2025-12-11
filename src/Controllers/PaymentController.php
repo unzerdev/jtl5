@@ -70,7 +70,7 @@ class PaymentController extends Controller
 
             // Instalment Info
             if ($paymentMethod instanceof UnzerPaylaterInstallment) {
-                $method = $this->config->get(Config::PQ_METHOD_INSTALMENT_INFO, 'after');
+                $method = $this->config->get(Config::PQ_METHOD_INSTALMENT_INFO, 'before');
                 $data = [
                     'info' => $this->plugin->getLocalization()->getTranslation(Config::LANG_INSTLAMENT_INFO)
                 ];

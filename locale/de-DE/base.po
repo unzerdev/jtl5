@@ -5,85 +5,97 @@ msgid "Einstellungen"
 msgstr "Einstellungen"
 
 msgid "Unzer Kreditkarte"
-msgstr "Unzer Kreditkarte"
+msgstr "Kreditkarte"
 
 msgid "Unzer SEPA-Lastschrift"
-msgstr "Unzer SEPA Lastschrift"
+msgstr "SEPA Lastschrift"
 
 msgid "Unzer Lastschrift"
-msgstr "Unzer SEPA Lastschrift"
+msgstr "SEPA Lastschrift"
 
 msgid "Unzer SEPA-Lastschrift (guaranteed)"
-msgstr "(Veraltet) Unzer Direct Debit (Gesichert)"
+msgstr "(Veraltet) Direct Debit (Gesichert)"
 
 msgid "Unzer Lastschrift (secured)"
-msgstr "(Veraltet) Unzer Direct Debit (Gesichert)"
+msgstr "(Veraltet) Direct Debit (Gesichert)"
 
 msgid "Unzer Lastschrift (Paylater)"
-msgstr "Unzer Lastschrift"
+msgstr "Lastschrift"
 
 msgid "Unzer Rechnung"
-msgstr "(Veraltet) Unzer Rechnungskauf"
+msgstr "(Veraltet) Rechnungskauf"
 
 msgid "Unzer Rechnung (guaranteed)"
-msgstr "(Veraltet) Unzer Rechnungskauf Gesichert"
+msgstr "(Veraltet) Rechnungskauf Gesichert"
 
 msgid "Unzer Rechnung (secured)"
-msgstr "(Veraltet) Unzer Rechnungskauf Gesichert"
+msgstr "(Veraltet) Rechnungskauf Gesichert"
 
 msgid "Unzer Fakturierung von Rechnungen"
-msgstr "Unzer Fakturierung von Rechnungen"
+msgstr "Fakturierung von Rechnungen"
 
 msgid "Unzer Rechnungskauf"
-msgstr "Unzer Rechnungskauf"
+msgstr "Rechnungskauf"
 
 msgid "Unzer PayPal"
-msgstr "Unzer PayPal"
+msgstr "PayPal"
 
 msgid "Unzer SOFORT"
-msgstr "(Veraltet) Unzer SOFORT"
+msgstr "(Veraltet) SOFORT"
 
 msgid "Unzer Giropay"
-msgstr "(Veraltet) Unzer Giropay"
+msgstr "(Veraltet) Giropay"
 
 msgid "Unzer Przelewy24"
-msgstr "Unzer Przelewy24"
+msgstr "Przelewy24"
 
 msgid "Unzer iDEAL"
-msgstr "Unzer iDEAL"
+msgstr " iDEAL"
 
 msgid "Unzer Prepayment"
-msgstr "Unzer Vorkasse"
+msgstr "Vorkasse"
 
 msgid "Unzer EPS"
-msgstr "Unzer EPS"
+msgstr "EPS"
 
 msgid "Unzer FlexiPay Direct"
-msgstr "Unzer FlexiPay Direct"
+msgstr "FlexiPay Direct"
 
 msgid "Unzer Direktüberweisung"
-msgstr "(Veraltet) Unzer Direktüberweisung"
+msgstr "(Veraltet) Direktüberweisung"
 
 msgid "Unzer Alipay"
-msgstr "Unzer Alipay"
+msgstr "Alipay"
 
 msgid "Unzer WeChat Pay"
-msgstr "Unzer WeChat Pay"
+msgstr "WeChat Pay"
 
 msgid "Unzer FlexiPay Installment (Hire Purchase)"
-msgstr "Unzer FlexiPay Instalment (Hire Purchase)"
+msgstr "FlexiPay Instalment (Hire Purchase)"
 
 msgid "Unzer Instalment"
-msgstr "(Veraltet) Unzer Ratenkauf"
+msgstr "(Veraltet) Ratenkauf"
 
 msgid "Unzer Ratenkauf"
-msgstr "(Veraltet) Unzer Ratenkauf"
+msgstr "(Veraltet) Ratenkauf"
 
 msgid "Unzer Rechnung (Jetzt kaufen, Später bezahlen)"
-msgstr "Unzer Rechnungskauf"
+msgstr "Rechnungskauf"
 
 msgid "Unzer Ratenzahlung (Paylater)"
-msgstr "Unzer Ratenkauf"
+msgstr "Ratenkauf"
+
+msgid "Unzer Bancontact"
+msgstr "Bancontact"
+
+msgid "Unzer Google Pay"
+msgstr "Google Pay"
+
+msgid "Unzer TWINT"
+msgstr "TWINT"
+
+msgid "Unzer Vorkasse"
+msgstr "Vorkasse"
 
 msgid "hpError"
 msgstr "Fehler"
@@ -305,7 +317,7 @@ msgid "hpSettingsMerchantIdHelp"
 msgstr "Die Händler ID (Merchant ID) des Insight Portal wird benötigt, um in den Bestelldetails einen Link zur jeweiligen Transaktion im Insight Portal bereitzustellen."
 
 msgid "hpSettingsStyles"
-msgstr "Styles"
+msgstr "(Veraltet) Styles"
 
 msgid "hpSettingsFontSize"
 msgstr "Schriftgröße"
@@ -518,7 +530,7 @@ msgstr ""
 "Sie verwenden die Zahlungsmethode `GiroPay`, beachten Sie, dass GiroPay den Service eingestellt hat. Das bedeutet, dass Kunden den Dienst nicht mehr nutzen können!"
 
 msgid "Key Pairs"
-msgstr "Schlüsselpaare"
+msgstr "Zusätzliche Schlüsselpaare"
 
 msgid "hpKeyPairEdit"
 msgstr "Schlüsselpaar bearbeiten"
@@ -571,14 +583,14 @@ msgstr "Die Webhooks wurden erfolgreich registriert."
 msgid "twint"
 msgstr "TWINT"
 
-msgid "Apple Pay"
-msgstr "(Veraltet) Apple Pay"
+#  msgid "Apple Pay"
+#  msgstr "(Veraltet) Apple Pay"
 
 msgid "Unzer Apple Pay"
-msgstr "(Veraltet) Unzer Apple Pay"
+msgstr "(Veraltet) Apple Pay"
 
 msgid "Unzer Apple Pay v2"
-msgstr "Unzer Apple Pay"
+msgstr "Apple Pay"
 
 msgid "hpApplePayMigrationNotification"
 msgstr ""
@@ -599,8 +611,77 @@ msgstr ""
 msgid "hpApplePayMissingMerchantIdDomainAssociation"
 msgstr "Die Apple Pay-Verifizierungsdatei konnte nicht gefunden werden. Laden Sie die Verifizierungsdatei von Apple wie folgt auf Ihren Server hoch: <a href=\"%1$s/.well-known/apple-developer-merchantid-domain-association\" target=\"_blank\" >%1$s/.well-known/apple-developer-merchantid-domain-association</a>"
 
+msgid "hpSettingsUIComponents"
+msgstr "UI Components"
+
+msgid "hpSettingsUIVersion"
+msgstr "Version"
+
+msgid "hpSettingsFontFamilyHelp"
+msgstr "z.B. Arial, Helvetica, sans-serif"
+
+msgid "hpSettingsTextColor"
+msgstr "Schriftfarbe"
+
+msgid "hpSettingsTextColorPlaceholder"
+msgstr "z.B. red oder #ff0000"
+
+msgid "hpSettingsTextColorHelp"
+msgstr "Die für die Typografie verwendete Schriftfarbe."
+
+msgid "hpSettingsBrandColor"
+msgstr "Marken/Primär-Farbe"
+
+msgid "hpSettingsBrandColorPlaceholder"
+msgstr "z.B. red oder #ff0000"
+
+msgid "hpSettingsBrandColorHelp"
+msgstr "Die Hauptfarbe der Anwendung."
+
+msgid "hpSettingsBackgroundColor"
+msgstr "Hintergrund-Farbe"
+
+msgid "hpSettingsBackgroundColorPlaceholder"
+msgstr "z.B. red oder #ff0000"
+
+msgid "hpSettingsBackgroundColorHelp"
+msgstr "Die Hintergrundfarbe der Seite."
+
+msgid "hpSettingsLinkColor"
+msgstr "Link-Farbe"
+
+msgid "hpSettingsLinkColorPlaceholder"
+msgstr "z.B. red oder #ff0000"
+
+msgid "hpSettingsLinkColorHelp"
+msgstr "Die Farbe der Links."
+
+msgid "hpSettingsCornerRadius"
+msgstr "Abgerundete Kanten"
+
+msgid "hpSettingsCornerRadiusHelp"
+msgstr "Ob die Steuerelemente abgerundete Ecken haben sollen oder nicht."
+
+msgid "hpSettingsShadows"
+msgstr "Schatten"
+
+msgid "hpSettingsShadowsHelp"
+msgstr "Ob Schatten aktiviert sind oder nicht."
+
 msgid "Unzer Direct Bank Transfer"
-msgstr "Unzer Direktüberweisung"
+msgstr "Direktüberweisung"
 
 msgid "openbanking-pis"
-msgstr "Unzer Direktüberweisung"
+msgstr "Direktüberweisung"
+
+msgid "Unzer Klarna"
+msgstr "Klarna"
+
+msgid "Unzer Wero"
+msgstr "Wero"
+
+msgid "clicktopay"
+msgstr "Click to Pay"
+
+msgid "klarna"
+msgstr "Klarna"

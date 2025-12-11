@@ -83,7 +83,9 @@ trait HasCustomer
         // Create new customer object but do not save the customer in the api
         // because some mandatory fields (e.g. birthday) may be missing!
         if ($isB2B) {
-            return $this->createHeidelpayB2BCustomer($session->getFrontendSession()->getCustomer());
+            return $adapter->getCurrentConnection()->createOrUpdateCustomer(
+                $this->createHeidelpayB2BCustomer($session->getFrontendSession()->getCustomer())
+            );
         }
 
         return $adapter->getCurrentConnection()->createOrUpdateCustomer(

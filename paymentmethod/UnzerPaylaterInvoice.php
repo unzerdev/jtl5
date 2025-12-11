@@ -4,42 +4,43 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
-use DateTime;
 use JTL\Checkout\Bestellung;
 use JTL\Checkout\Lieferadresse;
 use JTL\Checkout\ZahlungsInfo;
 use JTL\Helpers\Text;
-use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepReviewOrderInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\CancelPaymentTransaction;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasAuthorization;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
-use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
 use stdClass;
+use UnzerSDK\Constants\CompanyCommercialSectorItems;
+use UnzerSDK\Constants\CompanyRegistrationTypes;
+use UnzerSDK\Constants\CompanyTypes;
 use UnzerSDK\Constants\ShippingTypes;
-use UnzerSDK\Resources\EmbeddedResources\RiskData;
+use UnzerSDK\Resources\EmbeddedResources\CompanyInfo;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
-use UnzerSDK\Resources\Payment;
-use UnzerSDK\Resources\TransactionTypes\Cancellation;
-use UnzerSDK\Resources\TransactionTypes\Charge;
 
 class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
     HandleStepAdditionalInterface,
     HandleStepReviewOrderInterface,
     CancelableInterface
 {
+    use HasAuthorization;
     use HasMetadata;
     use HasCustomer;
     use HasBasket;
     use SupportsB2B;
+    use CancelPaymentTransaction;
 
     protected function getAllowedCountries(): array
     {
@@ -50,39 +51,6 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
     {
         return ['EUR', 'CHF'];
     }
-
-    /**
-     * Cancel the Charge or authorization
-     *
-     * @param Payment $payment
-     * @param Charge|Authorization $transaction
-     * @param Bestellung $order
-     * @return Cancellation
-     */
-    public function cancelPaymentTransaction(
-        Payment $payment,
-        AbstractTransactionType $transaction,
-        Bestellung $order
-    ): Cancellation {
-        $api = $this->adapter->getConnectionForOrder($order);
-
-        $reference = str_replace(
-            ['%ORDER_ID%', '%SHOPNAME%'],
-            [$order->cBestellNr, Shop::getSettingValue(CONF_GLOBAL, 'global_shopname')],
-            $this->trans(Config::LANG_CANCEL_PAYMENT_REFERENCE)
-        );
-
-        $cancel = (new Cancellation($transaction->getAmount()))->setPaymentReference($reference);
-
-        // Cancel before charge (reversal)
-        if ($transaction instanceof Authorization) {
-            return $api->cancelAuthorizedPayment($payment, $cancel);
-        }
-
-        // Cancel after charge (refund)
-        return $api->cancelChargedPayment($payment, $cancel);
-    }
-
 
     /**
      * Data the merchant needs to put on the Invoice.
@@ -145,10 +113,12 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
                 $this->sessionHelper->getFrontendSession()->get('Lieferadresse')
             )
         );
+        $this->sessionHelper->set(SessionHelper::KEY_CUSTOMER_ID, $customer->getId());
 
         $data = $view->getTemplateVars('hpPayment') ?: [];
         $data['customer'] = $customer;
         $data['isB2B'] = $this->isB2BCustomer($shopCustomer);
+        $data['companyTypes'] = [CompanyTypes::AUTHORITY, CompanyTypes::ASSOCIATION, CompanyTypes::COMPANY, CompanyTypes::SOLE, CompanyTypes::OTHER];
 
         $view->assign('hpPayment', $data);
     }
@@ -156,6 +126,7 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
     /**
      * Generate and add threat metrix id (fraud prevention).
      *
+     * @deprecated Only used for backwards compatibility (UI Components v1)
      * @param JTLSmarty $view
      * @return null|string
      */
@@ -180,6 +151,30 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
     {
         $postPaymentData = $_POST['paymentData'] ?? [];
 
+        // Save Threat Metrix ID
+        if (isset($postPaymentData['threatMetrixId'])) {
+            $this->sessionHelper->set(SessionHelper::KEY_THREAT_METRIX_ID, $postPaymentData['threatMetrixId']);
+        }
+
+        // Save company info type
+        if ($this->isB2BCustomer($this->sessionHelper->getFrontendSession()->getCustomer())) {
+            $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
+            $customer = $this->createOrFetchHeidelpayCustomer(
+                $this->adapter,
+                $this->sessionHelper,
+                $this->isB2BCustomer($shopCustomer)
+            );
+
+            // Set company info for b2b customers
+            if ($customer->getCompanyInfo() === null) {
+                $customer->setCompanyInfo(new CompanyInfo());
+                $customer->getCompanyInfo()
+                    ->setRegistrationType(CompanyRegistrationTypes::REGISTRATION_TYPE_NOT_REGISTERED)
+                    ->setFunction('OWNER')
+                    ->setCommercialSector(CompanyCommercialSectorItems::OTHER);
+            }
+        }
+
         // Save Customer ID if it exists
         if (isset($postPaymentData['customerId'])) {
             $this->sessionHelper->set(SessionHelper::KEY_CUSTOMER_ID, $postPaymentData['customerId']);
@@ -198,7 +193,7 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
                 $names = $this->getNamesFromAddress($customer->getShippingAddress());
                 $shipping->cVorname = $names['firstname'] ?: $shipping->cVorname;
                 $shipping->cNachname = $names['lastname'] ?: $shipping->cNachname;
-                $shipping->cBundesland = $customer->getShippingAddress()->getState();
+                $shipping->cBundesland = $customer->getShippingAddress()->getState() ?? $shopCustomer->cBundesland;
                 $shipping->cPLZ = $customer->getShippingAddress()->getZip();
                 $shipping->cOrt = $customer->getShippingAddress()->getCity();
                 $shipping->cLand = $customer->getShippingAddress()->getCountry();
@@ -216,7 +211,7 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
             $shopCustomer->cNachname = $names['lastname'] ?: $shopCustomer->cNachname;
 
             if ($this->isB2BCustomer($shopCustomer)) {
-                $shopCustomer->cBundesland = $customer->getBillingAddress()->getState() ?? '';
+                $shopCustomer->cBundesland = $customer->getBillingAddress()->getState() ?? $shopCustomer->cBundesland;
                 $shopCustomer->cPLZ = $customer->getBillingAddress()->getZip();
                 $shopCustomer->cOrt = $customer->getBillingAddress()->getCity();
                 $shopCustomer->cLand = $customer->getBillingAddress()->getCountry();
@@ -292,24 +287,8 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
         );
         $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
 
-        // Authorize Transaction
-        $riskData = (new RiskData())
-            ->setThreatMetrixId($this->sessionHelper->get(SessionHelper::KEY_THREAT_METRIX_ID))
-            ->setRegistrationLevel($shopCustomer->nRegistriert == '1' ? '1' : '0')
-            ->setRegistrationDate(
-                DateTime::createFromFormat('Y-m-d', $shopCustomer->dErstellt ?? date('Y-m-d'))->format('Ymd')
-            );
-
-        $authorization = new Authorization(
-            $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->getCode(),
-            $this->getReturnURL($order)
-        );
-        $authorization->setOrderId($order->cBestellNr ?? null);
-        $authorization->setRiskData($riskData);
-
         return $this->adapter->getCurrentConnection()->performAuthorization(
-            $authorization,
+            $this->createAuthorization($shopCustomer, $order),
             $payment->getId(),
             $customer,
             $this->createMetadata(),

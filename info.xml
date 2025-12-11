@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>1.8.2</Version>
+    <Version>2.0.0</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
 
@@ -15,9 +15,9 @@
             <Customlink sort="10">
                 <Name><![CDATA[Bestellungen]]></Name>
             </Customlink>
-            <Customlink sort="15">
+            <!-- <Customlink sort="15">
                 <Name><![CDATA[Apple Pay]]></Name>
-            </Customlink>
+            </Customlink> -->
             <Customlink sort="17">
                 <Name><![CDATA[Key Pairs]]></Name>
             </Customlink>
@@ -303,12 +303,108 @@
                     <![CDATA[<strong>Note:</strong> The total amount shown differs from the amount to be paid. Please refer to your instalment plan for the amount to be paid.]]>
                 </VariableLocalized>
             </Variable>
+
+            <Variable>
+                <Name>s360_hp_company_type_label</Name>
+                <Description>
+                    <![CDATA[Art des Unternehmens]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Art des Unternehmens]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Type of company]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_company_type_placeholder</Name>
+                <Description>
+                    <![CDATA[Art des Unternehmens]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Bitte w&auml;hlen]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Please select]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_company_type_authority</Name>
+                <Description>
+                    <![CDATA[Art des Unternehmens]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Behörde]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Authority]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_company_type_association</Name>
+                <Description>
+                    <![CDATA[Art des Unternehmens]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Gesellschaft]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Association]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_company_type_sole</Name>
+                <Description>
+                    <![CDATA[Art des Unternehmens]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Einzelunternehmen]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Sole]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_company_type_company</Name>
+                <Description>
+                    <![CDATA[Art des Unternehmens]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Firma]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Company]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_company_type_other</Name>
+                <Description>
+                    <![CDATA[Art des Unternehmens]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Sonstige]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Other]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_company_type_missing</Name>
+                <Description>
+                    <![CDATA[Art des Unternehmens]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Bitte Art des Unternehmens angeben]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Please select company type]]>
+                </VariableLocalized>
+            </Variable>
         </Locales>
 
         <PaymentMethod>
             <Method>
                 <Name><![CDATA[Unzer Kreditkarte]]></Name>
-                <PictureURL>images/Card.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -331,10 +427,17 @@
                     <ChargeName><![CDATA[Credit Card]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
+                <Setting type="selectbox" initialValue="Y" conf="Y" sort="1">
+                    <Name><![CDATA["Click to Pay" aktivieren]]></Name>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
+                    </SelectboxOptions>
+                    <ValueName>enable_ctp</ValueName>
+                </Setting>
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift]]></Name>
-                <PictureURL>images/SEPA.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -360,7 +463,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift (secured)]]></Name>
-                <PictureURL>images/SEPA.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -386,7 +488,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Rechnung]]></Name>
-                <PictureURL>images/InvoiceWL.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -412,7 +513,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Rechnung (secured)]]></Name>
-                <PictureURL>images/InvoiceWL.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -438,7 +538,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Rechnung (Jetzt kaufen, Später bezahlen)]]></Name>
-                <PictureURL>images/InvoiceWL.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -489,7 +588,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer PayPal]]></Name>
-                <PictureURL>images/Paypal.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -515,7 +613,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer SOFORT]]></Name>
-                <PictureURL>images/Sofort.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -541,7 +638,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Giropay]]></Name>
-                <PictureURL>images/Giropay.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -567,7 +663,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Przelewy24]]></Name>
-                <PictureURL>images/Przelewy24.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -593,7 +688,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer iDEAL]]></Name>
-                <PictureURL>images/Ideal.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -619,7 +713,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Vorkasse]]></Name>
-                <PictureURL>images/PrepaymentWL.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -645,7 +738,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer EPS]]></Name>
-                <PictureURL>images/EPS.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -696,7 +788,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Alipay]]></Name>
-                <PictureURL>images/Alipay.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -722,7 +813,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer WeChat Pay]]></Name>
-                <PictureURL>images/WeChatPay.svg</PictureURL>
                 <Sort>0</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -780,7 +870,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Apple Pay]]></Name>
-                <PictureURL>images/ApplePay.svg</PictureURL>
                 <Sort>10</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -806,7 +895,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Bancontact]]></Name>
-                <PictureURL>images/Bancontact.svg</PictureURL>
                 <Sort>20</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -832,7 +920,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Ratenzahlung (Paylater)]]></Name>
-                <PictureURL>images/InstalmentWL.svg</PictureURL>
                 <Sort>30</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -858,7 +945,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift (Paylater)]]></Name>
-                <PictureURL>images/Default.svg</PictureURL>
                 <Sort>40</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -884,7 +970,6 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Google Pay]]></Name>
-                <PictureURL>images/GooglePay.svg</PictureURL>
                 <Sort>50</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -1030,7 +1115,6 @@
 
             <Method>
                 <Name><![CDATA[Unzer TWINT]]></Name>
-                <PictureURL>images/Twint.svg</PictureURL>
                 <Sort>60</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -1057,7 +1141,6 @@
 
             <Method>
                 <Name><![CDATA[Unzer Apple Pay v2]]></Name>
-                <PictureURL>images/ApplePay.svg</PictureURL>
                 <Sort>15</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -1091,10 +1174,8 @@
                 </Setting>
             </Method>
 
-
             <Method>
                 <Name><![CDATA[Unzer Direct Bank Transfer]]></Name>
-                <PictureURL>images/DirectBankTransferWL.svg</PictureURL>
                 <Sort>70</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
@@ -1117,6 +1198,67 @@
                     <ChargeName><![CDATA[Direct Bank Transfer]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
+            </Method>
+
+            <Method>
+                <Name><![CDATA[Unzer Klarna]]></Name>
+                <Sort>80</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerKlarna.php</ClassFile>
+                <ClassName>UnzerKlarna</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/klarna.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Klarna]]></Name>
+                    <ChargeName><![CDATA[Klarna]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Klarna]]></Name>
+                    <ChargeName><![CDATA[Klarna]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+            </Method>
+
+            <Method>
+                <Name><![CDATA[Unzer Wero]]></Name>
+                <Sort>90</Sort>
+                <SendMail>1</SendMail>
+                <Provider><![CDATA[Unzer]]></Provider>
+                <TSCode>OTHER</TSCode>
+                <PreOrder>1</PreOrder>
+                <Soap>0</Soap>
+                <Curl>1</Curl>
+                <Sockets>0</Sockets>
+                <ClassFile>UnzerWero.php</ClassFile>
+                <ClassName>UnzerWero</ClassName>
+                <TemplateFile>template/dummy.tpl</TemplateFile>
+                <AdditionalTemplateFile>template/wero.tpl</AdditionalTemplateFile>
+                <MethodLanguage iso="GER">
+                    <Name><![CDATA[Wero]]></Name>
+                    <ChargeName><![CDATA[Wero]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+                <MethodLanguage iso="ENG">
+                    <Name><![CDATA[Wero]]></Name>
+                    <ChargeName><![CDATA[Wero]]></ChargeName>
+                    <InfoText></InfoText>
+                </MethodLanguage>
+
+                <Setting type="selectbox" initialValue="charge" sort="10" conf="Y">
+                    <Name><![CDATA[Buchungsmodus]]></Name>
+                    <ValueName>booking_mode</ValueName>
+                    <SelectboxOptions>
+                        <Option value="authorize" sort="1">Authorisierung</Option>
+                        <Option value="charge" sort="2">Erfassen</Option>
+                    </SelectboxOptions>
+                </Setting>
             </Method>
         </PaymentMethod>
     </Install>

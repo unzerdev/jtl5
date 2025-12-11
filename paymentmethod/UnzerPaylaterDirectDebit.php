@@ -4,38 +4,34 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
-use DateTime;
 use JTL\Checkout\Bestellung;
-use JTL\Checkout\Lieferadresse;
-use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepReviewOrderInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\CancelPaymentTransaction;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasAuthorization;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
-use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
-use UnzerSDK\Resources\EmbeddedResources\RiskData;
-use UnzerSDK\Resources\Payment;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
-use UnzerSDK\Resources\TransactionTypes\Cancellation;
-use UnzerSDK\Resources\TransactionTypes\Charge;
 
 class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
     HandleStepAdditionalInterface,
     HandleStepReviewOrderInterface,
     CancelableInterface
 {
+    use HasAuthorization;
     use HasMetadata;
     use HasCustomer;
     use HasBasket;
     use SupportsB2B;
+    use CancelPaymentTransaction;
 
     protected function getAllowedCountries(): array
     {
@@ -45,38 +41,6 @@ class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
     protected function getAllowedCurrencies(): array
     {
         return ['EUR'];
-    }
-
-    /**
-     * Cancel the Charge or authorization
-     *
-     * @param Payment $payment
-     * @param Charge|Authorization $transaction
-     * @param Bestellung $order
-     * @return Cancellation
-     */
-    public function cancelPaymentTransaction(
-        Payment $payment,
-        AbstractTransactionType $transaction,
-        Bestellung $order
-    ): Cancellation {
-        $api = $this->adapter->getConnectionForOrder($order);
-
-        $reference = str_replace(
-            ['%ORDER_ID%', '%SHOPNAME%'],
-            [$order->cBestellNr, Shop::getSettingValue(CONF_GLOBAL, 'global_shopname')],
-            $this->trans(Config::LANG_CANCEL_PAYMENT_REFERENCE)
-        );
-
-        $cancel = (new Cancellation($transaction->getAmount()))->setPaymentReference($reference);
-
-        // Cancel before charge (reversal)
-        if ($transaction instanceof Authorization) {
-            return $api->cancelAuthorizedPayment($payment, $cancel);
-        }
-
-        // Cancel after charge (refund)
-        return $api->cancelChargedPayment($payment, $cancel);
     }
 
     /**
@@ -155,6 +119,7 @@ class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
     /**
      * Generate and add threat metrix id (fraud prevention).
      *
+     * @deprecated Only used for backwards compatibility (UI Components v1)
      * @param JTLSmarty $view
      * @return null|string
      */
@@ -165,6 +130,23 @@ class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
         $view->assign('hpPayment', $data);
 
         return 'template/partials/_threatMetrix';
+    }
+
+
+    /**
+     * @SuppressWarnings(PHPMD.Superglobals)
+     * @return bool
+     */
+    public function validateAdditional(): bool
+    {
+        $postPaymentData = $_POST['paymentData'] ?? [];
+
+        // Save Threat Metrix ID
+        if (isset($postPaymentData['threatMetrixId'])) {
+            $this->sessionHelper->set(SessionHelper::KEY_THREAT_METRIX_ID, $postPaymentData['threatMetrixId']);
+        }
+
+        return parent::validateAdditional();
     }
 
     protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
@@ -196,24 +178,8 @@ class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
         );
         $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
 
-        // Authorize Transaction
-        $riskData = (new RiskData())
-            ->setThreatMetrixId($this->sessionHelper->get(SessionHelper::KEY_THREAT_METRIX_ID))
-            ->setRegistrationLevel($shopCustomer->nRegistriert == '1' ? '1' : '0')
-            ->setRegistrationDate(
-                DateTime::createFromFormat('Y-m-d', $shopCustomer->dErstellt ?? date('Y-m-d'))->format('Ymd')
-            );
-
-        $authorization = new Authorization(
-            $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->getCode(),
-            $this->getReturnURL($order)
-        );
-        $authorization->setOrderId($order->cBestellNr ?? null);
-        $authorization->setRiskData($riskData);
-
         return $this->adapter->getCurrentConnection()->performAuthorization(
-            $authorization,
+            $this->createAuthorization($shopCustomer, $order),
             $payment->getId(),
             $customer,
             $this->createMetadata(),

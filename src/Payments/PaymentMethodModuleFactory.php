@@ -25,18 +25,23 @@ use Plugin\s360_unzer_shop5\paymentmethod\HeidelpaySEPADirectDebitGuaranteed;
 use Plugin\s360_unzer_shop5\paymentmethod\HeidelpaySofort;
 use Plugin\s360_unzer_shop5\paymentmethod\HeidelpayWeChatPay;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePay;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePayV2;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerBancontact;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerDirectBankTransfer;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerGooglePay;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerKlarna;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterDirectDebit;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInstallment;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInvoice;
 use Plugin\s360_unzer_shop5\paymentmethod\UnzerTwint;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerWero;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use UnzerSDK\Resources\PaymentTypes\Alipay;
 use UnzerSDK\Resources\PaymentTypes\Applepay;
 use UnzerSDK\Resources\PaymentTypes\Bancontact;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Card;
+use UnzerSDK\Resources\PaymentTypes\Clicktopay;
 use UnzerSDK\Resources\PaymentTypes\EPS;
 use UnzerSDK\Resources\PaymentTypes\Giropay;
 use UnzerSDK\Resources\PaymentTypes\Googlepay;
@@ -44,6 +49,8 @@ use UnzerSDK\Resources\PaymentTypes\Ideal;
 use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
 use UnzerSDK\Resources\PaymentTypes\Invoice;
 use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\OpenbankingPis;
+use UnzerSDK\Resources\PaymentTypes\Klarna;
 use UnzerSDK\Resources\PaymentTypes\PaylaterDirectDebit;
 use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
 use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
@@ -56,6 +63,7 @@ use UnzerSDK\Resources\PaymentTypes\SepaDirectDebitSecured;
 use UnzerSDK\Resources\PaymentTypes\Sofort;
 use UnzerSDK\Resources\PaymentTypes\Twint;
 use UnzerSDK\Resources\PaymentTypes\Wechatpay;
+use UnzerSDK\Resources\PaymentTypes\Wero;
 
 /**
  * Factory to create payment method modules.
@@ -88,12 +96,16 @@ class PaymentMethodModuleFactory
         HeidelpaySEPADirectDebitGuaranteed::class => ['unzersepalastschrift(guaranteed)', 'unzerlastschrift(secured)'],
         HeidelpayWeChatPay::class                 => 'unzerwechatpay',
         UnzerApplePay::class                      => 'unzerapplepay',
-        UnzerPaylaterInvoice::class               => 'unzerrechnung(jetztkaufen,späterbezahlen)',
+        UnzerApplePayV2::class                    => 'unzerapplepayv2',
         UnzerBancontact::class                    => 'unzerbancontact',
-        UnzerPaylaterInstallment::class           => 'unzerratenzahlung(paylater)',
-        UnzerPaylaterDirectDebit::class           => 'unzerlastschrift(paylater)',
+        UnzerDirectBankTransfer::class            => 'unzerdirectbanktransfer',
         UnzerGooglePay::class                     => 'unzergooglepay',
+        UnzerPaylaterDirectDebit::class           => 'unzerlastschrift(paylater)',
+        UnzerPaylaterInstallment::class           => 'unzerratenzahlung(paylater)',
+        UnzerPaylaterInvoice::class               => 'unzerrechnung(jetztkaufen,späterbezahlen)',
         UnzerTwint::class                         => 'unzertwint',
+        UnzerKlarna::class                        => 'unzerklarna',
+        UnzerWero::class                          => 'unzerwero',
     ];
 
     private const MAPPING = [
@@ -106,7 +118,6 @@ class PaymentMethodModuleFactory
         Ideal::class                     => HeidelpayiDEAL::class,
         Invoice::class                   => HeidelpayInvoice::class,
         InvoiceSecured::class            => HeidelpayInvoiceGuaranteed::class,
-        PaylaterInvoice::class           => UnzerPaylaterInvoice::class,
         Paypal::class                    => HeidelpayPayPal::class,
         PIS::class                       => HeidelpayFlexiPayDirect::class,
         Prepayment::class                => HeidelpayPrepayment::class,
@@ -115,11 +126,17 @@ class PaymentMethodModuleFactory
         SepaDirectDebitSecured::class    => HeidelpaySEPADirectDebitGuaranteed::class,
         Sofort::class                    => HeidelpaySofort::class,
         Wechatpay::class                 => HeidelpayWeChatPay::class,
+        Applepay::class                  => UnzerApplePayV2::class,
         Bancontact::class                => UnzerBancontact::class,
-        PaylaterInstallment::class       => UnzerPaylaterInstallment::class,
-        PaylaterDirectDebit::class       => UnzerPaylaterDirectDebit::class,
+        OpenbankingPis::class            => UnzerDirectBankTransfer::class,
         Googlepay::class                 => UnzerGooglePay::class,
-        Twint::class                     => UnzerTwint::class
+        PaylaterDirectDebit::class       => UnzerPaylaterDirectDebit::class,
+        PaylaterInstallment::class       => UnzerPaylaterInstallment::class,
+        PaylaterInvoice::class           => UnzerPaylaterInvoice::class,
+        Twint::class                     => UnzerTwint::class,
+        Clicktopay::class                => HeidelpayCreditCard::class,
+        Klarna::class                    => UnzerKlarna::class,
+        Wero::class                    => UnzerWero::class,
     ];
 
     public function __construct()

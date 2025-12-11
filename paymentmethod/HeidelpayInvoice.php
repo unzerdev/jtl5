@@ -34,28 +34,13 @@ class HeidelpayInvoice extends HeidelpayPaymentMethod
     use HasCustomer;
 
     /**
-     * @inheritDoc
+     * Deactivate as the payment method is deprecated
+     * @param array $args
+     * @return bool
      */
-    public function initBackendNotification(): void
+    public function isValidIntern($args = []): bool
     {
-        // Add deprecation notice IF paymethod is used (ie assigned to a shipping method)
-        $payMethod = $this->plugin->getPaymentMethods()->getMethodByID($this->moduleID);
-
-        if ($payMethod !== null && $payMethod->getActive()) {
-            $this->kZahlungsart = $payMethod->getMethodID();
-            $result = Shop::Container()->getDB()->select('tversandartzahlungsart', 'kZahlungsart', $this->kZahlungsart);
-
-            if ($result) {
-                $notification = new NotificationEntry(
-                    NotificationEntry::TYPE_INFO,
-                    sprintf(__('hpDeprecationPaymentMethodTitle'), $payMethod->getName()),
-                    sprintf(nl2br(__('hpDeprecationInvoiceNotice')), $payMethod->getName())
-                );
-
-                $notification->setPluginId((string) $this->plugin->getID());
-                Notification::getInstance()->addNotify($notification);
-            }
-        }
+        return false;
     }
 
     /**

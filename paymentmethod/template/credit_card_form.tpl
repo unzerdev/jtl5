@@ -1,36 +1,10 @@
-{include file="{$hpPayment.pluginPath}paymentmethod/template/_includes.tpl"}
+{include file="{$hpPayment.pluginPath}paymentmethod/template/_components_v2.tpl"}
 
-<div class="unzerUI form" novalidate>
-    <div class="field">
-        <div id="card-element-id-number" class="unzerInput">
-        </div>
-    </div>
-    <div class="two fields">
-        <div class="field ten wide">
-            <div id="card-element-id-expiry" class="unzerInput">
-            </div>
-        </div>
-        <div class="field six wide">
-            <div id="card-element-id-cvc" class="unzerInput">
-            </div>
-        </div>
-    </div>
-    <div class="field">
-        <div id="card-element-id-holder" class="unzerInput">
-        </div>
-    </div>
+<div data-unzer-ui-component='{
+    "component": "card",
+    "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")}
+}'>
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}" {if !$hpPayment.enableCTP}disableCTP{/if}>
+        <unzer-card checkoutButtonId="unzerUiComponentCheckoutBtn" />
+    </unzer-payment>
 </div>
-
-<script>
-$(document).ready(function() {
-    var HpPayment = new window.HpPayment('{$hpPayment.publicKey}', window.HpPayment.PAYMENT_TYPES.CARD, {
-        submitButton: $('{if $hpPayment.config.selectorSubmitButton}{$hpPayment.config.selectorSubmitButton}{else}#form_payment_extra .submit, #form_payment_extra .submit_once{/if}').get(0),
-        locale: '{$hpPayment.locale}',
-        {if $hpPayment.styling}
-            styling: {json_encode($hpPayment.styling)}
-        {/if}
-    });
-});
-</script>
-
-{include file="{$hpPayment.pluginPath}paymentmethod/template/_footer.tpl"}

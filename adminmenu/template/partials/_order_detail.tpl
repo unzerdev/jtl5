@@ -215,9 +215,26 @@
                                         {else}
                                             {__($hpPayment->getPaymentType()->getResourceName())}
                                         {/if}
-
-                                        <em>({$hpPayment->getPaymentType()->getId()})</em>
                                     </dd>
+
+                                    {if $hpOrder->Zahlungsinfo && !empty($hpOrder->Zahlungsinfo->cIBAN)}
+                                        {if !empty($hpOrder->Zahlungsinfo->cIBAN)}
+                                            <dt class="col-5">{lang key='iban' section='checkout'}</dt>
+                                            <dd class="col-7">{$hpOrder->Zahlungsinfo->cIBAN}</dd>
+                                        {/if}
+                                        {if !empty($hpOrder->Zahlungsinfo->cBIC)}
+                                            <dt class="col-5">{lang key='bic' section='checkout'}</dt>
+                                            <dd class="col-7">{$hpOrder->Zahlungsinfo->cBIC}</dd>
+                                        {/if}
+                                        {if !empty($hpOrder->Zahlungsinfo->cInhaber)}
+                                            <dt class="col-5">{lang key='accountHolder' section='checkout'}</dt>
+                                            <dd class="col-7">{$hpOrder->Zahlungsinfo->cInhaber}</dd>
+                                        {/if}
+                                        {if !empty($hpOrder->Zahlungsinfo->cVerwendungszweck)}
+                                            <dt class="col-5">{lang key='purpose' section='checkout'}</dt>
+                                            <dd class="col-7">{$hpOrder->Zahlungsinfo->cVerwendungszweck}</dd>
+                                       {/if}
+                                    {/if}
                                 </dl>
                             </div>
                         </div>

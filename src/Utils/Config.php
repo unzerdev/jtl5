@@ -46,6 +46,8 @@ class Config
     public const LANG_APPLE_PAY_CANCEL_BY_USER = 's360_hp_apple_pay_cancel_by_user';
     public const LANG_CANCEL_PAYMENT_REFERENCE = 's360_hp_cancel_payment_reference';
     public const LANG_INSTLAMENT_INFO = 's360_hp_instalment_info';
+    public const LANG_COMPANY_TYPE_MISSING = 's360_hp_company_type_missing';
+
 
     // Config Keys
     public const PRIVATE_KEY = 'privateKey';
@@ -68,6 +70,17 @@ class Config
     public const PQ_SELECTOR_INSTALMENT_INFO = 'pqSelectorInstalmentInfo';
     public const PQ_SELECTOR_PLACE_ORDER_BUTTON = 'pqSelectorPlaceOrderButton';
     public const PQ_SELECTOR_ORDER_CONFIRM_FORM = 'pqSelectorOrderConfirmForm';
+
+    public const PAYMENT_BOOKING_MODE = 'booking_mode';
+    public const UI_FONT_FAMILY = 'ui_fontFamily';
+    public const UI_TEXT_COLOR = 'ui_textColor';
+    public const UI_BRAND_COLOR = 'ui_brandColor';
+    public const UI_BACKGROUND_COLOR = 'ui_backgroundColor';
+    public const UI_LINK_COLOR = 'ui_linkColor';
+    public const UI_CORNER_RADIUS = 'ui_cornerRadius';
+    public const UI_SHADOWS = 'ui_shadows';
+
+    public const ENABLE_CTP = 'enable_ctp';
 
     // Apple Pay Config Keys
     public const APPLEPAY_MERCHANT_IDENTIFIER = 'applepay_merchant_identifier';

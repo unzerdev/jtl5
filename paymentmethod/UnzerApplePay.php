@@ -27,37 +27,13 @@ use Plugin\s360_unzer_shop5\src\Utils\Config;
  * Apple Pay is a mobile wallet solution available to all users of Apple devices.
  *
  * @see https://docs.unzer.com/payment-methods/applepay/
+ * @deprecated Replaced by UnzerApplePayV2
  */
 class UnzerApplePay extends HeidelpayPaymentMethod implements HandleStepAdditionalInterface, NotificationInterface
 {
     use HasCustomer;
     use HasMetadata;
     use HasBasket;
-
-    /**
-     * @inheritDoc
-     */
-    public function initBackendNotification(): void
-    {
-        // Add deprecation notice IF paymethod is used (ie assigned to a shipping method)
-        $payMethod = $this->plugin->getPaymentMethods()->getMethodByID($this->moduleID);
-
-        if ($payMethod !== null && $payMethod->getActive()) {
-            $this->kZahlungsart = $payMethod->getMethodID();
-            $result = Shop::Container()->getDB()->select('tversandartzahlungsart', 'kZahlungsart', $this->kZahlungsart);
-
-            if ($result) {
-                $notification = new NotificationEntry(
-                    NotificationEntry::TYPE_INFO,
-                    sprintf(__('hpDeprecationPaymentMethodTitle'), __($payMethod->getName())),
-                    nl2br(__('hpApplePayMigrationNotification'))
-                );
-
-                $notification->setPluginId((string) $this->plugin->getID());
-                Notification::getInstance()->addNotify($notification);
-            }
-        }
-    }
 
     /**
      * @param JTLSmarty $view
@@ -103,6 +79,8 @@ class UnzerApplePay extends HeidelpayPaymentMethod implements HandleStepAddition
      */
     public function isValidIntern($args = []): bool
     {
+        return false; // !NOTE: Discontinued
+
         try {
             /** @var CertificationService $certService */
             $certService = Shop::Container()->get(CertificationService::class);

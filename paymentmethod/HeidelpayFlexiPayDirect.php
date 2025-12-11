@@ -77,4 +77,14 @@ class HeidelpayFlexiPayDirect extends HeidelpayPaymentMethod implements Redirect
         //! Note: Payment Method is deprecated -> should not be used anymore
         return false;
     }
+
+    /**
+     * Deactivate as the payment method is deprecated
+     * @param array $args
+     * @return bool
+     */
+    public function isValidIntern($args = []): bool
+    {
+        return false;
+    }
 }

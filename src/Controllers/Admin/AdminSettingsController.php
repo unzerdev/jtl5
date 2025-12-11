@@ -62,7 +62,6 @@ class AdminSettingsController extends AdminController
         $settings = $this->smarty->getTemplateVars('hpSettings');
         $settings['config'] = $this->config->all();
 
-
         try {
             if (
                 empty($this->config->get(Config::PRIVATE_KEY))
@@ -134,6 +133,14 @@ class AdminSettingsController extends AdminController
         $this->config->set(Config::PQ_SELECTOR_REVIEW_STEP, Request::postVar('pqSelectorReviewStep'));
         $this->config->set(Config::PQ_METHOD_REVIEW_STEP, Request::postVar('pqMethodReviewStep'));
         $this->config->set(Config::ADD_INCOMING_PAYMENTS, Request::postVar('addIncomingPayments', false));
+
+        $this->config->set(Config::UI_FONT_FAMILY, Request::postVar('ui-font-family', ''));
+        $this->config->set(Config::UI_TEXT_COLOR, Request::postVar('ui-text-color', ''));
+        $this->config->set(Config::UI_BRAND_COLOR, Request::postVar('ui-brand-color', ''));
+        $this->config->set(Config::UI_BACKGROUND_COLOR, Request::postVar('ui-background-color', ''));
+        $this->config->set(Config::UI_LINK_COLOR, Request::postVar('ui-link-color', ''));
+        $this->config->set(Config::UI_CORNER_RADIUS, Request::postVar('ui-corner-radius', ''));
+        $this->config->set(Config::UI_SHADOWS, Request::postVar('ui-shadows', ''));
         $this->saveChannelId(null);
 
         // Validate

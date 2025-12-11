@@ -42,6 +42,16 @@ class HeidelpayInvoiceGuaranteed extends HeidelpayInvoice implements HandleStepA
     use SupportsB2B;
 
     /**
+     * Deactivate as the payment method is deprecated
+     * @param array $args
+     * @return bool
+     */
+    public function isValidIntern($args = []): bool
+    {
+        return false;
+    }
+
+    /**
      * Cancel the Charge.
      *
      * Invoice factoring has an additional mandatory field (reason code) in case of a cancel.

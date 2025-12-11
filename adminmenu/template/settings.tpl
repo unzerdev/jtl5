@@ -93,6 +93,92 @@
                     </div>
                 </div>
 
+                {* UI Components *}
+                <div class="panel panel-default card mb-3">
+                    <div class="panel-heading card-title mx-4 mt-4">
+                        <h3 class="panel-title">{__('hpSettingsUIComponents')}</h3>
+                    </div>
+
+                    <div class="panel-body card-body">
+                        {* Font Family *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-ui-fontFamily">{__('hpSettingsFontFamily')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="text" class="form-control" name="ui-font-family" id="hpSettings-ui-fontFamily" placeholder="{__('hpSettingsFontFamilyPlaceholder')}" value="{if isset($hpSettings.config.ui_fontFamily)}{$hpSettings.config.ui_fontFamily}{/if}" />
+                                <small class="form-text help-block text-muted">{__('hpSettingsFontFamilyHelp')}</small>
+                            </div>
+                        </div>
+
+                        {* Text Color *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-ui-TextColor">{__('hpSettingsTextColor')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="text" class="form-control" name="ui-text-color" id="hpSettings-ui-TextColor" placeholder="{__('hpSettingsTextColorPlaceholder')}" value="{if isset($hpSettings.config.ui_textColor)}{$hpSettings.config.ui_textColor}{/if}" />
+                                <small class="form-text help-block text-muted">{__('hpSettingsTextColorHelp')}</small>
+                            </div>
+                        </div>
+
+                        {* Brand Color *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-ui-BrandColor">{__('hpSettingsBrandColor')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="text" class="form-control" name="ui-brand-color" id="hpSettings-ui-BrandColor" placeholder="{__('hpSettingsBrandColorPlaceholder')}" value="{if isset($hpSettings.config.ui_brandColor)}{$hpSettings.config.ui_brandColor}{/if}" />
+                                <small class="form-text help-block text-muted">{__('hpSettingsBrandColorHelp')}</small>
+                            </div>
+                        </div>
+
+                        {* Background Color *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-ui-BackgroundColor">{__('hpSettingsBackgroundColor')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="text" class="form-control" name="ui-background-color" id="hpSettings-ui-BackgroundColor" placeholder="{__('hpSettingsBackgroundColorPlaceholder')}" value="{if isset($hpSettings.config.ui_backgroundColor)}{$hpSettings.config.ui_backgroundColor}{/if}" />
+                                <small class="form-text help-block text-muted">{__('hpSettingsBackgroundColorHelp')}</small>
+                            </div>
+                        </div>
+
+                        {* Link Color *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-ui-LinkColor">{__('hpSettingsLinkColor')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="text" class="form-control" name="ui-link-color" id="hpSettings-ui-LinkColor" placeholder="{__('hpSettingsLinkColorPlaceholder')}" value="{if isset($hpSettings.config.ui_linkColor)}{$hpSettings.config.ui_linkColor}{/if}" />
+                                <small class="form-text help-block text-muted">{__('hpSettingsLinkColorHelp')}</small>
+                            </div>
+                        </div>
+
+                        {* Corner Radius *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-ui-CornerRadius">{__('hpSettingsCornerRadius')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="checkbox" class="checkbox" name="ui-corner-radius" id="hpSettings-ui-CornerRadius" {if isset($hpSettings.config.ui_cornerRadius)}checked{/if} />
+                                <small class="form-text help-block text-muted">{__('hpSettingsCornerRadiusHelp')}</small>
+                            </div>
+                        </div>
+
+                        {* Shadows *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-ui-Shadows">{__('hpSettingsShadows')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="checkbox" class="checkbox" name="ui-shadows" id="hpSettings-ui-Shadows" {if isset($hpSettings.config.ui_shadows)}checked{/if} />
+                                <small class="form-text help-block text-muted">{__('hpSettingsShadowsHelp')}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 {* Advanced Settings *}
                 <div class="panel panel-default card mb-3">
                     <div class="panel-heading card-title mx-4 mt-4">
@@ -256,8 +342,8 @@
                                 <select class="form-control" name="pqMethodInstalmentInfo" id="hpSettings-pqMethodInstalmentInfo">
                                     <option value="append" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'append'}selected{/if}>{__('hpSettingsAppend')}</option>
                                     <option value="prepend" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'prepend'}selected{/if}>{__('hpSettingsPrepend')}</option>
-                                    <option value="before" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'before'}selected{/if}>{__('hpSettingsBefore')}</option>
-                                    <option value="after" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'after' || !isset($hpSettings.config.pqMethodInstalmentInfo)}selected{/if}>{__('hpSettingsAfter')}</option>
+                                    <option value="before" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'before' || !isset($hpSettings.config.pqMethodInstalmentInfo)}selected{/if}>{__('hpSettingsBefore')}</option>
+                                    <option value="after" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'after'}selected{/if}>{__('hpSettingsAfter')}</option>
                                     <option value="replaceWith" {if isset($hpSettings.config.pqMethodInstalmentInfo) && $hpSettings.config.pqMethodInstalmentInfo == 'replaceWith'}selected{/if}>{__('hpSettingsReplace')}</option>
                                 </select>
                                 <small class="form-text help-block text-muted">{__('hpSettingsPqMethodInstalmentInfoHelp')}</small>

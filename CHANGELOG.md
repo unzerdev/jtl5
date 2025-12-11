@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] (December 2025)
+
+> [!CAUTION]
+> Version 2.0.0 is a breaking change - remember to test and create backup before updating your LIVE environment.
+
+### Added
+- EAA Support, https://docs.unzer.com/online-payments/compliance/eaa/
+- **Klarna** Payment Method
+- **Wero** Payment Method
+
+### Changed
+- Migration from Unzer UI Component V1 to Unzer UI Component V2
+- Deprecated payment methods have been replaced with new ones, removed or renamed. For full list see [README.md](README.md) for an updated list.
+
 ## [1.8.2] (September 2025)
 ### Added
 - added JTL 5.6 compatability

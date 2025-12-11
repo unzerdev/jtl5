@@ -12,17 +12,18 @@ use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HasPayButton;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\NotificationInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\CancelPaymentTransaction;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasAuthorization;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
-use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 
 class UnzerApplePayV2 extends HeidelpayPaymentMethod implements HasPayButton, NotificationInterface, CancelableInterface
 {
+    use HasAuthorization;
     use HasCustomer;
     use HasMetadata;
     use HasBasket;
@@ -113,15 +114,8 @@ class UnzerApplePayV2 extends HeidelpayPaymentMethod implements HasPayButton, No
 
         // Authorize payment
         if ($config->getPaymentSetting(Config::APPLEPAY_BOOKING_MODE, $this->moduleID) === 'authorize') {
-            $authorization = new Authorization(
-                $this->getTotalPriceCustomerCurrency($order),
-                $order->Waehrung->getCode(),
-                $this->getReturnURL($order)
-            );
-            $authorization->setOrderId($order->cBestellNr ?? null);
-
             return $this->adapter->getCurrentConnection()->performAuthorization(
-                $authorization,
+                $this->createAuthorization($session->getCustomer(), $order),
                 $payment->getId(),
                 $customer,
                 $this->createMetadata(),

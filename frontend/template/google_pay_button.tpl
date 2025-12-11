@@ -1,25 +1,20 @@
-<link rel="stylesheet" href="https://static.unzer.com/v1/unzer.css" />
-<link rel="stylesheet" href="{$hpPayment.frontendUrl}css/unzer.min.css?v={$hpPayment.pluginVersion}" />
-<script type="text/javascript" src="https://static.unzer.com/v1/unzer.js"></script>
-<script src="https://pay.google.com/gp/p/js/pay.js"></script>
-<script src="{$hpPayment.frontendUrl}js/unzer.min.js?v={$hpPayment.pluginVersion}" defer="defer"></script>
+{include file="{$hpPayment.pluginPath}paymentmethod/template/_components_v2.tpl"}
 
-<div id="error-container" style="display: none">
-    <div class="alert alert-danger"> </div>
+{if $hpPayment.googlepay.buttonOptions.buttonSize === 'static'}
+    <style>
+        [data-unzer-ui-component] unzer-payment {
+            display: flex;
+            justify-content: flex-end;
+        }
+    </style>
+{/if}
+
+
+<div data-payment-data-request='{json_encode($hpPayment.googlepay)}' data-unzer-ui-component='{
+    "component": "google-pay",
+    "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")}
+}'>
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}">
+        <unzer-google-pay />
+    </unzer-payment>
 </div>
-
-<div class="unzerUI form">
-    <div id="googlepay-holder" class="field"></div>
-</div>
-
-<script>
-$(function() {
-    const settings = {json_encode($hpPayment.googlepay)};
-
-    new window.UnzerGooglePay('{$hpPayment.publicKey}', {
-        googlepay: settings,
-        form: document.getElementById('complete_order'),
-        locale: '{$hpPayment.locale}'
-    });
-});
-</script>

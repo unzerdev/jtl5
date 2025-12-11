@@ -1,16 +1,11 @@
-{include file="{$hpPayment.pluginPath}paymentmethod/template/_includes.tpl"}
+{include file="{$hpPayment.pluginPath}paymentmethod/template/_components_v2.tpl"}
 
-<div class="unzerUI form" novalidate>
-    <div id="ideal-element"></div>
+<div data-unzer-ui-component='{
+    "component": "ideal",
+    "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")},
+    "autoSubmit": true
+}'>
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}">
+        <unzer-ideal />
+    </unzer-payment>
 </div>
-
-<script>
-$(document).ready(function() {
-    var HpPayment = new window.HpPayment('{$hpPayment.publicKey}', window.HpPayment.PAYMENT_TYPES.IDEAL, {
-        submitButton: $('{if $hpPayment.config.selectorSubmitButton}{$hpPayment.config.selectorSubmitButton}{else}#form_payment_extra .submit, #form_payment_extra .submit_once{/if}').get(0),
-        locale: '{$hpPayment.locale}',
-    });
-});
-</script>
-
-{include file="{$hpPayment.pluginPath}paymentmethod/template/_footer.tpl"}

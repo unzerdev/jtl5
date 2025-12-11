@@ -427,11 +427,12 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     {
         parent::handleNotification($order, $hash, $args);
 
+        $paymentId = $this->sessionHelper->get(SessionHelper::KEY_PAYMENT_ID);
         $this->handler->finishPayment($hash);
 
         try {
             $this->adapter->getConnectionForOrder($order);
-            $payment = $this->adapter->fetchPayment();
+            $payment = $this->adapter->fetchPayment($paymentId);
             $transaction = $this->adapter->getPaymentTransaction($payment);
 
             // update cBestellNummer because we already have generated it but have no way of telling JTL to use
@@ -443,9 +444,8 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             }
 
             // Preorder = 1 => Order was not finalized before and therefore no order mapping was saved. Do this now!
-            if (isset($args['state']) && $args['state'] == self::STATE_DURING_CHECKOUT) {
-                $this->handler->saveOrderMapping($transaction->getPayment(), $order);
-            }
+            // Otherwise, we update the order mapping with possible new payment status (ie user aborted or payment failed already!)
+            $this->handler->saveOrderMapping($transaction->getPayment(), $order);
 
             // The payment process has been successful (probably, as it can be pending).
             if ($payment->isCompleted() || $payment->isPending()) {

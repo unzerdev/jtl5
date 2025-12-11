@@ -187,6 +187,9 @@ class HeidelpayHirePurchaseDirectDebit extends HeidelpayPaymentMethod implements
      */
     public function isValidIntern($args = []): bool
     {
+        //! Note: Payment Method is deprecated -> should not be used anymore
+        return false;
+
         /** @var Config $config */
         $config = Shop::Container()->get(Config::class);
         $effectiveInterest = $config->getPaymentSetting('effectiveInterest', $this->moduleID);

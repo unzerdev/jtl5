@@ -1,5 +1,3 @@
-{include file="{$hpPayment.pluginPath}paymentmethod/template/_includes.tpl"}
-
 <style>
     .apple-pay-button {
         display: block;
@@ -11,23 +9,22 @@
     .applePayButtonContainer {
         position: relative;
     }
+
+    [data-unzer-ui-component] {
+        /* display: flex;
+        justify-content: flex-end;
+        flex-flow: row wrap; */
+        --apple-pay-button-height: 40px;
+    }
 </style>
 
-<div class="unzerUI form" novalidate>
-    <div class="applePayButtonContainer">
-        <div class="apple-pay-button apple-pay-button-black" lang="{$hpPayment.locale}" role="link" tabindex="0">
-        </div>
-    </div>
+{include file="{$hpPayment.pluginPath}paymentmethod/template/_components_v2.tpl"}
+
+<div data-payment-data-request='{json_encode($hpPayment.paymentRequest)}' data-unzer-ui-component='{
+    "component": "apple-pay",
+    "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")}
+}'>
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}">
+        <unzer-apple-pay />
+    </unzer-payment>
 </div>
-
-<script>
-$(document).ready(function() {
-    const applePayPaymentRequest = {json_encode($hpPayment.paymentRequest)};
-    const snippets = {json_encode($hpPayment.snippets)};
-
-    new window.UnzerApplePayV2('{$hpPayment.publicKey}', applePayPaymentRequest, snippets, {
-        form: {if isset($hpPayment.config.pqSelectorOrderConfirmForm)}document.querySelector({json_encode($hpPayment.config.pqSelectorOrderConfirmForm)}) || {/if}document.getElementById('complete_order'),
-        locale: '{$hpPayment.locale}'
-    });
-});
-</script>

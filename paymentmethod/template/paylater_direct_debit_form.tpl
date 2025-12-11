@@ -1,24 +1,12 @@
-{include file="{$hpPayment.pluginPath}paymentmethod/template/_includes.tpl"}
+{include file="{$hpPayment.pluginPath}paymentmethod/template/_components_v2.tpl"}
 
-<div class="unzerUI form" novalidate>
-    <div id="customer" class="field"></div>
-    <div id="paylater-direct-debit" class="field"></div>
+<div data-unzer-ui-component='{
+    "component": "paylater-direct-debit",
+    "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")},
+    "customer": {$hpPayment.customer->jsonSerialize()},
+    "isB2B": {json_encode($hpPayment.isB2B)}
+}'>
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}">
+        <unzer-paylater-direct-debit />
+    </unzer-payment>
 </div>
-
-<script>
-$(document).ready(function() {
-    var HpPayment = new window.HpPayment('{$hpPayment.publicKey}', window.HpPayment.PAYMENT_TYPES.PAYLATER_DIRECT_DEBIT, {
-        submitButton: $('{if $hpPayment.config.selectorSubmitButton}{$hpPayment.config.selectorSubmitButton}{else}#form_payment_extra .submit, #form_payment_extra .submit_once{/if}').get(0),
-        locale: '{$hpPayment.locale}',
-        {if empty($hpPayment.customerId) || $hpPayment.customerId == -1}
-            customerId: {if !empty($hpPayment.customer->getId())}'{$hpPayment.customer->getId()}'{else}null{/if},
-        {else}
-            customerId: '{$hpPayment.customerId}',
-        {/if}
-        customer: {$hpPayment.customer->jsonSerialize()},
-        isB2B: {json_encode($hpPayment.isB2B)}
-    });
-});
-</script>
-
-{include file="{$hpPayment.pluginPath}paymentmethod/template/_footer.tpl"}

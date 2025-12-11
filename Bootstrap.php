@@ -13,8 +13,14 @@ use JTL\Plugin\Payment\Method;
 use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\paymentmethod\HeidelpayFlexiPayDirect;
+use Plugin\s360_unzer_shop5\paymentmethod\HeidelpayGiropay;
 use Plugin\s360_unzer_shop5\paymentmethod\HeidelpayHirePurchaseDirectDebit;
+use Plugin\s360_unzer_shop5\paymentmethod\HeidelpayInvoice;
 use Plugin\s360_unzer_shop5\paymentmethod\HeidelpayInvoiceFactoring;
+use Plugin\s360_unzer_shop5\paymentmethod\HeidelpayInvoiceGuaranteed;
+use Plugin\s360_unzer_shop5\paymentmethod\HeidelpaySEPADirectDebitGuaranteed;
+use Plugin\s360_unzer_shop5\paymentmethod\HeidelpaySofort;
+use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePay;
 use Plugin\s360_unzer_shop5\Seeders\Shop4PluginMigrationSeeder;
 use Plugin\s360_unzer_shop5\src\ApplePay\CertificationService;
 use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminApplePayController;
@@ -362,7 +368,13 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
         return  [
             HeidelpayInvoiceFactoring::class,
             HeidelpayHirePurchaseDirectDebit::class,
-            HeidelpayFlexiPayDirect::class
+            HeidelpayFlexiPayDirect::class,
+            UnzerApplePay::class,
+            HeidelpaySofort::class,
+            HeidelpayGiropay::class,
+            HeidelpayInvoice::class,
+            HeidelpayInvoiceGuaranteed::class,
+            HeidelpaySEPADirectDebitGuaranteed::class,
         ];
     }
 

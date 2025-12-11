@@ -411,6 +411,8 @@ class PaymentHandler
         $data['locale']              = $this->adapter->mapToLocale(
             $this->session->getFrontendSession()->getLanguage()->cISOSprache ?? 'eng'
         );
+        $data['isSandbox'] = $this->config->isSandbox();
+        $data['isDev'] = stripos(Shop::getURL(), 'solution360.dev') !== false || stripos(Shop::getURL(), '.test') !== false;
 
         $publicKey = $this->adapter->getKeypairService()->getPublicKey(
             isset(Frontend::getCustomer()->cFirma) && strlen(trim(Frontend::getCustomer()->cFirma)) > 0,

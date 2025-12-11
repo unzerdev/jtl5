@@ -5,88 +5,97 @@ msgid "Einstellungen"
 msgstr "Settings"
 
 msgid "Unzer Kreditkarte"
-msgstr "Unzer Credit Card"
+msgstr "Credit Card"
 
 msgid "Unzer SEPA-Lastschrift"
-msgstr "Unzer SEPA Direct Debit"
+msgstr "SEPA Direct Debit"
 
 msgid "Unzer Lastschrift"
-msgstr "Unzer SEPA Direct Debit"
+msgstr "SEPA Direct Debit"
 
 msgid "Unzer SEPA-Lastschrift (guaranteed)"
-msgstr "(Deprecated) Unzer SEPA Direct Debit (secured)"
+msgstr "(Deprecated) SEPA Direct Debit (secured)"
 
 msgid "Unzer Lastschrift (secured)"
-msgstr "(Deprecated) Unzer Direct Debit (secured)"
+msgstr "(Deprecated) Direct Debit (secured)"
 
 msgid "Unzer Lastschrift (Paylater)"
-msgstr "Unzer Direct Debit"
+msgstr "Direct Debit"
 
 msgid "Unzer Rechnung"
-msgstr "(Deprecated) Unzer Invoice"
+msgstr "(Deprecated) Invoice"
 
 msgid "Unzer Rechnung (guaranteed)"
-msgstr "(Deprecated) Unzer Invoice Secured"
+msgstr "(Deprecated) Invoice Secured"
 
 msgid "Unzer Rechnung (secured)"
-msgstr "(Deprecated) Unzer Invoice Secured"
+msgstr "(Deprecated) Invoice Secured"
 
 msgid "Unzer Fakturierung von Rechnungen"
-msgstr "Unzer Invoice Factoring"
+msgstr "Invoice Factoring"
 
 msgid "Unzer Rechnungskauf"
-msgstr "Unzer Invoice"
+msgstr "Invoice"
 
 msgid "Unzer PayPal"
-msgstr "Unzer PayPal"
+msgstr "PayPal"
 
 msgid "Unzer SOFORT"
-msgstr "(Deprecated) Unzer SOFORT"
+msgstr "(Deprecated) SOFORT"
 
 msgid "Unzer Giropay"
-msgstr "(Deprecated) Unzer Giropay"
+msgstr "(Deprecated) Giropay"
 
 msgid "Unzer Przelewy24"
-msgstr "Unzer Przelewy24"
+msgstr "Przelewy24"
 
 msgid "Unzer iDEAL"
-msgstr "Unzer iDEAL"
+msgstr "iDEAL"
 
 msgid "Unzer Prepayment"
-msgstr "Unzer Prepayment"
+msgstr "Prepayment"
 
 msgid "Unzer Vorkasse"
-msgstr "Unzer Prepayment"
+msgstr "Prepayment"
 
 msgid "Unzer EPS"
-msgstr "Unzer EPS"
+msgstr "EPS"
 
 msgid "Unzer FlexiPay Direct"
-msgstr "Unzer FlexiPay Direct"
+msgstr "FlexiPay Direct"
 
 msgid "Unzer Direktüberweisung"
-msgstr "(Deprecated) Unzer Bank Transfer"
+msgstr "(Deprecated) Bank Transfer"
 
 msgid "Unzer Alipay"
-msgstr "Unzer Alipay"
+msgstr "Alipay"
 
 msgid "Unzer WeChat Pay"
-msgstr "Unzer WeChat Pay"
+msgstr "WeChat Pay"
 
 msgid "Unzer FlexiPay Installment (Hire Purchase)"
-msgstr "Unzer FlexiPay Instalment (Hire Purchase)"
+msgstr "FlexiPay Instalment (Hire Purchase)"
 
 msgid "Unzer Instalment"
-msgstr "(Deprecated) Unzer Installment"
+msgstr "(Deprecated) Installment"
 
 msgid "Unzer Ratenkauf"
-msgstr "(Deprecated) Unzer Instalment"
+msgstr "(Deprecated) Instalment"
 
 msgid "Unzer Rechnung (Jetzt kaufen, Später bezahlen)"
-msgstr "Unzer Invoice"
+msgstr "Invoice"
 
 msgid "Unzer Ratenzahlung (Paylater)"
-msgstr "Unzer Installment"
+msgstr "Installment"
+
+msgid "Unzer Bancontact"
+msgstr "Bancontact"
+
+msgid "Unzer Google Pay"
+msgstr "Google Pay"
+
+msgid "Unzer TWINT"
+msgstr "TWINT"
 
 msgid "hpError"
 msgstr "Error"
@@ -542,10 +551,10 @@ msgid "Die Webhooks wurden erfolgreich gespeichert."
 msgstr "Webhooks have been registered successfully."
 
 msgid "Key Pairs"
-msgstr "Key Pairs"
+msgstr "Additional Keypairs"
 
 msgid "hpKeyPairEdit"
-msgstr "Edit Key Pair"
+msgstr "Edit Keypair"
 
 msgid "hpKeypairIsB2B"
 msgstr "B2B"
@@ -676,14 +685,14 @@ msgstr "The country code of the acquirer (default DK)."
 msgid "twint"
 msgstr "TWINT"
 
-msgid "Apple Pay"
-msgstr "(Deprecated) Apple Pay"
+#  msgid "Apple Pay"
+#  msgstr "(Deprecated) Apple Pay"
 
 msgid "Unzer Apple Pay"
-msgstr "(Deprecated) Unzer Apple Pay"
+msgstr "(Deprecated) Apple Pay"
 
 msgid "Unzer Apple Pay v2"
-msgstr "Unzer Apple Pay"
+msgstr "Apple Pay"
 
 msgid "hpApplePayMigrationNotification"
 msgstr ""
@@ -703,8 +712,83 @@ msgstr ""
 msgid "hpApplePayMissingMerchantIdDomainAssociation"
 msgstr "Could not find Apple Pay Verification File. Upload the verification file from Apple to your server as follows: <a href=\"%1$s/.well-known/apple-developer-merchantid-domain-association\" target=\"_blank\">%1$s/.well-known/apple-developer-merchantid-domain-association</a>"
 
+msgid "hpSettingsUIComponents"
+msgstr "UI Components"
+
+msgid "hpSettingsUIVersion"
+msgstr "Version"
+
+msgid "hpSettingsFontFamilyHelp"
+msgstr "e.g. Arial, Helvetica, sans-serif"
+
+msgid "hpSettingsTextColor"
+msgstr "Text Color"
+
+msgid "hpSettingsTextColorPlaceholder"
+msgstr "e.g. red or #ff0000"
+
+msgid "hpSettingsTextColorHelp"
+msgstr "The font color use for typography."
+
+msgid "hpSettingsBrandColor"
+msgstr "Primary Color"
+
+msgid "hpSettingsBrandColorPlaceholder"
+msgstr "e.g. red or #ff0000"
+
+msgid "hpSettingsBrandColorHelp"
+msgstr "The main color of the application."
+
+msgid "hpSettingsBackgroundColor"
+msgstr "Background Color"
+
+msgid "hpSettingsBackgroundColorPlaceholder"
+msgstr "e.g. red or #ff0000"
+
+msgid "hpSettingsBackgroundColorHelp"
+msgstr "The page background."
+
+msgid "hpSettingsLinkColor"
+msgstr "Link Color"
+
+msgid "hpSettingsLinkColorPlaceholder"
+msgstr "e.g. red or #ff0000"
+
+msgid "hpSettingsLinkColorHelp"
+msgstr "The color of links."
+
+msgid "hpSettingsCornerRadius"
+msgstr "Rounded Corners"
+
+msgid "hpSettingsCornerRadiusHelp"
+msgstr "Whether controls will have rounded corners or not."
+
+msgid "hpSettingsShadows"
+msgstr "Shadows"
+
+msgid "hpSettingsShadowsHelp"
+msgstr "Whether shadows are enabled or not."
+
 msgid "Unzer Direct Bank Transfer"
-msgstr "Unzer Direct Bank Transfer"
+msgstr "Direct Bank Transfer"
 
 msgid "openbanking-pis"
-msgstr "Unzer Direct Bank Transfer"
+msgstr "Direct Bank Transfer"
+
+msgid "\"Click to Pay\" aktivieren"
+msgstr "Enable \"Click to Pay\""
+
+msgid "Unzer Klarna"
+msgstr "Klarna"
+
+msgid "Unzer Wero"
+msgstr "Wero"
+
+msgid "Wollen Sie den Eintrag wirklich löschen?"
+msgstr "Are you sure you want to delete this entry?"
+
+msgid "clicktopay"
+msgstr "Click to Pay"
+
+msgid "klarna"
+msgstr "Klarna"

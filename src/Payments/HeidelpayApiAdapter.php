@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
 use Exception;
+use UnzerSDK\Resources\PaymentTypes\Applepay;
 use UnzerSDK\Unzer;
 use UnzerSDK\Resources\Payment;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
@@ -14,6 +15,7 @@ use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
 use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\PaymentTypes\PaylaterDirectDebit;
 use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
+use UnzerSDK\Resources\PaymentTypes\Klarna;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
 use JTL\Cart\Cart;
@@ -26,6 +28,7 @@ use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairService;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
+use UnzerSDK\Resources\PaymentTypes\Wero;
 
 /**
  * Heidelpay API Adapter for JTL Shop.
@@ -47,7 +50,10 @@ class HeidelpayApiAdapter
         PaylaterInvoice::class,
         PaylaterInstallment::class,
         PaylaterDirectDebit::class,
-        Googlepay::class
+        Googlepay::class,
+        Applepay::class,
+        Klarna::class,
+        Wero::class
     ];
 
     /**

@@ -105,7 +105,7 @@ class PaymentEventSubscriber extends EventSubscriber
 
         // Mark order as paid if there is no remaining amount on the payment.
         if ($payment->getAmount()->getRemaining() <= 0) {
-            $this->charges->markAsPaid($paymentMethod, $orderMapping->getOrder());
+            $this->charges->markAsPaid($payment, $paymentMethod, $orderMapping->getOrder());
         }
 
         // Update Mapped Status

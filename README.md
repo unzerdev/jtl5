@@ -2,6 +2,7 @@
 
 Dieses Plugin integriert die folgenden Unzer-Zahlungsarten im JTL Shop:
 
+- Alipay
 - Apple Pay
 - Bancontact
 - Kreditkarte und Click to Pay

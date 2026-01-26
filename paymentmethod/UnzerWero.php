@@ -71,15 +71,15 @@ class UnzerWero extends HeidelpayPaymentMethod implements RedirectPaymentInterfa
         $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
 
         // Authorize payment
-        if ($config->getPaymentSetting(Config::PAYMENT_BOOKING_MODE, $this->moduleID) === 'authorize') {
-            return $this->adapter->getCurrentConnection()->performAuthorization(
-                $this->createAuthorization($shopCustomer, $order, false),
-                $payment->getId(),
-                $customer,
-                $this->createMetadata(),
-                $basket
-            );
-        }
+        // if ($config->getPaymentSetting(Config::PAYMENT_BOOKING_MODE, $this->moduleID) === 'authorize') {
+        //     return $this->adapter->getCurrentConnection()->performAuthorization(
+        //         $this->createAuthorization($shopCustomer, $order, false),
+        //         $payment->getId(),
+        //         $customer,
+        //         $this->createMetadata(),
+        //         $basket
+        //     );
+        // }
 
         // Charge Payment
         return $this->adapter->getCurrentConnection()->performCharge(

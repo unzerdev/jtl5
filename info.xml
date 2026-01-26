@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>2.0.0</Version>
+    <Version>2.0.1</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
 
@@ -405,7 +405,7 @@
         <PaymentMethod>
             <Method>
                 <Name><![CDATA[Unzer Kreditkarte]]></Name>
-                <Sort>0</Sort>
+                <Sort>25</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>CREDIT_CARD</TSCode>
@@ -438,7 +438,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift]]></Name>
-                <Sort>0</Sort>
+                <Sort>80</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>DIRECT_DEBIT</TSCode>
@@ -488,7 +488,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Rechnung]]></Name>
-                <Sort>0</Sort>
+                <Sort>90</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>INVOICE</TSCode>
@@ -513,7 +513,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Rechnung (secured)]]></Name>
-                <Sort>0</Sort>
+                <Sort>90</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>INVOICE</TSCode>
@@ -538,7 +538,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Rechnung (Jetzt kaufen, Später bezahlen)]]></Name>
-                <Sort>0</Sort>
+                <Sort>5</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>INVOICE</TSCode>
@@ -588,7 +588,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer PayPal]]></Name>
-                <Sort>0</Sort>
+                <Sort>100</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>PAYPAL</TSCode>
@@ -663,7 +663,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Przelewy24]]></Name>
-                <Sort>0</Sort>
+                <Sort>60</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -688,7 +688,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer iDEAL]]></Name>
-                <Sort>0</Sort>
+                <Sort>55</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -713,7 +713,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Vorkasse]]></Name>
-                <Sort>0</Sort>
+                <Sort>85</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -738,7 +738,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer EPS]]></Name>
-                <Sort>0</Sort>
+                <Sort>50</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -788,7 +788,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Alipay]]></Name>
-                <Sort>0</Sort>
+                <Sort>105</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -813,7 +813,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer WeChat Pay]]></Name>
-                <Sort>0</Sort>
+                <Sort>110</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -838,7 +838,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Ratenkauf]]></Name>
-                <Sort>0</Sort>
+                <Sort>10</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -870,7 +870,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Apple Pay]]></Name>
-                <Sort>10</Sort>
+                <Sort>30</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -895,7 +895,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Bancontact]]></Name>
-                <Sort>20</Sort>
+                <Sort>95</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -920,7 +920,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Ratenzahlung (Paylater)]]></Name>
-                <Sort>30</Sort>
+                <Sort>10</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -945,7 +945,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift (Paylater)]]></Name>
-                <Sort>40</Sort>
+                <Sort>15</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -970,7 +970,7 @@
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Google Pay]]></Name>
-                <Sort>50</Sort>
+                <Sort>35</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -1115,7 +1115,7 @@
 
             <Method>
                 <Name><![CDATA[Unzer TWINT]]></Name>
-                <Sort>60</Sort>
+                <Sort>65</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -1141,7 +1141,7 @@
 
             <Method>
                 <Name><![CDATA[Unzer Apple Pay v2]]></Name>
-                <Sort>15</Sort>
+                <Sort>30</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -1176,7 +1176,7 @@
 
             <Method>
                 <Name><![CDATA[Unzer Direct Bank Transfer]]></Name>
-                <Sort>70</Sort>
+                <Sort>20</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -1202,7 +1202,7 @@
 
             <Method>
                 <Name><![CDATA[Unzer Klarna]]></Name>
-                <Sort>80</Sort>
+                <Sort>45</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -1228,7 +1228,7 @@
 
             <Method>
                 <Name><![CDATA[Unzer Wero]]></Name>
-                <Sort>90</Sort>
+                <Sort>40</Sort>
                 <SendMail>1</SendMail>
                 <Provider><![CDATA[Unzer]]></Provider>
                 <TSCode>OTHER</TSCode>
@@ -1251,14 +1251,14 @@
                     <InfoText></InfoText>
                 </MethodLanguage>
 
-                <Setting type="selectbox" initialValue="charge" sort="10" conf="Y">
+                <!-- <Setting type="selectbox" initialValue="charge" sort="10" conf="Y">
                     <Name><![CDATA[Buchungsmodus]]></Name>
                     <ValueName>booking_mode</ValueName>
                     <SelectboxOptions>
                         <Option value="authorize" sort="1">Authorisierung</Option>
                         <Option value="charge" sort="2">Erfassen</Option>
                     </SelectboxOptions>
-                </Setting>
+                </Setting> -->
             </Method>
         </PaymentMethod>
     </Install>

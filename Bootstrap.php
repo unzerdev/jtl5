@@ -238,7 +238,7 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
         foreach ($this->getPlugin()->getPaymentMethods()->getMethods() as $method) {
             if (
                 ($method->getActive() || $method->getUsable()) &&
-                in_array($method->getClassName(), $this->getDeprecatedPaymentMethods())
+                in_array($method->getClassName(), self::getDeprecatedPaymentMethods())
             ) {
                 $this->getDB()->update(
                     'tzahlungsart',
@@ -269,7 +269,7 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
         foreach ($this->getPlugin()->getPaymentMethods()->getMethods() as $method) {
             if (
                 ($method->getActive() || $method->getUsable()) &&
-                in_array($method->getClassName(), $this->getDeprecatedPaymentMethods())
+                in_array($method->getClassName(), self::getDeprecatedPaymentMethods())
             ) {
                 $this->getDB()->update(
                     'tzahlungsart',
@@ -363,7 +363,7 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
         }
     }
 
-    private function getDeprecatedPaymentMethods(): array
+    public static function getDeprecatedPaymentMethods(): array
     {
         return  [
             HeidelpayInvoiceFactoring::class,

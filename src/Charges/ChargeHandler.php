@@ -241,9 +241,27 @@ class ChargeHandler
      * @param Bestellung $order
      * @return void
      */
-    public function markAsPaid(HeidelpayPaymentMethod $paymentMethod, Bestellung $order): void
+    public function markAsPaid(Payment $payment, HeidelpayPaymentMethod $paymentMethod, Bestellung $order): void
     {
-        if ($order->cStatus != BESTELLUNG_STATUS_BEZAHLT && $this->config->get(Config::ADD_INCOMING_PAYMENTS, true)) {
+        $this->debugLog(
+            "Check if order {$order->cBestellNr} should be marked as paid." .
+            "Status: {$order->cStatus} | Add Incoming Payment: {$this->config->get(Config::ADD_INCOMING_PAYMENTS, true)}",
+            static::class
+        );
+
+        // Do not check status as it might be paid already (e.g. via redirect payments)
+        // instead check the payment is completed
+        if ($payment->isCompleted() && $this->config->get(Config::ADD_INCOMING_PAYMENTS, 'on') == 'on') {
+            $this->debugLog(
+                'No remaining amount to capture. Mark order ' . $order->cBestellNr . ' as paid.',
+                static::class
+            );
+            $paymentMethod->setOrderStatusToPaid($order);
+            $paymentMethod->sendConfirmationMail($order);
+            return;
+        }
+
+        if ($order->cStatus != BESTELLUNG_STATUS_BEZAHLT && $this->config->get(Config::ADD_INCOMING_PAYMENTS, 'on') == 'on') {
             $this->debugLog(
                 'No remaining amount to capture. Mark order ' . $order->cBestellNr . ' as paid.',
                 static::class

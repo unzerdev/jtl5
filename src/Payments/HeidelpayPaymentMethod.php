@@ -19,6 +19,7 @@ use JTL\Plugin\Payment\Method;
 use JTL\Plugin\PluginInterface;
 use JTL\Session\Frontend;
 use JTL\Shop;
+use Plugin\s360_unzer_shop5\Bootstrap;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\NotificationInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\PaymentStatusInterface;
@@ -147,6 +148,10 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
         $message = $this->getStateMessage($this->getState());
         if (!empty($message)) {
             $payMethod = $this->plugin->getPaymentMethods()->getMethodByID($this->moduleID);
+
+            if ($payMethod === null || $payMethod->getActive() === false || \in_array($payMethod->getClassName(), Bootstrap::getDeprecatedPaymentMethods())) {
+                return;
+            }
 
             if ($payMethod !== null) {
                 $this->kZahlungsart = $payMethod->getMethodID();

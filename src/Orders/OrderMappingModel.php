@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\src\Orders;
 
 use JTL\Checkout\Bestellung;
+use JTL\DB\ReturnType;
 use Plugin\s360_unzer_shop5\src\Foundation\Entity;
 use Plugin\s360_unzer_shop5\src\Foundation\Model;
 use stdClass;
@@ -78,7 +79,13 @@ class OrderMappingModel extends Model
      */
     public function findByPayment(string $paymentId): ?OrderMappingEntity
     {
-        $result = $this->database->select($this->getTable(), 'payment_id', $paymentId);
+        $result = $this->database->queryPrepared(
+            "SELECT * FROM {$this->getTable()}
+            WHERE payment_id = :paymentId
+            ORDER BY jtl_order_id DESC LIMIT 1",
+            ['paymentId' => $paymentId],
+            ReturnType::SINGLE_OBJECT
+        );
 
         if ($result) {
             $entity = $this->createEntity($result);

@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] (January 2026)
+### Fixed
+- issue with prepayment not marked as paid in JTL WAWI
+- issue with "Email: Confirmation of payment" setting not working correctly
+
+### Changed
+- removed "Booking Mode": "Authorization" from **Wero** as it is not supported by all banks
+- changed default order of payment methods
+
 ## [2.0.0] (December 2025)
 
 > [!CAUTION]

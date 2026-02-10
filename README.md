@@ -8,7 +8,7 @@ Dieses Plugin integriert die folgenden Unzer-Zahlungsarten im JTL Shop:
 - Kreditkarte und Click to Pay
 - EPS
 - Google Pay
-- iDEAL
+- iDEAL - Wero
 - Klarna
 - PayPal
 - Przelewy24
@@ -63,7 +63,7 @@ This plugin integrates the following Unzer payment methods into the JTL Shop:
 - Cards and Click to Pay
 - EPS
 - Google Pay
-- iDEAL
+- iDEAL - Wero
 - Klarna
 - PayPal
 - Przelewy24

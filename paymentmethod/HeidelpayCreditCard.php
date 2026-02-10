@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use Exception;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Card;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
@@ -15,9 +16,13 @@ use JTL\Helpers\Text;
 use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
+use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\CancelPaymentTransaction;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasAuthorization;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasDirectCharge;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use UnzerSDK\Resources\PaymentTypes\Clicktopay;
@@ -40,9 +45,14 @@ use UnzerSDK\Resources\PaymentTypes\Clicktopay;
  */
 class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
     RedirectPaymentInterface,
+    CancelableInterface,
     HandleStepAdditionalInterface
 {
+    use CancelPaymentTransaction;
+    use HasBasket;
     use HasMetadata;
+    use HasAuthorization;
+    use HasDirectCharge;
     use HasCustomer;
 
     // Order Attributes
@@ -130,8 +140,17 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
      */
     protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
+        /** @var Config $config */
+        $config = Shop::Container()->get(Config::class);
+
         // Create or fetch customer resource
-        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+        $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
+        $customer = $this->createOrFetchHeidelpayCustomer(
+            $this->adapter,
+            $this->sessionHelper,
+            false
+        );
+
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
         $customer->setCompanyInfo(null);
@@ -143,15 +162,29 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
             $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
-        $charge = new Charge(
-            $this->getTotalPriceCustomerCurrency($order),
-            $order->Waehrung->getCode(),
-            $this->getReturnURL($order)
+        // Create Basket
+        $session = $this->sessionHelper->getFrontendSession();
+        $basket = $this->createHeidelpayBasket(
+            $session->getCart(),
+            $order->Waehrung,
+            $session->getLanguage(),
+            $order->cBestellNr ?? $payment->getId()
         );
-        $charge->setOrderId($order->cBestellNr ?? null);
+        $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
+
+        // Authorize payment
+        if ($config->getPaymentSetting(Config::PAYMENT_BOOKING_MODE, $this->moduleID) === 'authorize') {
+            return $this->adapter->getCurrentConnection()->performAuthorization(
+                $this->createAuthorization($shopCustomer, $order, false),
+                $payment->getId(),
+                $customer,
+                $this->createMetadata(),
+                $basket
+            );
+        }
 
         return $this->adapter->getCurrentConnection()->performCharge(
-            $charge,
+            $this->createCharge($order),
             $payment->getId(),
             $customer,
             $this->createMetadata()

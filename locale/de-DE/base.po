@@ -50,7 +50,7 @@ msgid "Unzer Przelewy24"
 msgstr "Przelewy24"
 
 msgid "Unzer iDEAL"
-msgstr " iDEAL"
+msgstr "iDEAL - Wero"
 
 msgid "Unzer Prepayment"
 msgstr "Vorkasse"
@@ -233,7 +233,7 @@ msgid "hpPaymentmethodWeChatPay"
 msgstr "WeChat Pay"
 
 msgid "hpPaymentmethodiDEAL"
-msgstr "iDEAL"
+msgstr "iDEAL - Wero"
 
 msgid "hpPaymentmethodHirePurchaseDirectDebit"
 msgstr "(Veraltet) Ratenkauf"

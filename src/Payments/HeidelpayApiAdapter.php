@@ -28,6 +28,9 @@ use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairService;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
+use UnzerSDK\Resources\PaymentTypes\Card;
+use UnzerSDK\Resources\PaymentTypes\Clicktopay;
+use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\Resources\PaymentTypes\Wero;
 
 /**
@@ -53,7 +56,10 @@ class HeidelpayApiAdapter
         Googlepay::class,
         Applepay::class,
         Klarna::class,
-        Wero::class
+        Wero::class,
+        Paypal::class,
+        Card::class,
+        Clicktopay::class
     ];
 
     /**

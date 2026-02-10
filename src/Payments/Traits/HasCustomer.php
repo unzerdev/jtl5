@@ -10,12 +10,15 @@ use UnzerSDK\Resources\EmbeddedResources\Address;
 use JTL\Checkout\Adresse;
 use JTL\Customer\Customer as ShopCustomer;
 use JTL\Helpers\Text;
+use JTL\Language\LanguageModel;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Utils\Logger;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
 use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Constants\ShippingTypes;
 use UnzerSDK\Exceptions\UnzerApiException;
+
+use function Functional\first;
 
 /**
  * Payment Methods which require a Customer object.
@@ -57,6 +60,13 @@ trait HasCustomer
             if (!empty($frontSession->getCustomer()->cFirma) && empty($customer->getCompany())) {
                 $customer->setCompany(Text::convertUTF8(html_entity_decode($frontSession->getCustomer()->cFirma)));
             }
+
+            $language = first(
+                $this->sessionHelper->getFrontendSession()->getLanguages(),
+                fn (LanguageModel $lang) => $lang->id === $this->sessionHelper->getFrontendSession()->getCustomer()->kSprache
+            )?->getIso639();
+
+            $customer->setLanguage(strtolower($language ?? $customer->getLanguage() ?? 'en'));
 
             // Update names as they might have changed (but not on B2B so that we do not overwrite the B2B Form changes)
             if (!$isB2B) {
@@ -121,6 +131,14 @@ trait HasCustomer
                 html_entity_decode(mb_convert_encoding($customer->cFirma, 'UTF-8', 'ISO-8859-1'), ENT_COMPAT, 'UTF-8')
             );
         }
+
+        // Set user language
+        $language = first(
+            $this->sessionHelper->getFrontendSession()->getLanguages(),
+            fn (LanguageModel $lang) => $lang->id === $this->sessionHelper->getFrontendSession()->getCustomer()->kSprache
+        )?->getIso639();
+
+        $customerObj->setLanguage(strtolower($language ?? 'en'));
 
         // Set external customer so we do not have to map it ourself.
         if (!empty($customer->kKunde)) {

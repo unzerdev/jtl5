@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>2.0.1</Version>
+    <Version>2.0.2</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
 
@@ -435,6 +435,14 @@
                     </SelectboxOptions>
                     <ValueName>enable_ctp</ValueName>
                 </Setting>
+                <Setting type="selectbox" initialValue="charge" sort="2" conf="Y">
+                    <Name><![CDATA[Buchungsmodus]]></Name>
+                    <ValueName>booking_mode</ValueName>
+                    <SelectboxOptions>
+                        <Option value="authorize" sort="1">Authorisierung</Option>
+                        <Option value="charge" sort="2">Erfassen</Option>
+                    </SelectboxOptions>
+                </Setting>
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift]]></Name>
@@ -610,6 +618,14 @@
                     <ChargeName><![CDATA[PayPal]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
+                <Setting type="selectbox" initialValue="charge" sort="10" conf="Y">
+                    <Name><![CDATA[Buchungsmodus]]></Name>
+                    <ValueName>booking_mode</ValueName>
+                    <SelectboxOptions>
+                        <Option value="authorize" sort="1">Authorisierung</Option>
+                        <Option value="charge" sort="2">Erfassen</Option>
+                    </SelectboxOptions>
+                </Setting>
             </Method>
             <Method>
                 <Name><![CDATA[Unzer SOFORT]]></Name>
@@ -701,13 +717,13 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/ideal_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[iDEAL]]></Name>
-                    <ChargeName><![CDATA[iDEAL]]></ChargeName>
+                    <Name><![CDATA[iDEAL - Wero]]></Name>
+                    <ChargeName><![CDATA[iDEAL - Wero]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
-                    <Name><![CDATA[iDEAL]]></Name>
-                    <ChargeName><![CDATA[iDEAL]]></ChargeName>
+                    <Name><![CDATA[iDEAL - Wero]]></Name>
+                    <ChargeName><![CDATA[iDEAL - Wero]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
             </Method>

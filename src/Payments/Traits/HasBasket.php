@@ -161,13 +161,13 @@ trait HasBasket
             ->setAmountPerUnitGross($roundedGrossAmount)
             ->setQuantity((int) $position->nAnzahl);
 
-        if ($this->isPromotionLineItemType((string) $position->nPosTyp)) {
+        if ($this->isPromotionLineItemType((string) $position->nPosTyp, $roundedGrossAmount)) {
             $basketItem->setAmountPerUnitGross(0);
             $basketItem->setAmountDiscountPerUnitGross($roundedGrossAmount * -1);
         }
 
         $basketItem->setVat((float) Tax::getSalesTax($position->kSteuerklasse));
-        $basketItem->setType($this->getBasketLineItemType((string) $position->nPosTyp));
+        $basketItem->setType($this->getBasketLineItemType((string) $position->nPosTyp, $roundedGrossAmount));
         $basketItem->setBasketItemReferenceId($this->generateBasketItemReferenceId($position->cArtNr, $title));
 
         return $basketItem;
@@ -179,8 +179,12 @@ trait HasBasket
      * @param string $type
      * @return string|null
      */
-    private function getBasketLineItemType(string $type): ?string
+    private function getBasketLineItemType(string $type, float $amount = 0): ?string
     {
+        if ($amount < 0) {
+            return BasketItemTypes::VOUCHER;
+        }
+
         switch ($type) {
             // Goods (includes digital, as jtl does not differ between those)
             case C_WARENKORBPOS_TYP_ARTIKEL:
@@ -211,9 +215,9 @@ trait HasBasket
      * @param string $type
      * @return boolean
      */
-    private function isPromotionLineItemType(string $type): bool
+    private function isPromotionLineItemType(string $type, float $amount = 0): bool
     {
-        return $this->getBasketLineItemType($type) === BasketItemTypes::VOUCHER;
+        return $this->getBasketLineItemType($type, $amount) === BasketItemTypes::VOUCHER;
     }
 
     /**

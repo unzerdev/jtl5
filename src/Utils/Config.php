@@ -70,6 +70,8 @@ class Config
     public const PQ_SELECTOR_INSTALMENT_INFO = 'pqSelectorInstalmentInfo';
     public const PQ_SELECTOR_PLACE_ORDER_BUTTON = 'pqSelectorPlaceOrderButton';
     public const PQ_SELECTOR_ORDER_CONFIRM_FORM = 'pqSelectorOrderConfirmForm';
+    public const PQ_SELECTOR_SAVED_PAYMENT_DATA = 'pqSelectorSavedPaymentData';
+    public const PQ_METHOD_SAVED_PAYMENT_DATA = 'pqMethodSavedPaymentData';
 
     public const PAYMENT_BOOKING_MODE = 'booking_mode';
     public const UI_FONT_FAMILY = 'ui_fontFamily';
@@ -81,6 +83,7 @@ class Config
     public const UI_SHADOWS = 'ui_shadows';
 
     public const ENABLE_CTP = 'enable_ctp';
+    public const ALLOW_SAVE = 'allow_save';
 
     // Apple Pay Config Keys
     public const APPLEPAY_MERCHANT_IDENTIFIER = 'applepay_merchant_identifier';

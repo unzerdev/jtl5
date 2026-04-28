@@ -420,6 +420,21 @@ class PaymentHandler
             (int) Frontend::get('AktiveZahlungsart')
         );
         $data['publicKey'] = trim($publicKey ?? $this->adapter->getKeypairService()->getDefaultPublicKey() ?? '');
+        $data['allowSave'] = $this->config->getPaymentSetting(Config::ALLOW_SAVE, $this->paymentMethod->cModulId ?? '') === 'Y'
+            && Frontend::getCustomer()->getID() > 0;
+
+
+        $savedInfo = Shop::Container()->getDB()->selectAll(
+            'xplugin_s360_unzer_shop5_saved_payment_data',
+            ['kKunde', 'payment_method'],
+            [Frontend::getCustomer()->getID(), $this->paymentMethod->cModulId],
+            'id, payment_type_id, data',
+            'created_at ASC',
+        );
+
+        $data['savedInfo'] = array_map(function ($payment) {
+            return ['id' => $payment->id, 'payment_type_id' => $payment->payment_type_id, 'data' => json_decode($payment->data, true)];
+        }, $savedInfo);
 
         $smarty->assign('hpPayment', $data);
     }

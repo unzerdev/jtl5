@@ -792,3 +792,24 @@ msgstr "Click to Pay"
 
 msgid "klarna"
 msgstr "Klarna"
+
+msgid "'Meine Kreditkarte für die nächste Bestellung speichern' anzeigen"
+msgstr "Display 'Save my credit card for the next order'"
+
+msgid "'Mein SEPA Lastschrift-Mandat für die nächste Bestellung speichern' anzeigen"
+msgstr "Display 'Save my SEPA direct debit mandate for the next order'"
+
+msgid "'Mein PayPal Account für die nächste Bestellung speichern' anzeigen"
+msgstr "Display 'Save my PayPal account for the next order'"
+
+msgid "hpSettingspqSelectorSavedPaymentData"
+msgstr "PQ-Selector for the saved payment data in the account section"
+
+msgid "hpSettingspqSelectorSavedPaymentDataHelp"
+msgstr "The PHP-Query-Selector for the saved payment data in the account section"
+
+msgid "hpSettingspqMethodSavedPaymentData"
+msgstr "PQ-Method for the saved payment data in the account section"
+
+msgid "hpSettingspqMethodSavedPaymentDataHelp"
+msgstr "The PHP-Query-Method for the saved payment data in the account section"

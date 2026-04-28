@@ -5,7 +5,8 @@ export default class
     inputNames = {
         'resourceId': 'paymentData[resourceId]',
         'customerId': 'paymentData[customerId]',
-        'threatMetrixId': 'paymentData[threatMetrixId]'
+        'threatMetrixId': 'paymentData[threatMetrixId]',
+        'saveInfo': 'paymentData[saveInfo]'
     };
 
     unzerCheckout = null;
@@ -13,7 +14,7 @@ export default class
 
     /**
      *@param {HTMLElement} el
-     * @param {{component: string, autoSubmit: boolean, ?customer: object, ?basket:object, ?submitButton: string, ?isB2B: boolean}} settings
+     * @param {{component: string, hasSavedInfo: boolean, autoSubmit: boolean, ?customer: object, ?basket:object, ?submitButton: string, ?isB2B: boolean}} settings
      */
     constructor(el, settings) {
         this.el = el;
@@ -27,48 +28,50 @@ export default class
     }
 
     boot() {
-        const wrapper = document.createElement('unzer-checkout');
-
-        if (this.submitButton) {
-            // Wrap Submit Button with <unzer-checkout /> for
-            // "automatic handling for enabling/disabling the submit button depending on the current status,
-            // and showing/hiding of brand icons."
-            wrapper.id = "unzer-checkout-wrapper"
-            this.submitButton.parentNode.insertBefore(wrapper, this.submitButton);
-            wrapper.appendChild(this.submitButton);
-            this.submitButton.id = 'unzerUiComponentCheckoutBtn';
-        } else {
-            this.el.appendChild(wrapper);
-        }
+        this.initUnzerCheckoutButton();
     }
 
     register() {
         // form
         this.submitButton?.addEventListener('click', e => {
             e.preventDefault();
-            // this.el.closest('form').submit();
+
+            // Submit the form when we use a saved payment instead of the UI component
+            if (this.settings.hasSavedInfo && document.querySelector("input[name='" + this.inputNames.resourceId + "']:checked").value !== 'new') {
+                this.el.closest('form').submit();
+            }
         });
 
-        // this.#el.closest('form').addEventListener('submit', (e) => {
-        //     console.log('on submit');
-        //     e.preventDefault();
-        //     document.querySelector('unzer-checkout > button[type="submit"]').click();
-        // })
+        // Radio Group for saved payment data
+        if (this.settings.hasSavedInfo) {
+            const radioButtons = this.el.querySelectorAll("input[name='" + this.inputNames.resourceId + "']");
 
-        // Wait for ui components to be loaded
-        Promise.all([
-            customElements.whenDefined("unzer-payment"),
-            customElements.whenDefined("unzer-checkout"),
-            customElements.whenDefined(this.customElement)
-        ]).then(() => {
-            this.unzerPayment = document.querySelector('unzer-payment');
-            this.unzerCheckout = document.querySelector('unzer-checkout');
-            this.mounted();
-        })
-        .catch((err) => this.logError(err));
+            for (let i = 0; i < radioButtons.length; i++) {
+                radioButtons[i].addEventListener('change', (event) => {
+                    const targetElement = event.target;
+                    const unzerElementWrapper = this.el.querySelector('unzer-payment');
+                    unzerElementWrapper.hidden = targetElement.value !== 'new';
+
+                    if (targetElement.value !== 'new') {
+                        this.destroyUnzerCheckoutButton();
+                    } else {
+                        this.initUnzerCheckoutButton();
+                    }
+                });
+
+            }
+
+            document
+                .querySelector("input[name='" + this.inputNames.resourceId + "']:checked")
+                .dispatchEvent(new Event('change'));
+        }
     }
 
     mounted() {
+        if (! this.unzerCheckout) {
+            return;
+        }
+
         // this.unzerCheckout.autoDisable = true;
         this.unzerCheckout.onPaymentSubmit = this.onPaymentSubmit.bind(this);
 
@@ -137,6 +140,15 @@ export default class
                 this.el.appendChild(threatmetrixIdInput);
             }
 
+            // COF payments
+            if (response.saveInfoValue) {
+                const saveInfoValueInput = document.createElement('input');
+                saveInfoValueInput.setAttribute('type', 'hidden');
+                saveInfoValueInput.setAttribute('name', this.inputNames.saveInfo);
+                saveInfoValueInput.setAttribute('value', JSON.stringify(response.submitResponse.data));
+                this.el.appendChild(saveInfoValueInput);
+            }
+
             // submit ids to server side intergration to perform payment transaction
             this.el.closest('form').submit();
         } catch(err) {
@@ -147,5 +159,45 @@ export default class
     logError(err) {
         this.errorHandler.show(err);
         console.error('Unzer UI Component Error', {err})
+    }
+
+    initUnzerCheckoutButton() {
+        const wrapper = document.createElement('unzer-checkout');
+
+        if (this.submitButton) {
+            // Wrap Submit Button with <unzer-checkout /> for
+            // "automatic handling for enabling/disabling the submit button depending on the current status,
+            // and showing/hiding of brand icons."
+            wrapper.id = "unzer-checkout-wrapper"
+            this.submitButton.parentNode.insertBefore(wrapper, this.submitButton);
+            wrapper.appendChild(this.submitButton);
+            this.submitButton.id = 'unzerUiComponentCheckoutBtn';
+        } else {
+            this.el.appendChild(wrapper);
+        }
+
+        // Wait for ui components to be loaded
+        Promise.all([
+            customElements.whenDefined("unzer-payment"),
+            customElements.whenDefined("unzer-checkout"),
+            customElements.whenDefined(this.customElement)
+        ]).then(() => {
+            this.unzerPayment = document.querySelector('unzer-payment');
+            this.unzerCheckout = document.querySelector('unzer-checkout');
+            this.mounted();
+        })
+        .catch((err) => this.logError(err));
+    }
+
+    destroyUnzerCheckoutButton() {
+        const unzerCheckoutWrapper = document.querySelector('unzer-checkout');
+        this.submitButton.disabled = false;
+
+        if (unzerCheckoutWrapper) {
+            while (unzerCheckoutWrapper.firstChild) {
+                unzerCheckoutWrapper.parentNode.insertBefore(unzerCheckoutWrapper.firstChild, unzerCheckoutWrapper);
+            }
+            unzerCheckoutWrapper.remove();
+        }
     }
 }

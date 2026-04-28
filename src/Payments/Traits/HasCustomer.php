@@ -151,7 +151,7 @@ trait HasCustomer
     /**
      * Create a Heidelpay Address for Shipping
      *
-     * @param \stdClass|Adresse $address
+     * @param \stdClass|Adresse|\JTL\Customer\Customer $address
      * @return Address
      */
     protected function createHeidelpayAddress($address): Address
@@ -160,13 +160,18 @@ trait HasCustomer
             ? ShippingTypes::DIFFERENT_ADDRESS
             : ShippingTypes::EQUALS_BILLING;
 
-        return (new Address())
+        $address = (new Address())
             ->setName(Text::convertUTF8(html_entity_decode($address->cVorname . ' ' . $address->cNachname)))
             ->setStreet(Text::convertUTF8(html_entity_decode($address->cStrasse . ' ' . $address->cHausnummer)))
             ->setZip(Text::convertUTF8(html_entity_decode($address->cPLZ)))
             ->setCity(Text::convertUTF8(html_entity_decode($address->cOrt)))
-            ->setCountry(Text::convertUTF8(html_entity_decode($address->cLand)))
-            ->setShippingType($type);
+            ->setCountry(Text::convertUTF8(html_entity_decode($address->cLand)));
+
+        if (! $address instanceof \JTL\Customer\Customer) {
+            $address->setShippingType($type);
+        }
+
+        return $address;
     }
 
     /**

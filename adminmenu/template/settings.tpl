@@ -371,6 +371,32 @@
                                 <small class="form-text help-block text-muted">{__('hpSettingsPqSelectorPlaceOrderButtonHelp')}</small>
                             </div>
                         </div>
+
+                        {* PQ Selector Bestellabschluss Form *}
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-pqSelectorSavedPaymentData">{__('hpSettingspqSelectorSavedPaymentData')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <input type="text" class="form-control" name="pqSelectorSavedPaymentData" id="hpSettings-pqSelectorSavedPaymentData" placeholder=".account-data-item-orders" value="{if isset($hpSettings.config.pqSelectorSavedPaymentData)}{$hpSettings.config.pqSelectorSavedPaymentData}{else}.account-data-item-orders{/if}" />
+                                <small class="form-text help-block text-muted">{__('hpSettingspqSelectorSavedPaymentDataHelp')}</small>
+                            </div>
+                        </div>
+                        <div class="hp-admin-option row mb-2">
+                            <div class="hp-admin-option__title col-xs-3 col-3">
+                                <label for="hpSettings-pqMethodSavedPaymentData">{__('hpSettingspqMethodSavedPaymentData')}</label>
+                            </div>
+                            <div class="hp-admin-option__input col-xs-9 col-9">
+                                <select class="form-control" name="pqMethodSavedPaymentData" id="hpSettings-pqMethodSavedPaymentData">
+                                    <option value="append" {if isset($hpSettings.config.pqMethodSavedPaymentData) && $hpSettings.config.pqMethodSavedPaymentData == 'append'}selected{/if}>{__('hpSettingsAppend')}</option>
+                                    <option value="prepend" {if isset($hpSettings.config.pqMethodSavedPaymentData) && $hpSettings.config.pqMethodSavedPaymentData == 'prepend'}selected{/if}>{__('hpSettingsPrepend')}</option>
+                                    <option value="before" {if isset($hpSettings.config.pqMethodSavedPaymentData) && $hpSettings.config.pqMethodSavedPaymentData == 'before'}selected{/if}>{__('hpSettingsBefore')}</option>
+                                    <option value="after" {if isset($hpSettings.config.pqMethodSavedPaymentData) && $hpSettings.config.pqMethodSavedPaymentData == 'after' || !isset($hpSettings.config.pqMethodSavedPaymentData)}selected{/if}>{__('hpSettingsAfter')}</option>
+                                    <option value="replaceWith" {if isset($hpSettings.config.pqMethodSavedPaymentData) && $hpSettings.config.pqMethodSavedPaymentData == 'replaceWith'}selected{/if}>{__('hpSettingsReplace')}</option>
+                                </select>
+                                <small class="form-text help-block text-muted">{__('hpSettingspqMethodSavedPaymentDataHelp')}</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

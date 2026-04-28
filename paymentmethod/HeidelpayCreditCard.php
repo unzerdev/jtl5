@@ -6,6 +6,7 @@ namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use Exception;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasSavedPaymentData;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Card;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
@@ -25,6 +26,8 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasDirectCharge;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
+use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
+use UnzerSDK\Constants\RecurrenceTypes;
 use UnzerSDK\Resources\PaymentTypes\Clicktopay;
 
 /**
@@ -54,6 +57,7 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
     use HasAuthorization;
     use HasDirectCharge;
     use HasCustomer;
+    use HasSavedPaymentData;
 
     // Order Attributes
     public const ATTR_CARD_HOLDER = 'unzer_card_holder';
@@ -142,6 +146,9 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
     {
         /** @var Config $config */
         $config = Shop::Container()->get(Config::class);
+        if ($config->getPaymentSetting(Config::ALLOW_SAVE, $this->moduleID) === 'Y') {
+            $this->savePaymentData($payment);
+        }
 
         // Create or fetch customer resource
         $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
@@ -172,10 +179,14 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
         );
         $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
 
+        $recurrenceType = $this->sessionHelper->get(SessionHelper::KEY_SAVE_INFO) || $this->isSavedPaymentData($payment)
+            ? RecurrenceTypes::ONE_CLICK
+            : null;
+
         // Authorize payment
         if ($config->getPaymentSetting(Config::PAYMENT_BOOKING_MODE, $this->moduleID) === 'authorize') {
             return $this->adapter->getCurrentConnection()->performAuthorization(
-                $this->createAuthorization($shopCustomer, $order, false),
+                $this->createAuthorization($shopCustomer, $order, false, $recurrenceType),
                 $payment->getId(),
                 $customer,
                 $this->createMetadata(),
@@ -184,10 +195,11 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
         }
 
         return $this->adapter->getCurrentConnection()->performCharge(
-            $this->createCharge($order),
+            $this->createCharge($order, $recurrenceType),
             $payment->getId(),
             $customer,
-            $this->createMetadata()
+            $this->createMetadata(),
+            $basket
         );
     }
 }

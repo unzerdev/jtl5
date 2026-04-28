@@ -1,10 +1,40 @@
 {include file="{$hpPayment.pluginPath}paymentmethod/template/_components_v2.tpl"}
 
 <div data-unzer-ui-component='{
+    "hasSavedInfo": {json_encode($hpPayment.allowSave && !empty($hpPayment.savedInfo))},
     "component": "card",
     "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")}
 }'>
+    {* Save New Payment Data *}
+    {if $hpPayment.allowSave && !empty($hpPayment.savedInfo)}
+        <div class="mb-2">
+            <div class="card-title h3">{lang key='s360_hp_savePaymentDataCreditCard' section="s360_unzer_shop5"}</div>
+            {radiogroup stacked=true class="saved-payment-form-group"}
+                {foreach from=$hpPayment.savedInfo item=$item}
+                    {radio
+                        name="paymentData[resourceId]"
+                        value=$item.payment_type_id
+                        id="saved-payment-{$item.id}"
+                        checked=($item@first)
+                    }
+                        <span class="content">
+                            <strong>{$item.data.number}</strong>
+                            <p><small>{$item.data.cardHolder} ({$item.data.expiryDate})</small></p>
+                        </span>
+                    {/radio}
+                {/foreach}
+
+                {radio name="paymentData[resourceId]" value="new" id="saved-payment-new"}
+                    <span class="content">
+                        <strong>{lang key='s360_hp_newPaymentDataCreditCard' section="s360_unzer_shop5"}</strong>
+                    </span>
+                {/radio}
+            {/radiogroup}
+        </div>
+    {/if}
+
     <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}" {if !$hpPayment.enableCTP}disableCTP{/if}>
-        <unzer-card checkoutButtonId="unzerUiComponentCheckoutBtn" />
+        <unzer-card checkoutButtonId="unzerUiComponentCheckoutBtn" credentialsOnFile="{if $hpPayment.allowSave}true{else}false{/if}"/>
+        <unzer-credentials-on-file />
     </unzer-payment>
 </div>

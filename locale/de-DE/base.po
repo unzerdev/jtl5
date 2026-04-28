@@ -80,10 +80,10 @@ msgid "Unzer Ratenkauf"
 msgstr "(Veraltet) Ratenkauf"
 
 msgid "Unzer Rechnung (Jetzt kaufen, Später bezahlen)"
-msgstr "Rechnungskauf"
+msgstr "Rechnung"
 
 msgid "Unzer Ratenzahlung (Paylater)"
-msgstr "Ratenkauf"
+msgstr "Ratenzahlung"
 
 msgid "Unzer Bancontact"
 msgstr "Bancontact"
@@ -563,10 +563,10 @@ msgid "hpPaymentReference"
 msgstr "Zahlungsreferenz"
 
 msgid "paylater-installment"
-msgstr "Ratenkauf"
+msgstr "Ratenzahlung"
 
 msgid "paylater-invoice"
-msgstr "Rechnungskauf"
+msgstr "Rechnung"
 
 msgid "paylater-direct-debit"
 msgstr "Lastschrift"
@@ -685,3 +685,15 @@ msgstr "Click to Pay"
 
 msgid "klarna"
 msgstr "Klarna"
+
+msgid "hpSettingspqSelectorSavedPaymentData"
+msgstr "PQ-Selector für die Anzeige der gespeicherten Zahlungsdaten im Kundenkonto"
+
+msgid "hpSettingspqSelectorSavedPaymentDataHelp"
+msgstr "Der PHP-Query-Selektor für die Anzeige der gespeicherten Zahlungsdaten im Kundenkonto"
+
+msgid "hpSettingspqMethodSavedPaymentData"
+msgstr "PQ-Einfügemethode  für die Anzeige der gespeicherten Zahlungsdaten im Kundenkonto"
+
+msgid "hpSettingspqMethodSavedPaymentDataHelp"
+msgstr "Der PHP-Query-Einfügemethode  für die Anzeige der gespeicherten Zahlungsdaten im Kundenkonto"

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use JTL\Checkout\Bestellung;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -28,6 +29,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
  */
 class HeidelpayEPS extends HeidelpayPaymentMethod implements RedirectPaymentInterface
 {
+    use HasBasket;
     use HasMetadata;
     use HasCustomer;
 
@@ -59,6 +61,16 @@ class HeidelpayEPS extends HeidelpayPaymentMethod implements RedirectPaymentInte
             $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
+        // Create Basket
+        $session = $this->sessionHelper->getFrontendSession();
+        $basket = $this->createHeidelpayBasket(
+            $session->getCart(),
+            $order->Waehrung,
+            $session->getLanguage(),
+            $order->cBestellNr ?? $payment->getId()
+        );
+        $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
+
         $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
             $order->Waehrung->getCode(),
@@ -70,7 +82,8 @@ class HeidelpayEPS extends HeidelpayPaymentMethod implements RedirectPaymentInte
             $charge,
             $payment->getId(),
             $customer,
-            $this->createMetadata()
+            $this->createMetadata(),
+            $basket
         );
     }
 }

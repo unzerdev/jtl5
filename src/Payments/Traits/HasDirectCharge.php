@@ -13,7 +13,7 @@ use UnzerSDK\Resources\TransactionTypes\Charge;
  */
 trait HasDirectCharge
 {
-    protected function createCharge(Bestellung $order): Charge
+    protected function createCharge(Bestellung $order, ?string $recurrenceType = null): Charge
     {
         $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
@@ -21,6 +21,10 @@ trait HasDirectCharge
             $this->getReturnURL($order)
         );
         $charge->setOrderId($order->cBestellNr ?? null);
+
+        if ($recurrenceType) {
+            $charge->setRecurrenceType($recurrenceType);
+        }
 
         return $charge;
     }

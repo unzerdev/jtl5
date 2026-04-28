@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>2.0.2</Version>
+    <Version>2.0.3</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
 
@@ -400,6 +400,90 @@
                     <![CDATA[Please select company type]]>
                 </VariableLocalized>
             </Variable>
+            <Variable>
+                <Name>s360_hp_savePaymentDataPaypal</Name>
+                <Description>
+                    <![CDATA['Mein PayPal Account für die nächste Bestellung speichern' Überschrift]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Wählen Sie bitte einen gespeicherten Account aus oder verwenden Sie einen anderen Account.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Please select a saved account or use another account.]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_newPaymentDataPaypal</Name>
+                <Description>
+                    <![CDATA['Mein PayPal Account für die nächste Bestellung speichern' Neu]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Neuer Account]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[New account]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_savePaymentDataCreditCard</Name>
+                <Description>
+                    <![CDATA['Meine Kreditkarte für die nächste Bestellung speichern' Überschrift]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Wählen Sie bitte eine gespeicherte Kreditkarte oder füllen Sie das Formular aus.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Please choose a saved credit card or fill out the form.]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_newPaymentDataCreditCard</Name>
+                <Description>
+                    <![CDATA['Meine Kreditkarte für die nächste Bestellung speichern' Neu]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Eine andere Kreditkarte verwenden.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Use another credit card]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_savePaymentDataSepa</Name>
+                <Description>
+                    <![CDATA['Mein Sepa Account für die nächste Bestellung speichern' Überschrift]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Wählen Sie bitte ein gespeichertes Konto oder füllen Sie das Formular aus.]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Please select a saved account or fill out the form.]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_newPaymentDataSepa</Name>
+                <Description>
+                    <![CDATA['Mein Sepa Account für die nächste Bestellung speichern' Neu]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Neues Konto registrieren]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Use another account]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_saved_payment_methods</Name>
+                <Description>
+                    <![CDATA['Mein gespeicherten Zahlungsdaten']]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Meine gespeicherten Zahlungsdaten]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[My saved payment details]]>
+                </VariableLocalized>
+            </Variable>
         </Locales>
 
         <PaymentMethod>
@@ -443,6 +527,14 @@
                         <Option value="charge" sort="2">Erfassen</Option>
                     </SelectboxOptions>
                 </Setting>
+                <Setting type="selectbox" initialValue="Y" sort="3" conf="Y">
+                    <Name><![CDATA['Meine Kreditkarte für die nächste Bestellung speichern' anzeigen]]></Name>
+                    <ValueName>allow_save</ValueName>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
+                    </SelectboxOptions>
+                </Setting>
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift]]></Name>
@@ -468,6 +560,14 @@
                     <ChargeName><![CDATA[SEPA Direct Debit]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
+                <Setting type="selectbox" initialValue="Y" sort="3" conf="Y">
+                    <Name><![CDATA['Mein SEPA Lastschrift-Mandat für die nächste Bestellung speichern' anzeigen]]></Name>
+                    <ValueName>allow_save</ValueName>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
+                    </SelectboxOptions>
+                </Setting>
             </Method>
             <Method>
                 <Name><![CDATA[Unzer Lastschrift (secured)]]></Name>
@@ -559,8 +659,8 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/paylater_invoice_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Rechnungskauf]]></Name>
-                    <ChargeName><![CDATA[Rechnungskauf]]></ChargeName>
+                    <Name><![CDATA[Rechnung]]></Name>
+                    <ChargeName><![CDATA[Rechnung]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">
@@ -624,6 +724,14 @@
                     <SelectboxOptions>
                         <Option value="authorize" sort="1">Authorisierung</Option>
                         <Option value="charge" sort="2">Erfassen</Option>
+                    </SelectboxOptions>
+                </Setting>
+                <Setting type="selectbox" initialValue="Y" sort="11" conf="Y">
+                    <Name><![CDATA['Mein PayPal Account für die nächste Bestellung speichern' anzeigen]]></Name>
+                    <ValueName>allow_save</ValueName>
+                    <SelectboxOptions>
+                        <Option value="Y" sort="1">Ja</Option>
+                        <Option value="N" sort="2">Nein</Option>
                     </SelectboxOptions>
                 </Setting>
             </Method>
@@ -949,8 +1057,8 @@
                 <TemplateFile>template/dummy.tpl</TemplateFile>
                 <AdditionalTemplateFile>template/paylater_installment_form.tpl</AdditionalTemplateFile>
                 <MethodLanguage iso="GER">
-                    <Name><![CDATA[Ratenkauf]]></Name>
-                    <ChargeName><![CDATA[Ratenkauf]]></ChargeName>
+                    <Name><![CDATA[Ratenzahlung]]></Name>
+                    <ChargeName><![CDATA[Ratenzahlung]]></ChargeName>
                     <InfoText></InfoText>
                 </MethodLanguage>
                 <MethodLanguage iso="ENG">

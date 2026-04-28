@@ -113,6 +113,9 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
                 $this->sessionHelper->getFrontendSession()->get('Lieferadresse')
             )
         );
+        $customer->setBillingAddress(
+            $this->createHeidelpayAddress($this->sessionHelper->getFrontendSession()->getCustomer())
+        );
         $this->sessionHelper->set(SessionHelper::KEY_CUSTOMER_ID, $customer->getId());
 
         $data = $view->getTemplateVars('hpPayment') ?: [];

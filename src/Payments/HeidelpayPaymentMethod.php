@@ -287,6 +287,11 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             $this->sessionHelper->set(SessionHelper::KEY_CUSTOMER_ID, $postPaymentData['customerId']);
         }
 
+        // Save Info that payment data should be saved
+        if (!empty($postPaymentData['saveInfo'])) {
+            $this->sessionHelper->set(SessionHelper::KEY_SAVE_INFO, json_decode($postPaymentData['saveInfo'], true));
+        }
+
         // Check Form Inputs
         if (isset($postPaymentData['resourceId'])) {
             // Abort if CSRF Token is invalid

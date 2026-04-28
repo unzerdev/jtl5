@@ -3,6 +3,18 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.3] (April 2026)
+### Changed
+- basket metadata is now set for all payment methods
+- german names for installment and and invoice
+
+### Added
+- support for COF (Credential on File) payments for *Credit Card*, *PayPal*, and *SEPA Direct Debit*
+
+### Fixed
+- issue with *WERO* not working when setting a discount for the payment method
+- issue with billing address not being set correctly for UPL payment methods (*Installment*, *Direct Debit*, and *Invoice*) resulting in the customer not being able to use the payment method
+
 ## [2.0.2] (February 2026)
 ### Changed
 - changed *iDeal* logo and name to *iDeal - Wero*

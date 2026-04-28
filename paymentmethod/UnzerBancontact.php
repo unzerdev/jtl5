@@ -6,6 +6,7 @@ namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -23,6 +24,7 @@ use Plugin\s360_unzer_shop5\src\Utils\Config;
  */
 class UnzerBancontact extends HeidelpayPaymentMethod implements RedirectPaymentInterface, HandleStepAdditionalInterface
 {
+    use HasBasket;
     use HasCustomer;
     use HasMetadata;
 
@@ -73,6 +75,16 @@ class UnzerBancontact extends HeidelpayPaymentMethod implements RedirectPaymentI
             $customer = $this->adapter->getCurrentConnection()->updateCustomer($customer);
         }
 
+        // Create Basket
+        $session = $this->sessionHelper->getFrontendSession();
+        $basket = $this->createHeidelpayBasket(
+            $session->getCart(),
+            $order->Waehrung,
+            $session->getLanguage(),
+            $order->cBestellNr ?? $payment->getId()
+        );
+        $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
+
         $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
             $order->Waehrung->getCode(),
@@ -84,7 +96,8 @@ class UnzerBancontact extends HeidelpayPaymentMethod implements RedirectPaymentI
             $charge,
             $payment->getId(),
             $customer,
-            $this->createMetadata()
+            $this->createMetadata(),
+            $basket
         );
     }
 }

@@ -15,7 +15,7 @@ use UnzerSDK\Resources\TransactionTypes\Authorization;
 
 trait HasAuthorization
 {
-    protected function createAuthorization(Customer $customer, Bestellung $order, bool $withRiskData = true): Authorization
+    protected function createAuthorization(Customer $customer, Bestellung $order, bool $withRiskData = true, ?string $recurrenceType = null): Authorization
     {
         $specialpages = Shop::Container()->getLinkService()->getSpecialPages();
 
@@ -42,6 +42,10 @@ trait HasAuthorization
                 );
 
             $authorization->setRiskData($riskData);
+        }
+
+        if ($recurrenceType) {
+            $authorization->setRecurrenceType($recurrenceType);
         }
 
         return $authorization;

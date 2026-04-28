@@ -7,6 +7,7 @@ namespace Plugin\s360_unzer_shop5;
 use JTL\Checkout\Bestellung;
 use JTL\Events\Dispatcher;
 use JTL\Helpers\Request;
+use JTL\IO\IOResponse;
 use JTL\Plugin\Bootstrapper;
 use JTL\Plugin\BootstrapperInterface;
 use JTL\Plugin\Payment\Method;
@@ -36,6 +37,7 @@ use Plugin\s360_unzer_shop5\src\Foundation\ServiceProvider;
 use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairModel;
 use Plugin\s360_unzer_shop5\src\Orders\OrderMappingModel;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\NotificationInterface;
+use Plugin\s360_unzer_shop5\src\Services\SavedPaymentDataService;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Utils\Logger;
@@ -159,6 +161,12 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
                     $args['io']
                 );
                 $controller->handle();
+
+                // Delete saved payment data for user
+                $args['io']->register('s360_unzer_shop5::deletePaymentMethod', function (string $id) {
+                    return (new IOResponse())
+                        ->assignVar('success', (new SavedPaymentDataService())->deleteUserPaymentData($id));
+                });
             } catch (Throwable $th) {
                 Logger::error(
                     'Error ' . $th->getCode() . ':' . $th->getMessage() . ', Exception in Hook '

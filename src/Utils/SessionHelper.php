@@ -30,6 +30,7 @@ class SessionHelper
     public const KEY_SHORT_ID = 'shortId';
     public const KEY_PAYMENT_ID = 'paymentId';
     public const KEY_CUSTOMER_ID = 'customerId';
+    public const KEY_SAVE_INFO = 'saveInfo';
     public const KEY_THREAT_METRIX_ID = 'threatMetrixId';
 
     /**

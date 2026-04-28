@@ -16,6 +16,31 @@
     #unzer-checkout-wrapper {
         display: block;
     }
+
+    /** Fixed for saved payments **/
+    .label-slide #order-additional-payment .saved-payment-form-group label {
+        position: relative;
+        cursor: pointer;
+        font-size: inherit;
+        transform: none;
+        inset: 0;
+        line-height: inherit;
+        pointer-events: auto;
+        overflow: visible;
+    }
+
+    .label-slide #order-additional-payment .saved-payment-form-group label:after {
+        top: 0.15625rem;
+        left: -1.5rem;
+        z-index: inherit;
+        height: 1rem;
+        width: 1rem;
+        background: 50%/50% 50% no-repeat;
+    }
+
+    #order-additional-payment .custom-radio .custom-control-input:checked ~ .custom-control-label::after {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e");
+    }
 </style>
 
 {if $hpPayment.isSandbox && $hpPayment.isDev}

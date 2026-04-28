@@ -10,6 +10,7 @@ use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 
@@ -28,6 +29,7 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
  */
 class HeidelpayAlipay extends HeidelpayPaymentMethod implements RedirectPaymentInterface
 {
+    use HasBasket;
     use HasMetadata;
     use HasCustomer;
 
@@ -54,6 +56,16 @@ class HeidelpayAlipay extends HeidelpayPaymentMethod implements RedirectPaymentI
             $this->debugLog('Updated Customer Resource: ' . $customer->jsonSerialize(), static::class);
         }
 
+        // Create Basket
+        $session = $this->sessionHelper->getFrontendSession();
+        $basket = $this->createHeidelpayBasket(
+            $session->getCart(),
+            $order->Waehrung,
+            $session->getLanguage(),
+            $order->cBestellNr ?? $payment->getId()
+        );
+        $this->debugLog('Basket Resource: ' . $basket->jsonSerialize(), static::class);
+
         $charge = new Charge(
             $this->getTotalPriceCustomerCurrency($order),
             $order->Waehrung->getCode(),
@@ -65,7 +77,8 @@ class HeidelpayAlipay extends HeidelpayPaymentMethod implements RedirectPaymentI
             $charge,
             $payment->getId(),
             $customer,
-            $this->createMetadata()
+            $this->createMetadata(),
+            $basket
         );
     }
 }

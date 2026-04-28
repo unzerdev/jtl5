@@ -108,6 +108,9 @@ class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
                 $this->sessionHelper->getFrontendSession()->get('Lieferadresse')
             )
         );
+        $customer->setBillingAddress(
+            $this->createHeidelpayAddress($this->sessionHelper->getFrontendSession()->getCustomer())
+        );
 
         $data = $view->getTemplateVars('hpPayment') ?: [];
         $data['customer'] = $customer;

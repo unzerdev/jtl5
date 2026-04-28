@@ -16,8 +16,8 @@ Dieses Plugin integriert die folgenden Unzer-Zahlungsarten im JTL Shop:
 - Direktüberweisung
 - SEPA Lastschrift
 - Lastschrift
-- Ratenkauf
-- Rechnungskauf
+- Ratenzahlung
+- Rechnung
 - Vorkasse
 - WeChat Pay
 - Wero

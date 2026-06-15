@@ -7,6 +7,7 @@ namespace Plugin\s360_unzer_shop5\paymentmethod;
 use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -27,6 +28,7 @@ class UnzerBancontact extends HeidelpayPaymentMethod implements RedirectPaymentI
     use HasBasket;
     use HasCustomer;
     use HasMetadata;
+    use SupportsB2B;
 
     protected function getAllowedCountries(): array
     {
@@ -66,7 +68,8 @@ class UnzerBancontact extends HeidelpayPaymentMethod implements RedirectPaymentI
     protected function performTransaction(BasePaymentType $payment, $order): AbstractTransactionType
     {
         // Create a customer with shipping address for Paypal's Buyer Protection
-        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+        $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
+        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, $this->isB2BCustomer($shopCustomer));
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
 

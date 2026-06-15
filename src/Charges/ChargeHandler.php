@@ -179,6 +179,8 @@ class ChargeHandler
         Bestellung $order,
         ?int $deliveryId = null
     ): void {
+        $this->debugLog("Trying to add charge " . print_r($charge->jsonSerialize(), true) . " for order {$order->cBestellNr}", self::class);
+
         // Charge is already marked as incoming payment -> skip!
         if ($this->model->getChargeForOrder((int) $order->kBestellung, $charge->getId())) {
             $paymentMethod->doLog(
@@ -191,7 +193,7 @@ class ChargeHandler
 
         if ($charge->isSuccess()) {
             // Add Incoming Payment
-            if ($this->config->get(Config::ADD_INCOMING_PAYMENTS, true)) {
+            if ($this->config->get(Config::ADD_INCOMING_PAYMENTS, 'on') === 'on') {
                 $paymentMethod->addIncomingPayment($order, (object) [
                     'fBetrag'  => $charge->getAmount(),
                     'cISO'     => $charge->getCurrency(),
@@ -245,7 +247,7 @@ class ChargeHandler
     {
         $this->debugLog(
             "Check if order {$order->cBestellNr} should be marked as paid." .
-            "Status: {$order->cStatus} | Add Incoming Payment: {$this->config->get(Config::ADD_INCOMING_PAYMENTS, true)}",
+            "Status: {$order->cStatus} | Add Incoming Payment: {$this->config->get(Config::ADD_INCOMING_PAYMENTS, true)} | Payment {$payment->jsonSerialize()}",
             static::class
         );
 

@@ -25,7 +25,7 @@ Dieses Plugin integriert die folgenden Unzer-Zahlungsarten im JTL Shop:
 ## Installation / Update
 ### Systemvoraussetzungen
 - JTL-Shop 5.0.0+ und dessen Vorraussetzungen
-- PHP Version: 7.4 - 8.4
+- PHP Version: 7.4 - 8.5
 - Die folgenden PHP Erweiterungen
   - ext-json
   - ext-curl
@@ -80,7 +80,7 @@ This plugin integrates the following Unzer payment methods into the JTL Shop:
 ## Installation/update
 ### System requirements
 - JTL-Shop 5.0.0+ and its requirements
-- PHP version: 7.4 - 8.4
+- PHP version: 7.4 - 8.5
 - The following PHP extensions
   - ext-json
   - ext-curl

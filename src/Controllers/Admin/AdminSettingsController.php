@@ -97,7 +97,6 @@ class AdminSettingsController extends AdminController
         }
 
         // Set Config
-        $this->config->set(Config::MERCHANT_ID, Request::postVar('merchantId'));
         $this->config->set(Config::FONT_SIZE, Request::postVar('fontSize'));
         $this->config->set(Config::FONT_COLOR, Request::postVar('fontColor'));
         $this->config->set(Config::FONT_FAMILY, Request::postVar('fontFamily'));
@@ -157,7 +156,7 @@ class AdminSettingsController extends AdminController
         if (empty($publicKey)) {
             $this->addError(__('Ungültiger Public Key - eine leere Zeichenfolge ist nicht zulässig.'));
             $valid = false;
-        } elseif(!PublicKeyValidator::validate($publicKey)) {
+        } elseif (!PublicKeyValidator::validate($publicKey)) {
             $this->addError(
                 __('Ungültiger Public Key. Bitte stellen Sie sicher, dass sie hier Ihren Public Key und nicht Ihren Private Key angeben!')
             );
@@ -207,19 +206,15 @@ class AdminSettingsController extends AdminController
      */
     protected function registerWebhooks(HeidelpayApiAdapter $adapter): void
     {
-        $newEvents = array_keys(PaymentEventSubscriber::getSubscribedEvents());
-
-        if (empty($newEvents)) {
-            return;
-        }
+        $newEvents = ['payment', 'charge'];
 
         // Register for all keyparis + default
-        try {
-            $linkHelper = new JtlLinkHelper();
-            $model = new KeyPairModel(Shop::Container()->getDB());
-            $keypairs = $model->all();
+        $linkHelper = new JtlLinkHelper();
+        $model = new KeyPairModel(Shop::Container()->getDB());
+        $keypairs = $model->all();
 
-            foreach ($keypairs as $keypair) {
+        foreach ($keypairs as $keypair) {
+            try {
                 $adapter->setCurrentConnection(
                     $keypair->isB2B(),
                     $keypair->getCurrencyId(),
@@ -228,8 +223,12 @@ class AdminSettingsController extends AdminController
                     $linkHelper->getFullFrontendFileUrl(JtlLinkHelper::FRONTEND_FILE_WEBHOOKS),
                     $newEvents
                 );
+            } catch (Exception $exc) {
+                $this->errorLog('Could not register webhook: ' . $exc->getMessage(), static::class);
             }
+        }
 
+        try {
             $adapter->getDefaultConnection()->registerMultipleWebhooks(
                 $linkHelper->getFullFrontendFileUrl(JtlLinkHelper::FRONTEND_FILE_WEBHOOKS),
                 $newEvents

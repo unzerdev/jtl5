@@ -99,9 +99,6 @@
             <div class="input-group">
                 <div class="btn-group input-group-btn">
                     <button type="button" class="btn btn-xs btn-default" title="Details ansehen" onclick="window.hpOrderManagement.getDetails('{$hpOrder->getId()}');"><i class="fa fas fa-pen fa-pencil" aria-hidden="true"></i></button>
-                    {* {if $hpPortalUrl}
-                        <a class="btn btn-xs btn-primary" title="Bestellung im hp-Portal anzeigen" href="{$hpPortalUrl}" target="_blank"><i class="fa fas fa-external-link" aria-hidden="true"></i></a>
-                    {/if} *}
                 </div>
             </div>
         </td>

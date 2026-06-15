@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
+use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -29,11 +31,12 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
  *
  * @see https://docs.heidelpay.com/docs/prepayment-payment
  */
-class HeidelpayPrepayment extends HeidelpayPaymentMethod
+class HeidelpayPrepayment extends HeidelpayPaymentMethod implements RedirectPaymentInterface
 {
     use HasBasket;
     use HasMetadata;
     use HasCustomer;
+    use SupportsB2B;
 
     protected function getAllowedCountries(): array
     {
@@ -91,10 +94,10 @@ class HeidelpayPrepayment extends HeidelpayPaymentMethod
     protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
         // Create / Update existing customer resource if needed
-        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+        $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
+        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, $this->isB2BCustomer($shopCustomer));
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
-        $customer->setCompanyInfo(null);
         $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         if ($customer->getId()) {

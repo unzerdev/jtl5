@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Webhooks;
 
+use Throwable;
 use UnzerSDK\Constants\WebhookEvents;
 use UnzerSDK\Resources\Payment;
 use JTL\Shop;
@@ -15,6 +16,7 @@ use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Payments\PaymentMethodModuleFactory;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use RuntimeException;
+use UnzerSDK\Resources\TransactionTypes\Charge;
 
 /**
  * Heidelpay Payment Webhooks Event Subscriber
@@ -42,7 +44,8 @@ class PaymentEventSubscriber extends EventSubscriber
     {
         return [
             WebhookEvents::PAYMENT_COMPLETED => 'onHandleIncomingPayment',
-            WebhookEvents::PAYMENT_PARTLY    => 'onHandleIncomingPayment'
+            WebhookEvents::PAYMENT_PARTLY    => 'onHandleIncomingPayment',
+            WebhookEvents::CHARGE_SUCCEEDED => 'onHandleIncomingPayment',
         ];
     }
 
@@ -66,20 +69,28 @@ class PaymentEventSubscriber extends EventSubscriber
      */
     public function onHandleIncomingPayment(EventPayload $payload)
     {
-        /** @var Payment $payment */
-        $payment = $payload->getResource();
-        $this->debugLog('Handling incoming event ' . $payload->getEvent() . ' with: ' . $payment->jsonSerialize());
+        /** @var Payment|Charge $resource */
+        $payment = null;
+        $resource = $payload->getResource();
+        $this->debugLog('Handling incoming event ' . $payload->getEvent() . ' with: ' . $resource->jsonSerialize());
+
+        if ($resource instanceof Charge) {
+            $payment = $resource->getPayment();
+        } elseif ($resource instanceof Payment) {
+            $payment = $resource;
+        }
+
+        if ($payment === null) {
+            $this->debugLog('Handling incoming event ' . $payload->getEvent() . ' without payment');
+            return;
+        }
 
         $orderMapping = $this->model->findByPayment($payment->getId());
-        $paymentMethod = $this->paymentMethodFactory->createForType(
-            $payment->getPaymentType(),
-            ['id-string' => $orderMapping->getPaymentTypeId()]
-        );
-
-        if (empty($orderMapping)) {
-            throw new RuntimeException(
+        if ($orderMapping === null) {
+            $this->debugLog(
                 'Cannot find order for payment ' . $payment->getId() . '. Maybe it is not mapped yet.'
             );
+            return;
         }
 
         // The payment is completed, which means that a pending order can now be released.
@@ -96,11 +107,20 @@ class PaymentEventSubscriber extends EventSubscriber
         $adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
         $api = $adapter->getConnectionForPublicKey($payload->getPublicKey());
 
+        $paymentMethod = $this->paymentMethodFactory->createForType(
+            $payment->getPaymentType(),
+            ['id-string' => $orderMapping->getPaymentTypeId()]
+        );
+
         foreach ($payment->getCharges() as $charge) {
             // we need to fetch the charge because the charge in the payment object might not contain all information.
             // Especially the isError, isPending, isSuccess flags
-            $charge = $api->fetchCharge($charge);
-            $this->charges->addCharge($charge, $paymentMethod, $orderMapping->getOrder());
+            try {
+                $charge = $api->fetchCharge($charge);
+                $this->charges->addCharge($charge, $paymentMethod, $orderMapping->getOrder());
+            } catch (Throwable $exc) {
+                $this->errorLog("Could not handle charge {$charge->getId()} for order {$orderMapping->getJtlOrderNumber()}: " . $exc->getMessage());
+            }
         }
 
         // Mark order as paid if there is no remaining amount on the payment.

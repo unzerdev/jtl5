@@ -15,6 +15,7 @@ use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepReviewOrderInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
 use Plugin\s360_unzer_shop5\src\Payments\PaymentHandler;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasAuthorization;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
@@ -30,6 +31,7 @@ use UnzerSDK\Resources\TransactionTypes\Authorization;
 use UnzerSDK\Resources\TransactionTypes\Cancellation;
 
 class UnzerPaylaterInstallment extends HeidelpayPaymentMethod implements
+    RedirectPaymentInterface,
     HandleStepAdditionalInterface,
     HandleStepReviewOrderInterface,
     CancelableInterface

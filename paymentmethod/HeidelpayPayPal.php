@@ -7,6 +7,7 @@ namespace Plugin\s360_unzer_shop5\paymentmethod;
 use JTL\Checkout\Bestellung;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasSavedPaymentData;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -44,6 +45,7 @@ class HeidelpayPayPal extends HeidelpayPaymentMethod implements RedirectPaymentI
     use HasDirectCharge;
     use HasMetadata;
     use HasSavedPaymentData;
+    use SupportsB2B;
 
     /**
      * Although Paypal support both auth as well as charge calls, we only support Direct Charge.
@@ -63,7 +65,7 @@ class HeidelpayPayPal extends HeidelpayPaymentMethod implements RedirectPaymentI
 
         // Create a customer with shipping address for Paypal's Buyer Protection
         $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
-        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, $this->isB2BCustomer($shopCustomer));
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
 

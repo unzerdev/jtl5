@@ -8,7 +8,7 @@ use Plugin\s360_unzer_shop5\src\Utils\Logger;
 try {
     $controller = new SyncWorkflowController(Shop::Container()->get(Config::PLUGIN_ID));
     $controller->handle();
-} catch (Exception $exc) {
+} catch (Throwable $exc) {
     Logger::error(
         $exc->getCode() . ':' . $exc->getMessage() . ', Exception in FRONTEND_LINK sync-workflow.php'
     );

@@ -1,25 +1,5 @@
 {strip}
     <div class="hp-order-detail-wrapper">
-        {* <div class="row">
-            <div class="col-12 col-xs-12">
-                <div class="input-group">
-                    <div class="btn-group input-group-btn">
-                        {if $hpPortalUrl}
-                            {if $hpPayment->getPaymentType()->getResourceName() === 'paylater-invoice'}
-                                <a class="btn btn-primary" title="{__('hpOpenInPaylaterPortal')}" href="{$hpPortalUrl}" target="_blank">
-                                    {__('hpOpenInPaylaterPortal')}
-                                </a>
-                            {else}
-                                <a class="btn btn-primary" title="{__('hpOpenInPortal')}" href="{$hpPortalUrl}" target="_blank">
-                                    {__('hpOpenInPortal')}
-                                </a>
-                            {/if}
-                        {/if}
-                    </div>
-                </div>
-            </div>
-        </div> *}
-
         <div class="row">
             <div class="col-12 col-md-6 col-xs-12">
                 <div class="card panel panel-default">

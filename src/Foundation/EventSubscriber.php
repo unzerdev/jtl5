@@ -37,14 +37,8 @@ abstract class EventSubscriber
         $events = static::getSubscribedEvents();
         $event = $payload->getEvent();
 
-        if (!array_key_exists($event, $events)) {
-            throw new InvalidArgumentException('There is no event listener subscribed for event: ' . $event);
-        }
-
-        if (!method_exists($this, $events[$event])) {
-            throw new InvalidArgumentException(
-                'The registered event listener ' . $events[$event] . ' for the event ' . $event . ' does not exist!'
-            );
+        if (!array_key_exists($event, $events) || !method_exists($this, $events[$event])) {
+            return;
         }
 
         call_user_func([$this, $events[$event]], $payload);

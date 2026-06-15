@@ -22,10 +22,6 @@ class Config
     public const TABLE = 'xplugin_s360_unzer_shop5_config';
     public const PLUGIN_ID = 's360_unzer_shop5';
     public const PLUGIN_SESSION = 's360_heidelpay';
-    public const HIP_URL = 'https://insights.unzer.com/merchant/{merchantId}/order/{id}';
-    public const HIP_URL_SANDBOX = 'https://sbx-insights.unzer.com/merchant/{merchantId}/order/{id}';
-    public const PAYLATER_PORTAL_URL = 'https://merchant.payolution.com/';
-    public const PAYLATER_PORTAL_URL_SANDBOX = 'https://test-merchant.paylater.unzer.com/';
 
     // Lang Var Keys
     public const LANG_INVALID_TOKEN = 's360_hp_invalid_form_token';
@@ -44,6 +40,7 @@ class Config
     public const LANG_ERROR_VALIDATING_MERCHANT = 's360_hp_error_validating_merchant';
     public const LANG_APPLE_PAY_NOT_SUPPORTED = 's360_hp_apple_pay_not_supported';
     public const LANG_APPLE_PAY_CANCEL_BY_USER = 's360_hp_apple_pay_cancel_by_user';
+    public const LANG_CANCEL_BY_USER = 's360_hp_cancel_by_user';
     public const LANG_CANCEL_PAYMENT_REFERENCE = 's360_hp_cancel_payment_reference';
     public const LANG_INSTLAMENT_INFO = 's360_hp_instalment_info';
     public const LANG_COMPANY_TYPE_MISSING = 's360_hp_company_type_missing';
@@ -52,7 +49,6 @@ class Config
     // Config Keys
     public const PRIVATE_KEY = 'privateKey';
     public const PUBLIC_KEY = 'publicKey';
-    public const MERCHANT_ID = 'merchantId';
     public const FONT_SIZE = 'fontSize';
     public const FONT_COLOR = 'fontColor';
     public const FONT_FAMILY = 'fontFamily';
@@ -257,31 +253,6 @@ class Config
         /** @var PluginInterface $plugin */
         $plugin = $plugin ?? Shop::Container()->get(self::PLUGIN_ID);
         return $plugin->getConfig()->getValue($moduleId . '_' . $key);
-    }
-
-    /**
-     * Get Insight Portal URL if merchant id is configured
-     *
-     * @param OrderMappingEntity|null $orderMapping
-     * @return string|null
-     */
-    public function getInsightPortalUrl(?OrderMappingEntity $orderMapping): ?string
-    {
-        $merchantId = $this->get(self::MERCHANT_ID);
-
-        if ($orderMapping->getPaymentTypeName() === 'paylater-invoice') {
-            return $this->isSandbox() ? self::PAYLATER_PORTAL_URL_SANDBOX : self::PAYLATER_PORTAL_URL;
-        }
-
-        if (!empty($merchantId) && !empty($orderMapping->getTransactionUniqueId())) {
-            return str_replace(
-                ['{merchantId}', '{id}'],
-                [$merchantId, $orderMapping->getTransactionUniqueId()],
-                $this->isSandbox() ? self::HIP_URL_SANDBOX : self::HIP_URL
-            );
-        }
-
-        return null;
     }
 
     /**

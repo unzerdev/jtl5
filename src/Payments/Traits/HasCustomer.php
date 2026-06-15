@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments\Traits;
 
+use JTL\Shop;
+use UnzerSDK\Constants\CompanyCommercialSectorItems;
+use UnzerSDK\Constants\CompanyRegistrationTypes;
+use UnzerSDK\Constants\CompanyTypes;
 use UnzerSDK\Resources\Customer;
 use UnzerSDK\Resources\CustomerFactory;
 use UnzerSDK\Resources\EmbeddedResources\Address;
@@ -18,6 +22,8 @@ use UnzerSDK\Constants\ApiResponseCodes;
 use UnzerSDK\Constants\ShippingTypes;
 use UnzerSDK\Exceptions\UnzerApiException;
 
+use UnzerSDK\Resources\EmbeddedResources\CompanyInfo;
+use UnzerSDK\Resources\EmbeddedResources\CompanyOwner;
 use function Functional\first;
 
 /**
@@ -61,30 +67,27 @@ trait HasCustomer
                 $customer->setCompany(Text::convertUTF8(html_entity_decode($frontSession->getCustomer()->cFirma)));
             }
 
-            $language = first(
-                $this->sessionHelper->getFrontendSession()->getLanguages(),
-                fn (LanguageModel $lang) => $lang->id === $this->sessionHelper->getFrontendSession()->getCustomer()->kSprache
-            )?->getIso639();
-
-            $customer->setLanguage(strtolower($language ?? $customer->getLanguage() ?? 'en'));
+            $this->setCustomerLanguage($customer);
 
             // Update names as they might have changed (but not on B2B so that we do not overwrite the B2B Form changes)
             if (!$isB2B) {
                 $customer->setFirstname(Text::convertUTF8(html_entity_decode($frontSession->getCustomer()->cVorname)));
                 $customer->setLastname(Text::convertUTF8(html_entity_decode($frontSession->getCustomer()->cNachname)));
 
-                if ($customer->getShippingAddress()->getShippingType() === ShippingTypes::DIFFERENT_ADDRESS) {
-                    $customer->setFirstname(
-                        Text::convertUTF8(html_entity_decode($frontSession->getDeliveryAddress()->cVorname))
-                    );
-                    $customer->setLastname(
-                        Text::convertUTF8(html_entity_decode($frontSession->getDeliveryAddress()->cNachname))
-                    );
-                }
-
                 // Remove Company Infomartion as we do not want to be treated as a B2B User
                 $customer->setCompany(null);
                 // $customer->setCompanyInfo(new CompanyInfo());
+            }
+
+            // UOPP-91: Set company info for b2b customers
+            if ($isB2B && $customer->getCompanyInfo() === null) {
+                $customer->setCompanyInfo(new CompanyInfo());
+                $customer->getCompanyInfo()
+                    ->setRegistrationType(CompanyRegistrationTypes::REGISTRATION_TYPE_NOT_REGISTERED)
+                    ->setFunction('OWNER')
+                    ->setCommercialSector(CompanyCommercialSectorItems::OTHER)
+                    ->setOwner((new CompanyOwner())->setFirstname($customer->getFirstname())->setLastname($customer->getLastname()))
+                    ->setCompanyType(CompanyTypes::OTHER);
             }
 
             return $customer;
@@ -133,12 +136,7 @@ trait HasCustomer
         }
 
         // Set user language
-        $language = first(
-            $this->sessionHelper->getFrontendSession()->getLanguages(),
-            fn (LanguageModel $lang) => $lang->id === $this->sessionHelper->getFrontendSession()->getCustomer()->kSprache
-        )?->getIso639();
-
-        $customerObj->setLanguage(strtolower($language ?? 'en'));
+        $this->setCustomerLanguage($customerObj);
 
         // Set external customer so we do not have to map it ourself.
         if (!empty($customer->kKunde)) {
@@ -165,7 +163,8 @@ trait HasCustomer
             ->setStreet(Text::convertUTF8(html_entity_decode($address->cStrasse . ' ' . $address->cHausnummer)))
             ->setZip(Text::convertUTF8(html_entity_decode($address->cPLZ)))
             ->setCity(Text::convertUTF8(html_entity_decode($address->cOrt)))
-            ->setCountry(Text::convertUTF8(html_entity_decode($address->cLand)));
+            ->setCountry(Text::convertUTF8(html_entity_decode($address->cLand)))
+            ->setCompany(!empty($address->cFirma) ? Text::convertUTF8(html_entity_decode($address->cFirma)) : null);
 
         if (! $address instanceof \JTL\Customer\Customer) {
             $address->setShippingType($type);
@@ -182,12 +181,18 @@ trait HasCustomer
      */
     protected function createHeidelpayB2BCustomer(ShopCustomer $customer): Customer
     {
+        // UOPP-91
+        $companyOwner = (new CompanyOwner())
+            ->setFirstname(Text::convertUTF8(html_entity_decode($customer->cVorname)))
+            ->setLastname(Text::convertUTF8(html_entity_decode($customer->cNachname)));
+
         $address  = (new Address())
             ->setName(Text::convertUTF8(html_entity_decode($customer->cVorname . ' ' . $customer->cNachname)))
             ->setStreet(Text::convertUTF8(html_entity_decode($customer->cStrasse . ' ' . $customer->cHausnummer)))
             ->setZip(Text::convertUTF8(html_entity_decode($customer->cPLZ)))
             ->setCity(Text::convertUTF8(html_entity_decode($customer->cOrt)))
-            ->setCountry(Text::convertUTF8(html_entity_decode($customer->cLand)));
+            ->setCountry(Text::convertUTF8(html_entity_decode($customer->cLand)))
+            ->setCompany(!empty($customer->cFirma) ? Text::convertUTF8(html_entity_decode($customer->cFirma)) : null);
 
         // Registered = registered in the commercial register with a commercial register number
         if ($customer->cUSTID) {
@@ -201,10 +206,14 @@ trait HasCustomer
             $obj->setLastname(Text::convertUTF8(html_entity_decode($customer->cNachname)));
             $obj->setEmail($customer->cMail);
             $obj->setCustomerId((string) $customer->kKunde);
+            $obj->getCompanyInfo()?->setOwner($companyOwner);
+            $obj->getCompanyInfo()?->setCompanyType(CompanyTypes::OTHER);
 
             if (!empty($customer->cAnrede)) {
                 $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : ($customer->cAnrede == 'w' ? 'mrs' : null));
             }
+
+            $this->setCustomerLanguage($obj);
 
             return $obj;
         }
@@ -224,6 +233,9 @@ trait HasCustomer
             Text::convertUTF8(html_entity_decode($customer->cFirma))
         );
         $obj->setCustomerId((string) $customer->kKunde);
+        $obj->getCompanyInfo()?->setOwner($companyOwner);
+        $obj->getCompanyInfo()?->setCompanyType(CompanyTypes::OTHER);
+        $this->setCustomerLanguage($obj);
 
         if (!empty($customer->cAnrede)) {
             $obj->setSalutation($customer->cAnrede == 'm' ? 'mr' : ($customer->cAnrede == 'w' ? 'mrs' : null));
@@ -271,5 +283,15 @@ trait HasCustomer
         }
 
         return $data;
+    }
+
+    private function setCustomerLanguage(Customer $customer): void
+    {
+        $language = first(
+            $this->sessionHelper->getFrontendSession()->getLanguages(),
+            fn (LanguageModel $lang) => $lang->id === ($this->sessionHelper->getFrontendSession()->getCustomer()->kSprache ?? Shop::getLanguageID())
+        )?->getIso639();
+
+        $customer->setLanguage(strtolower($language ?? 'en'));
     }
 }

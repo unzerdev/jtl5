@@ -233,7 +233,6 @@ class AdminOrdersController extends AdminController implements AjaxResponse
         $this->model->save($orderMapping);
 
         // Load View
-        $url = $this->config->getInsightPortalUrl($orderMapping);
         $orderMapping->setOrder(null);
 
         $this->jsonResponse([
@@ -244,7 +243,6 @@ class AdminOrdersController extends AdminController implements AjaxResponse
                     'hpOrderMapping' => $orderMapping,
                     'hpOrder'     => $order,
                     'hpPayment'   => $payment,
-                    'hpPortalUrl' => $url,
                     'hpCancellations' => $cancellations
                 ])
             )
@@ -271,12 +269,10 @@ class AdminOrdersController extends AdminController implements AjaxResponse
                 $order->getOrder()->Waehrung = new Currency((int)$order->getOrder()->kWaehrung);
             }
 
-            $url = $this->config->getInsightPortalUrl($order);
             $data[] = new OrderViewStruct(
                 $order,
                 $this->view(self::TEMPLATE_ID_ORDER_ITEM, [
                     'hpOrder'     => $order,
-                    'hpPortalUrl' => $url
                 ])
             );
         }

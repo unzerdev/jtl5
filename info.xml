@@ -6,7 +6,7 @@
     <URL>http://www.solution360.de</URL>
     <XMLVersion>100</XMLVersion>
     <MinShopVersion>5.0.0</MinShopVersion>
-    <Version>2.0.3</Version>
+    <Version>2.0.4</Version>
     <PluginID>s360_unzer_shop5</PluginID>
     <CreateDate>2020-10-27</CreateDate>
 
@@ -108,6 +108,18 @@
                 <Name>s360_hp_apple_pay_cancel_by_user</Name>
                 <Description>
                     <![CDATA[Fehler falls Apple Pay vom Kunden abgebrochen wird]]>
+                </Description>
+                <VariableLocalized iso="GER">
+                    <![CDATA[Zahlungsvorgang wurde vom Benutzer abgebrochen!]]>
+                </VariableLocalized>
+                <VariableLocalized iso="ENG">
+                    <![CDATA[Canceled payment process by user!]]>
+                </VariableLocalized>
+            </Variable>
+            <Variable>
+                <Name>s360_hp_cancel_by_user</Name>
+                <Description>
+                    <![CDATA[Fehler falls Zahlung vom Kunden abgebrochen wird]]>
                 </Description>
                 <VariableLocalized iso="GER">
                     <![CDATA[Zahlungsvorgang wurde vom Benutzer abgebrochen!]]>

@@ -7,6 +7,7 @@ namespace Plugin\s360_unzer_shop5\paymentmethod;
 use JTL\Checkout\Bestellung;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasSavedPaymentData;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -43,6 +44,7 @@ class HeidelpaySEPADirectDebit extends HeidelpayPaymentMethod implements
     use HasMetadata;
     use HasCustomer;
     use TranslatorTrait;
+    use SupportsB2B;
 
     protected function getAllowedCountries(): array
     {
@@ -85,10 +87,10 @@ class HeidelpaySEPADirectDebit extends HeidelpayPaymentMethod implements
         }
 
         // Create / Update existing customer resource if needed
-        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+        $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
+        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, $this->isB2BCustomer($shopCustomer));
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
-        $customer->setCompanyInfo(null);
         $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         if ($customer->getId()) {

@@ -194,7 +194,6 @@ class UnzerGooglePay extends HeidelpayPaymentMethod implements HasPayButton, Red
         );
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
-        $customer->setCompanyInfo(null);
         $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         // Update existing customer resource if needed

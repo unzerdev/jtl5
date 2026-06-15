@@ -6,6 +6,7 @@ namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use JTL\Checkout\Bestellung;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
@@ -30,6 +31,7 @@ class HeidelpayPrzelewy24 extends HeidelpayPaymentMethod implements RedirectPaym
     use HasBasket;
     use HasMetadata;
     use HasCustomer;
+    use SupportsB2B;
 
     protected function getAllowedCountries(): array
     {
@@ -48,10 +50,10 @@ class HeidelpayPrzelewy24 extends HeidelpayPaymentMethod implements RedirectPaym
     protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
         // Create / Update existing customer resource if needed
-        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, false);
+        $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
+        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, $this->isB2BCustomer($shopCustomer));
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
-        $customer->setCompanyInfo(null);
         $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         if ($customer->getId()) {

@@ -11,23 +11,26 @@ use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\CancelableInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HasPayButton;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\NotificationInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\CancelPaymentTransaction;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasAuthorization;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 
-class UnzerApplePayV2 extends HeidelpayPaymentMethod implements HasPayButton, NotificationInterface, CancelableInterface
+class UnzerApplePayV2 extends HeidelpayPaymentMethod implements HasPayButton, NotificationInterface, CancelableInterface, RedirectPaymentInterface
 {
     use HasAuthorization;
     use HasCustomer;
     use HasMetadata;
     use HasBasket;
     use CancelPaymentTransaction;
+    use SupportsB2B;
 
     public function addPayButton(JTLSmarty $view): ?string
     {
@@ -86,14 +89,10 @@ class UnzerApplePayV2 extends HeidelpayPaymentMethod implements HasPayButton, No
         $config = Shop::Container()->get(Config::class);
 
         // Create or fetch customer resource
-        $customer = $this->createOrFetchHeidelpayCustomer(
-            $this->adapter,
-            $this->sessionHelper,
-            false
-        );
+        $shopCustomer = $this->sessionHelper->getFrontendSession()->getCustomer();
+        $customer = $this->createOrFetchHeidelpayCustomer($this->adapter, $this->sessionHelper, $this->isB2BCustomer($shopCustomer));
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
-        $customer->setCompanyInfo(null);
         $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         // Update existing customer resource if needed

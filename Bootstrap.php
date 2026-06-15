@@ -177,6 +177,8 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
 
         // Backend Hooks
         if (!Shop::isFrontend()) {
+            $this->deactivateDeprecatedPaymentMethods();
+
             /**
              * !FIX ISSUES WITH getHelpDesc:
              * - Description not being translated
@@ -242,21 +244,7 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
             $seeder->run();
         }
 
-        // Deactivate Invoice Factoring Payment Method by setting nNutzbar to 0
-        foreach ($this->getPlugin()->getPaymentMethods()->getMethods() as $method) {
-            if (
-                ($method->getActive() || $method->getUsable()) &&
-                in_array($method->getClassName(), self::getDeprecatedPaymentMethods())
-            ) {
-                $this->getDB()->update(
-                    'tzahlungsart',
-                    'kZahlungsart',
-                    $method->getMethodID(),
-                    (object) ['nNutzbar' => 0, 'nActive' => 0]
-                );
-            }
-        }
-
+        $this->deactivateDeprecatedPaymentMethods();
         $this->addApplePayVerification();
 
         Shop::Container()->getCache()->flushTags([
@@ -273,22 +261,7 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
      */
     public function updated($oldVersion, $newVersion)
     {
-        // Deactivate Invoice Factoring Payment Method by setting nNutzbar to 0
-        foreach ($this->getPlugin()->getPaymentMethods()->getMethods() as $method) {
-            if (
-                ($method->getActive() || $method->getUsable()) &&
-                in_array($method->getClassName(), self::getDeprecatedPaymentMethods())
-            ) {
-                $this->getDB()->update(
-                    'tzahlungsart',
-                    'kZahlungsart',
-                    $method->getMethodID(),
-                    (object) ['nNutzbar' => 0, 'nActive' => 0]
-                );
-                $this->getDB()->delete('tversandartzahlungsart', 'kZahlungsart', $method->getMethodID());
-            }
-        }
-
+        $this->deactivateDeprecatedPaymentMethods();
         $this->addApplePayVerification();
 
         Shop::Container()->getCache()->flushTags([
@@ -404,6 +377,24 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
         }
     }
 
+    private function deactivateDeprecatedPaymentMethods(): void
+    {
+        foreach ($this->getPlugin()->getPaymentMethods()->getMethods() as $method) {
+            if (
+                ($method->getActive() || $method->getUsable()) &&
+                in_array($method->getClassName(), self::getDeprecatedPaymentMethods(), true)
+            ) {
+                $this->getDB()->update(
+                    'tzahlungsart',
+                    'kZahlungsart',
+                    $method->getMethodID(),
+                    (object) ['nNutzbar' => 0, 'nActive' => 0]
+                );
+
+                $this->getDB()->delete('tversandartzahlungsart', 'kZahlungsart', $method->getMethodID());
+            }
+        }
+    }
 
     private function registerSmartyPhpFunctions(JTLSmarty $smarty): void
     {

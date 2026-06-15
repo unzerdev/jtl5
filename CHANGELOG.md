@@ -3,6 +3,23 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.0.4] (June 2026)
+### Added
+- support for **JTL 5.7** and **PHP 8.5**
+- added support for 2FA redirects for *Invoice*, *Installments*, and *Direct Debit*
+
+### Changed
+- updated plugin documentation requirements
+- remove *Merchant ID for Insight Portal* from settings as it is not needed anymore
+
+### Fixed
+- updated order status logic for *Direct Bank Transfer* due to updated flow where payment status AND transaction status must be considered
+- added missing error message after canceling card payments on 3DS redirect page
+- added missing "language" to customer object for B2B customers for *Google Pay*
+- handle error after canceling *Wero* payment
+- issue with customer name being taken from the shipping address instead of the billing address
+- issue with B2B customer object for non-UPL payment methods (missing *company* field in address, missing *companyInfo* field)
+
 ## [2.0.3] (April 2026)
 ### Changed
 - basket metadata is now set for all payment methods

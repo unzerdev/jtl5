@@ -40,17 +40,6 @@
                                 <small class="form-text help-block text-muted">{__('hpSettingsPublicKeyHelp')}</small>
                             </div>
                         </div>
-
-                        {* hIP / Insight Merchant ID *}
-                        <div class="hp-admin-option row mb-2">
-                            <div class="hp-admin-option__title col-xs-3 col-3">
-                                <label for="hpSettings-merchantId">{__('hpSettingsMerchantIdLabel')}</small></label>
-                            </div>
-                            <div class="hp-admin-option__input col-xs-9 col-9">
-                                <input type="text" class="form-control" name="merchantId" id="hpSettings-merchantId" value="{if isset($hpSettings.config.merchantId)}{$hpSettings.config.merchantId}{/if}" />
-                                <small class="form-text help-block text-muted">{__('hpSettingsMerchantIdHelp')}</small>
-                            </div>
-                        </div>
                     </div>
                 </div>
 

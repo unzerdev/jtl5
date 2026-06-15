@@ -7,6 +7,7 @@ namespace Plugin\s360_unzer_shop5\paymentmethod;
 use Exception;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasSavedPaymentData;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Card;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
@@ -52,6 +53,7 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
     HandleStepAdditionalInterface
 {
     use CancelPaymentTransaction;
+    use SupportsB2B;
     use HasBasket;
     use HasMetadata;
     use HasAuthorization;
@@ -155,12 +157,11 @@ class HeidelpayCreditCard extends HeidelpayPaymentMethod implements
         $customer = $this->createOrFetchHeidelpayCustomer(
             $this->adapter,
             $this->sessionHelper,
-            false
+            $this->isB2BCustomer($shopCustomer)
         );
 
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
-        $customer->setCompanyInfo(null);
         $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         // Update existing customer resource if needed

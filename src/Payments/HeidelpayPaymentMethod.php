@@ -6,6 +6,7 @@ namespace Plugin\s360_unzer_shop5\src\Payments;
 use Exception;
 use JTL\Alert\Alert;
 use Plugin\s360_unzer_shop5\src\Foundation\ServiceProvider;
+use Plugin\s360_unzer_shop5\src\Utils\Logger;
 use UnzerSDK\Exceptions\UnzerApiException;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
@@ -386,8 +387,22 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     {
         // Validate Payment Request (check: currency changed, order amount, cart checksum)
         if (isset($args['state']) && $args['state'] == self::STATE_DURING_CHECKOUT) {
-            $this->adapter->getConnectionForOrder($order);
-            $payment = $this->adapter->fetchPayment();
+            try {
+                $this->adapter->getConnectionForOrder($order);
+                $payment = $this->adapter->fetchPayment();
+            } catch(Throwable $err) {
+                // For some reason we could not fetch the payment -> abort
+                Shop::Container()->getAlertService()->addError(
+                    $this->plugin->getLocalization()->getTranslation(Config::LANG_CANCEL_BY_USER) ?? Config::LANG_CANCEL_BY_USER,
+                    'transactionError',
+                    ['saveInSession' => true]
+                );
+
+                $this->setPayStatus(self::PAYSTATUS_FAILED);
+                $this->deletePaymentHash($hash);
+
+                return false;
+            }
 
             // Invalid Request (basket, currency mismatch)
             if (!$this->handler->validatePaymentRequest($payment)) {
@@ -403,13 +418,8 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
                 $this->deletePaymentHash($hash);
 
                 $transaction = $this->adapter->getPaymentTransaction($payment);
-                $this->sessionHelper->addErrorAlert(
-                    Text::convertUTF8($transaction->getMessage()->getMerchant()),
-                    Text::convertUTF8($transaction->getMessage()->getCustomer()),
-                    'transactionError',
-                    null,
-                    static::class
-                );
+                Shop::Container()->getAlertService()->addError(Text::convertUTF8($transaction->getMessage()->getCustomer()), 'transactionError', ['saveInSession' => true]);
+                Logger::error($transaction->getMessage()->getMerchant());
 
                 return false;
             }

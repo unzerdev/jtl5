@@ -47,7 +47,6 @@ class UnzerDirectBankTransfer extends HeidelpayPaymentMethod implements Redirect
         );
         $customer->setShippingAddress($this->createHeidelpayAddress($order->Lieferadresse));
         $customer->setBillingAddress($this->createHeidelpayAddress($order->oRechnungsadresse));
-        $customer->setCompanyInfo(null);
         $this->debugLog('Customer Resource: ' . $customer->jsonSerialize(), static::class);
 
         // Update existing customer resource if needed

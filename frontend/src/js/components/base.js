@@ -177,11 +177,12 @@ export default class
         }
 
         // Wait for ui components to be loaded
-        Promise.all([
-            customElements.whenDefined("unzer-payment"),
-            customElements.whenDefined("unzer-checkout"),
-            customElements.whenDefined(this.customElement)
-        ]).then(() => {
+        // Promise.all([
+        //     customElements.whenDefined("unzer-payment"),
+        //     customElements.whenDefined("unzer-checkout"),
+        //     customElements.whenDefined(this.customElement)
+        // ]).then(() => {
+        customElements.whenDefined("unzer-payment").then(() => {
             this.unzerPayment = document.querySelector('unzer-payment');
             this.unzerCheckout = document.querySelector('unzer-checkout');
             this.mounted();

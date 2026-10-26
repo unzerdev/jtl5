@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Webhooks;
 
-use Throwable;
-use UnzerSDK\Constants\WebhookEvents;
-use UnzerSDK\Resources\Payment;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\src\Charges\ChargeHandler;
 use Plugin\s360_unzer_shop5\src\Foundation\EventPayload;
@@ -16,6 +13,9 @@ use Plugin\s360_unzer_shop5\src\Payments\HeidelpayApiAdapter;
 use Plugin\s360_unzer_shop5\src\Payments\PaymentMethodModuleFactory;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use RuntimeException;
+use Throwable;
+use UnzerSDK\Constants\WebhookEvents;
+use UnzerSDK\Resources\Payment;
 use UnzerSDK\Resources\TransactionTypes\Charge;
 
 /**
@@ -93,6 +93,12 @@ class PaymentEventSubscriber extends EventSubscriber
             return;
         }
 
+        // FIX S360SDP-2516: make sure that the order and the order id from the payment match. If they do not match, abort
+        if ($payment->getOrderId() !== null && $payment->getOrderId() !== $orderMapping->getOrder()->cBestellNr) {
+            $this->debugLog("Payment Order ID {$payment->getOrderId()} does not match order {$orderMapping->getOrder()->cBestellNr}. Abort!", self::class);
+            return;
+        }
+
         // The payment is completed, which means that a pending order can now be released.
         if ($payment->isCompleted()) {
             $this->debugLog(
@@ -124,7 +130,7 @@ class PaymentEventSubscriber extends EventSubscriber
         }
 
         // Mark order as paid if there is no remaining amount on the payment.
-        if ($payment->getAmount()->getRemaining() <= 0) {
+        if ($payload->getEvent() === WebhookEvents::PAYMENT_COMPLETED && $payment->getAmount()->getRemaining() <= 0) {
             $this->charges->markAsPaid($payment, $paymentMethod, $orderMapping->getOrder());
         }
 

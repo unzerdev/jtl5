@@ -861,15 +861,15 @@ d74ee339a9008b6c184705dcf20536ee;vendor/paragonie/constant_time_encoding/src/Hex
 97657ac60f240bd9b6180524914c1c02;composer.lock
 0a7ea3bc84eaecb910b6cb1b6f474db5;apple-developer-merchantid-domain-association
 56f3882df96a1eb54693b8e937c58c45;composer.json
-23ada647e7af4c86e7388b6b74efca32;frontend/js/unzer-ui-components.js
-35aa90abd4f87d672b078fe554d61349;frontend/js/unzer-ui-components.min.js.map
-86efdfbb532c2954668d7cfa59d645f2;frontend/js/unzer-ui-components.js.map
-c22cf5ae527666d4c6e1840db7317d17;frontend/js/unzer-ui-components.min.js
+08dcec8266c38a8cdfa594b644902bd4;frontend/js/unzer-ui-components.js
+d135f41a84fb3369d8749995692ae6f4;frontend/js/unzer-ui-components.min.js.map
+987a521825cd65a16af6ecbef48df53f;frontend/js/unzer-ui-components.js.map
+cf0c69d857ee96bc86f3532e20747f08;frontend/js/unzer-ui-components.min.js
 13c1593de90ae1a978dff1f3f40fc272;frontend/src/js/components/applepay.js
 f7d1244b78a5567f379329b383f76ffb;frontend/src/js/components/googlepay.js
 d1e7bb32208035988d5734be00b5df38;frontend/src/js/components/klarna.js
 d5de3c2637eb45440c212d9a0824ee18;frontend/src/js/components/index.js
-2292f0faa91e69e2fbcfcb332e7e9bce;frontend/src/js/components/base.js
+b97a648deaf29bb46789e3b091312173;frontend/src/js/components/base.js
 15112aab51c1133c80096c05759e4008;frontend/src/js/utils/errors.js
 cf44e5fa2ae44e1a9756651963bfe755;frontend/src/js/utils/debugging.js
 2204ebc7811216c1eb4536b186659f24;frontend/sync-workflow.php
@@ -959,7 +959,7 @@ d6d21974f88ddeca3f6798d2b5ff53f8;src/Utils/Config.php
 d5d5d79ab6d86b5a965cf17240ff601e;src/Utils/JtlLoggerTrait.php
 45d77592d5be177698832b19d2f84b78;src/Utils/Compatibility.php
 48830baed39f5710178337ad6d6f8444;src/Utils/TranslatorTrait.php
-3419a6978403bd64af2e33b5bd2fee77;src/Webhooks/PaymentEventSubscriber.php
+2809455b4392057a19df7e1434935384;src/Webhooks/PaymentEventSubscriber.php
 4a6bd5f25d0487b44b664403d6b0315c;src/KeyPairs/KeyPairModel.php
 8e0682ac5c506aa7ed6bc23a06970633;src/KeyPairs/KeyPairService.php
 02ead16397ed114e97dc4a017cf2b30e;src/KeyPairs/KeyPairEntity.php
@@ -1070,7 +1070,7 @@ ddaaceadd4366b7aa7aaa82ae405c821;paymentmethod/template/alipay_form.tpl
 43aa1ac4c28b351cdb5c54656b0586b5;paymentmethod/template/invoice_guaranteed_form.tpl
 54fd30a2872c9c7223da7c93d746029b;paymentmethod/template/prepayment_form.tpl
 85235d75531f240854aa4dc572d22c71;paymentmethod/HeidelpayCreditCard.php
-fd2b479e304868f66a918983ec309b79;info.xml
+1165203ffdc70fae200c31ffd18607e6;info.xml
 c237fcf06c9da2f07028932e8eb8aa36;Migrations/Migration20230925100000.php
 686b3eec05aa867a757aa916dd50b50a;Migrations/Migration20260303100000.php
 55ccfd103771065e96f3e482ee49499e;Migrations/Migration20220511114913.php
@@ -1085,4 +1085,4 @@ c9f6e33220cf462393c7070cffcfff1a;NOTICE
 778e8c29f694bc2c9902c04ed686ac0b;locale/en-GB/base.po
 a1f17490d317c9c3c41322d96a75daa4;locale/en-GB/base.mo
 e73740baa8bcab9ac6d47b2a95daa826;jsconfig.json
-fde39680b5cf2c49ad1ba41f97ecbe58;CHANGELOG.md
+549cb21ee2d0381cf55a38c38e4ff580;CHANGELOG.md

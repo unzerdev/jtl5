@@ -265,9 +265,14 @@ var _default = /*#__PURE__*/function () {
       } else {
         this.el.appendChild(wrapper);
       } // Wait for ui components to be loaded
+      // Promise.all([
+      //     customElements.whenDefined("unzer-payment"),
+      //     customElements.whenDefined("unzer-checkout"),
+      //     customElements.whenDefined(this.customElement)
+      // ]).then(() => {
 
 
-      Promise.all([customElements.whenDefined("unzer-payment"), customElements.whenDefined("unzer-checkout"), customElements.whenDefined(this.customElement)]).then(function () {
+      customElements.whenDefined("unzer-payment").then(function () {
         _this2.unzerPayment = document.querySelector('unzer-payment');
         _this2.unzerCheckout = document.querySelector('unzer-checkout');
 

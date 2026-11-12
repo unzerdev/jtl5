@@ -75,7 +75,7 @@ var _errors = _interopRequireDefault(require("../utils/errors"));
 
 var _default = /*#__PURE__*/function () {
   /**
-   *@param {HTMLElement} el
+   * @param {HTMLElement} el
    * @param {{component: string, hasSavedInfo: boolean, autoSubmit: boolean, ?customer: object, ?basket:object, ?submitButton: string, ?isB2B: boolean}} settings
    */
   function _default(el, settings) {
@@ -151,6 +151,11 @@ var _default = /*#__PURE__*/function () {
 
       if (this.unzerCheckout.shadowRoot.querySelector('.unzer-checkout')) {
         this.unzerCheckout.shadowRoot.querySelector('.unzer-checkout').style.width = '100%';
+      } // Merchant Config
+
+
+      if (this.settings.merchantConfig) {
+        this.unzerPayment.setMerchantConfigData(this.settings.merchantConfig);
       } // Set customer data if available
 
 

@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
-use UnzerSDK\Resources\Payment;
-use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
-use UnzerSDK\Resources\TransactionTypes\Charge;
 use JTL\Cart\Cart;
 use JTL\Checkout\Bestellung;
 use JTL\Helpers\Text;
@@ -23,7 +20,10 @@ use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
 use Plugin\s360_unzer_shop5\src\Utils\TranslatorTrait;
+use UnzerSDK\Resources\Payment;
+use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Authorization;
+use UnzerSDK\Resources\TransactionTypes\Charge;
 
 /**
  * Heidelpay Payment Handler.
@@ -423,6 +423,11 @@ class PaymentHandler
         $data['allowSave'] = $this->config->getPaymentSetting(Config::ALLOW_SAVE, $this->paymentMethod->cModulId ?? '') === 'Y'
             && Frontend::getCustomer()->getID() > 0;
 
+        try {
+            $data['merchantConfig'] = $this->adapter->getMerchantConfig();
+        } catch(\Throwable $err) {
+            $data['merchantConfig'] = null;
+        }
 
         $savedInfo = Shop::Container()->getDB()->selectAll(
             'xplugin_s360_unzer_shop5_saved_payment_data',

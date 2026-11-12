@@ -215,14 +215,16 @@ class AdminSettingsController extends AdminController
 
         foreach ($keypairs as $keypair) {
             try {
-                $adapter->setCurrentConnection(
-                    $keypair->isB2B(),
-                    $keypair->getCurrencyId(),
-                    $keypair->getPaymentMethodId()
-                )->registerMultipleWebhooks(
-                    $linkHelper->getFullFrontendFileUrl(JtlLinkHelper::FRONTEND_FILE_WEBHOOKS),
-                    $newEvents
-                );
+                foreach ($keypair->getPaymentMethodIds() as $paymentMethodId) {
+                    $adapter->setCurrentConnection(
+                        $keypair->isB2B(),
+                        $keypair->getCurrencyId(),
+                        $paymentMethodId,
+                    )->registerMultipleWebhooks(
+                        $linkHelper->getFullFrontendFileUrl(JtlLinkHelper::FRONTEND_FILE_WEBHOOKS),
+                        $newEvents
+                    );
+                }
             } catch (Exception $exc) {
                 $this->errorLog('Could not register webhook: ' . $exc->getMessage(), static::class);
             }

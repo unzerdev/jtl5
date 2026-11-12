@@ -53,32 +53,39 @@ class KeyPairModel extends Model
 
     public function findKeyPair(bool $isB2B, int $currency, int $paymentMethod): ?KeyPairEntity
     {
-        $result = $this->database->queryPrepared(
-            "SELECT * FROM {$this->getTable()}
-            WHERE is_b2b = :b2b AND currency_id = :currency AND payment_method_id = :paymentMethod",
-            ['b2b' => $isB2B, 'currency' => $currency, 'paymentMethod' => $paymentMethod],
-            ReturnType::SINGLE_OBJECT
-        );
-
-        if (empty($result)) {
-            return null;
+        foreach ($this->all() as $keypair) {
+            if ($isB2B === $keypair->isB2B() && $currency === $keypair->getCurrencyId() && in_array($paymentMethod, $keypair->getPaymentMethodIds())) {
+                return $keypair;
+            }
         }
 
-        return $this->createEntity($result);
+        return null;
     }
 
     public function findByPublic(string $publicKey): ?KeyPairEntity
     {
         $result = $this->database->selectSingleRow($this->getTable(), 'public_key', $publicKey);
 
-        if (empty($result)) {
+        if ($result === null) {
             return null;
         }
 
         return $this->createEntity($result);
     }
 
-    public function getCurrencies()
+
+    public function findByPrivate(string $privateKey): ?KeyPairEntity
+    {
+        $result = $this->database->selectSingleRow($this->getTable(), 'private_key', $privateKey);
+
+        if ($result === null) {
+            return null;
+        }
+
+        return $this->createEntity($result);
+    }
+
+    public function getCurrencies(): array
     {
         $result = $this->database->query(
             'SELECT kWaehrung as id, cISO as name FROM twaehrung',

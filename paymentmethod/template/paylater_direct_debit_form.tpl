@@ -4,9 +4,10 @@
     "component": "paylater-direct-debit",
     "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")},
     "customer": {$hpPayment.customer->jsonSerialize()},
-    "isB2B": {json_encode($hpPayment.isB2B)}
+    "isB2B": {json_encode($hpPayment.isB2B)},
+    "merchantConfig": {if !empty($hpPayment.merchantConfig)}{$hpPayment.merchantConfig}{else}null{/if}
 }'>
-    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}">
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}" {if !empty($hpPayment.merchantConfig)}skipFetchingMerchantConfig{/if}>
         <unzer-paylater-direct-debit />
     </unzer-payment>
 </div>

@@ -31,12 +31,12 @@ class UnzerWero extends HeidelpayPaymentMethod implements RedirectPaymentInterfa
     use SupportsB2B;
 
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR'];
     }
 
-    protected function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
+    public function performTransaction(BasePaymentType $payment, Bestellung $order): AbstractTransactionType
     {
         /** @var Config $config */
         $config = Shop::Container()->get(Config::class);

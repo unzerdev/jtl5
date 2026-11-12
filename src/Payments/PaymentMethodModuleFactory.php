@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
 use InvalidArgumentException;
+use JTL\Plugin\Data\PaymentMethod;
 use JTL\Plugin\Payment\Method;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\paymentmethod\HeidelpayAlipay;
@@ -109,7 +110,6 @@ class PaymentMethodModuleFactory
     ];
 
     private const MAPPING = [
-        Applepay::class                  => UnzerApplePay::class,
         Alipay::class                    => HeidelpayAlipay::class,
         Card::class                      => HeidelpayCreditCard::class,
         EPS::class                       => HeidelpayEPS::class,
@@ -187,5 +187,17 @@ class PaymentMethodModuleFactory
                 return $method;
             }
         }
+    }
+
+
+    public static function getResourceName(PaymentMethod $paymentMethod): string
+    {
+        $resource = array_flip(self::MAPPING)[$paymentMethod->getClassName()] ?? null;
+
+        if ($resource) {
+            return $resource::getResourceName();
+        }
+
+        throw new InvalidArgumentException("Cannot find a factory for type for: {$paymentMethod->getName()} ({$paymentMethod->getClassName()})");
     }
 }

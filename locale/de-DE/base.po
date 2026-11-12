@@ -697,3 +697,18 @@ msgstr "PQ-Einfügemethode  für die Anzeige der gespeicherten Zahlungsdaten im 
 
 msgid "hpSettingspqMethodSavedPaymentDataHelp"
 msgstr "Der PHP-Query-Einfügemethode  für die Anzeige der gespeicherten Zahlungsdaten im Kundenkonto"
+
+msgid "hpDashboardKeypairTitle"
+msgstr "Schlüsselpaar"
+
+msgid "hpDashboardKeypairLabel"
+msgstr "Schlüsselpaar auswählen"
+
+msgid "hpDashboardKeypairHelp"
+msgstr "Zeigt die Zahlungsarten an, die für das ausgewählte Schlüsselpaar bei Unzer verfügbar sind."
+
+msgid "hpDashboardKeypairDefault"
+msgstr "Standard"
+
+msgid "hpDashboardLoading"
+msgstr "Wird geladen…"

@@ -35,12 +35,12 @@ class HeidelpayEPS extends HeidelpayPaymentMethod implements RedirectPaymentInte
     use HasCustomer;
     use SupportsB2B;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['AT'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR'];
     }

@@ -6,17 +6,17 @@ namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use JTL\Shop;
 use JTL\Smarty\JTLSmarty;
-use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
-use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
-use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
-use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
-use UnzerSDK\Resources\TransactionTypes\Charge;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
+use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
+use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
+use UnzerSDK\Resources\TransactionTypes\Charge;
 
 /**
  * Bancontact
@@ -30,12 +30,12 @@ class UnzerBancontact extends HeidelpayPaymentMethod implements RedirectPaymentI
     use HasMetadata;
     use SupportsB2B;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['BE'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR'];
     }

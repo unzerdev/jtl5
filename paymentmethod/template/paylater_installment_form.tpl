@@ -8,9 +8,10 @@
         "amount": {json_encode($hpPayment.amount)},
         "currencyType": {json_encode($hpPayment.currency)},
         "country": {json_encode($hpPayment.country)}
-    }
+    },
+    "merchantConfig": {if !empty($hpPayment.merchantConfig)}{$hpPayment.merchantConfig}{else}null{/if}
 }'>
-    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}">
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}" {if !empty($hpPayment.merchantConfig)}skipFetchingMerchantConfig{/if}>
         <unzer-paylater-installment />
     </unzer-payment>
 </div>

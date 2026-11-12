@@ -3,11 +3,12 @@
 <div data-unzer-ui-component='{
     "component": "przelewy24",
     "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")},
-    "autoSubmit": true
+    "autoSubmit": true,
+    "merchantConfig": {if !empty($hpPayment.merchantConfig)}{$hpPayment.merchantConfig}{else}null{/if}
 }'>
     <div class="redirecting-note alert alert-info">{$hpPayment.redirectingNote}</div>
 
-    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}">
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}" {if !empty($hpPayment.merchantConfig)}skipFetchingMerchantConfig{/if}>
         <unzer-przelewy24 />
     </unzer-payment>
 </div>

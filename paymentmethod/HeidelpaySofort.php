@@ -34,12 +34,12 @@ class HeidelpaySofort extends HeidelpayPaymentMethod implements RedirectPaymentI
     use HasMetadata;
     use HasCustomer;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['AT', 'BE', 'DE', 'IT', 'NL', 'PL', 'ES', 'CH'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR', 'CHF'];
     }

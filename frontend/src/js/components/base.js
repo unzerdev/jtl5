@@ -13,7 +13,7 @@ export default class
     unzerPayment = null;
 
     /**
-     *@param {HTMLElement} el
+     * @param {HTMLElement} el
      * @param {{component: string, hasSavedInfo: boolean, autoSubmit: boolean, ?customer: object, ?basket:object, ?submitButton: string, ?isB2B: boolean}} settings
      */
     constructor(el, settings) {
@@ -78,6 +78,11 @@ export default class
         // Small style fix if needed
         if (this.unzerCheckout.shadowRoot.querySelector('.unzer-checkout')) {
             this.unzerCheckout.shadowRoot.querySelector('.unzer-checkout').style.width = '100%';
+        }
+
+        // Merchant Config
+        if (this.settings.merchantConfig) {
+            this.unzerPayment.setMerchantConfigData(this.settings.merchantConfig);
         }
 
         // Set customer data if available

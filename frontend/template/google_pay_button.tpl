@@ -12,9 +12,10 @@
 
 <div data-payment-data-request='{json_encode($hpPayment.googlepay)}' data-unzer-ui-component='{
     "component": "google-pay",
-    "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")}
+    "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")},
+    "merchantConfig": {if !empty($hpPayment.merchantConfig)}{$hpPayment.merchantConfig}{else}null{/if}
 }'>
-    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}">
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}" {if !empty($hpPayment.merchantConfig)}skipFetchingMerchantConfig{/if}>
         <unzer-google-pay />
     </unzer-payment>
 </div>

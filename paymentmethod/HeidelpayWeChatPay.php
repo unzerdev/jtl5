@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use JTL\Checkout\Bestellung;
+use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
+use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
+use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
 use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use UnzerSDK\Resources\TransactionTypes\Charge;
-use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
-use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
-use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
-use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 
 /**
  * Heidelpay WeChatPay Payment Method.
@@ -32,12 +32,12 @@ class HeidelpayWeChatPay extends HeidelpayPaymentMethod implements RedirectPayme
     use HasCustomer;
     use SupportsB2B;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['AT', 'BE', 'DK', 'FI', 'FR', 'DE', 'ES', 'GB', 'GR', 'HU', 'IE', 'IS', 'IT', 'LI', 'LU', 'MT', 'NL', 'NO', 'PT', 'SE'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['CHF', 'CNY', 'EUR', 'GBP', 'USD'];
     }

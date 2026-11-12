@@ -35,7 +35,7 @@ class HeidelpayAlipay extends HeidelpayPaymentMethod implements RedirectPaymentI
     use HasMetadata;
     use HasCustomer;
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR', 'GBP', 'USD', 'CAD', 'AUD', 'HKD', 'SGD'];
     }

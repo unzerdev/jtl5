@@ -813,3 +813,54 @@ msgstr "PQ-Method for the saved payment data in the account section"
 
 msgid "hpSettingspqMethodSavedPaymentDataHelp"
 msgstr "The PHP-Query-Method for the saved payment data in the account section"
+
+msgid "Aktive Zahlungsarten"
+msgstr "Active Payment Methods"
+
+msgid "Inaktive Zahlungsarten"
+msgstr "Inactive Payment Methods"
+
+msgid "Konfiguration"
+msgstr "Configuration"
+
+msgid "Bei Unzer aktiv:"
+msgstr "Active in Unzer:"
+
+msgid "Im Shop aktiv:"
+msgstr "Active in shop:"
+
+msgid "Versandart verknüpft:"
+msgstr "Shipping method linked:"
+
+msgid "Zahlung vor Bestellabschluss:"
+msgstr "Payment before order completion:"
+
+msgid "Informationen"
+msgstr "Information"
+
+msgid "Währungen"
+msgstr "Currencies"
+
+msgid "Länder"
+msgstr "Countries"
+
+msgid "Kunden"
+msgstr "Customers"
+
+msgid "Alle"
+msgstr "All"
+
+msgid "hpDashboardKeypairTitle"
+msgstr "Keypair"
+
+msgid "hpDashboardKeypairLabel"
+msgstr "Choose keypair"
+
+msgid "hpDashboardKeypairHelp"
+msgstr "Shows the payment methods that are available at Unzer for the selected keypair."
+
+msgid "hpDashboardKeypairDefault"
+msgstr "Default"
+
+msgid "hpDashboardLoading"
+msgstr "Loading…"

@@ -44,12 +44,12 @@ class UnzerPaylaterInvoice extends HeidelpayPaymentMethod implements
     use SupportsB2B;
     use CancelPaymentTransaction;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['AT', 'DE', 'CH', 'NL'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR', 'CHF'];
     }

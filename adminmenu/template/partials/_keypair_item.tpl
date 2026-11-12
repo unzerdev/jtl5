@@ -69,14 +69,30 @@
             <label for="hpKeypair-payment-methods">{__('hpPaymentMethod')}</label>
         </div>
         <div class="hp-admin-option__input col-xs-9 col-9">
-            <select class="form-control" name="paymentMethod" id="hpKeypair-payment-methods">
+            <select class="selectpicker custom-select combo" name="paymentMethod" multiple id="hpKeypair-payment-methods" data-size="7" data-selected-text-format="count > 9" data-actions-box="true" data-live-search="false" data-dropup-auto="false">
                 {foreach from=$unzerKeypairs.paymentMethods item=item}
-                    {if $item->getActive()}
-                        <option value="{$item->getMethodID()}" {if isset($unzerKeypairs.item) && $unzerKeypairs.item->getPaymentMethodId() == $item->getMethodID()}selected{/if}>{__($item->getName())}</option>
-                    {/if}
+                    <option value="{$item->getMethodID()}" {if isset($unzerKeypairs.item) && in_array($item->getMethodID(), $unzerKeypairs.item->getPaymentMethodIds())}selected{/if}>{__($item->getName())}</option>
                 {/foreach}
             </select>
             <small class="form-text help-block text-muted">{__('hpKeypairPaymentMethodsHelp')}</small>
         </div>
     </div>
 </div>
+
+<script type="module">
+    {literal}
+    $('.selectpicker').selectpicker({
+        noneSelectedText: {/literal}'{__('selectPickerNoneSelectedText')}'{literal},
+        noneResultsText: {/literal}'{__('selectPickerNoneResultsText')}'{literal},
+        countSelectedText: {/literal}'{__('selectPickerCountSelectedText')}'{literal},
+        maxOptionsText: () => [
+            {/literal}'{__('selectPickerLimitReached')}'{literal},
+            {/literal}'{__('selectPickerGroupLimitReached')}'{literal},
+        ],
+        selectAllText: {/literal}'{__('selectPickerSelectAllText')}'{literal},
+        deselectAllText: {/literal}'{__('selectPickerDeselectAllText')}'{literal},
+        doneButtonText: {/literal}'{__('close')}'{literal},
+        style: ''
+    });
+    {/literal}
+</script>

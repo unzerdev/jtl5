@@ -3,24 +3,20 @@ declare(strict_types=1);
 
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
-use Exception;
 use JTL\Alert\Alert;
-use Plugin\s360_unzer_shop5\src\Foundation\ServiceProvider;
-use Plugin\s360_unzer_shop5\src\Utils\Logger;
-use UnzerSDK\Exceptions\UnzerApiException;
-use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
-use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 use JTL\Backend\Notification;
 use JTL\Backend\NotificationEntry;
 use JTL\Checkout\Bestellung;
 use JTL\Helpers\Form;
 use JTL\Helpers\Request;
 use JTL\Helpers\Text;
+use JTL\Plugin\Data\PaymentMethod;
 use JTL\Plugin\Payment\Method;
 use JTL\Plugin\PluginInterface;
 use JTL\Session\Frontend;
 use JTL\Shop;
 use Plugin\s360_unzer_shop5\Bootstrap;
+use Plugin\s360_unzer_shop5\src\Foundation\ServiceProvider;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\HandleStepAdditionalInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\NotificationInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\PaymentStatusInterface;
@@ -30,11 +26,15 @@ use Plugin\s360_unzer_shop5\src\Payments\Traits\PriceCurrencyConverter;
 use Plugin\s360_unzer_shop5\src\Utils\Compatibility;
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
+use Plugin\s360_unzer_shop5\src\Utils\Logger;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
 use Plugin\s360_unzer_shop5\src\Utils\TranslatorTrait;
 use RuntimeException;
 use stdClass;
 use Throwable;
+use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
+use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
 
 /**
  * Basic Heidepay Payment Method
@@ -58,10 +58,11 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     public const ATTR_PAYMENT_ID = 'unzer_payment_id';
     public const ATTR_PAYMENT_TYPE_ID = 'unzer_payment_type_id';
 
-    protected PluginInterface $plugin;
+    public PluginInterface $plugin;
     protected SessionHelper $sessionHelper;
     protected HeidelpayApiAdapter $adapter;
     protected PaymentHandler $handler;
+    protected ?PaymentMethod $method;
     public string $hash = '';
 
     /**
@@ -94,7 +95,7 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
      * List of allowed currencies (3-Letter ISO Codes)
      * An empty list means everything is allowed
      */
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return [];
     }
@@ -103,7 +104,7 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
      * List of allowed countries (Two-Letter ISO Codes)
      * An empty list means everything is allowed
      */
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return [];
     }
@@ -127,6 +128,7 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
             $this->handler = Shop::Container()->get(PaymentHandler::class);
             $this->adapter = Shop::Container()->get(HeidelpayApiAdapter::class);
             $this->handler->setPaymentMethod($this);
+            $this->method = $this->plugin->getPaymentMethods()->getMethodByID($this->moduleID);
         } catch (\Exception $exc) {
             //! NOTE: JTL can also call this if the plugin is deactivated (so nothing else from the plugin is available)
             $this->state = self::STATE_INVALID;
@@ -229,6 +231,11 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
         }
 
         return parent::getReturnURL($order);
+    }
+
+    public function getMethod(): PaymentMethod
+    {
+        return $this->method;
     }
 
     /**
@@ -340,15 +347,15 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
     public function isSelectable(): bool
     {
         if (
-            !empty($this->getAllowedCountries()) &&
-            !in_array($this->sessionHelper->getFrontendSession()->getCustomer()->cLand, $this->getAllowedCountries())
+            !empty(self::getAllowedCountries()) &&
+            !in_array($this->sessionHelper->getFrontendSession()->getCustomer()->cLand, self::getAllowedCountries(), true)
         ) {
             return false;
         }
 
         if (
-            !empty($this->getAllowedCurrencies()) &&
-            !in_array($this->sessionHelper->getFrontendSession()->getCurrency()->getCode(), $this->getAllowedCurrencies())
+            !empty(self::getAllowedCurrencies()) &&
+            !in_array($this->sessionHelper->getFrontendSession()->getCurrency()->getCode(), self::getAllowedCurrencies(), true)
         ) {
             return false;
         }
@@ -572,17 +579,15 @@ abstract class HeidelpayPaymentMethod extends Method implements NotificationInte
         if ($this->duringCheckout) {
             if (Compatibility::isShopAtLeast54()) {
                 // for some reason JTL decided to remove the getOrderHandler() function...
-                $order->cBestellNr = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID)
-                    ?? (new \JTL\Checkout\OrderHandler(
+                $order->cBestellNr = (new \JTL\Checkout\OrderHandler(
                         Shop::Container()->getDB(),
                         Frontend::getCustomer(),
                         Frontend::getCart()
                     ))->createOrderNo();
             } else if (Compatibility::isShopAtLeast52()) {
-                $order->cBestellNr = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID)
-                    ?? getOrderHandler()->createOrderNo();
+                $order->cBestellNr = getOrderHandler()->createOrderNo();
             } else {
-                $order->cBestellNr = $this->sessionHelper->get(SessionHelper::KEY_ORDER_ID) ?? \baueBestellnummer();
+                $order->cBestellNr = \baueBestellnummer();
             }
 
             $redirectError = PaymentHandler::REDIRECT_TO_PAYMENT_SELECTION_URL;

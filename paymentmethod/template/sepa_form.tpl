@@ -3,7 +3,8 @@
 <div data-unzer-ui-component='{
     "hasSavedInfo": {json_encode($hpPayment.allowSave && !empty($hpPayment.savedInfo))},
     "component": "sepa-direct-debit",
-    "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")}
+    "submitButton": {json_encode($hpPayment.config.selectorSubmitButton|default:"#form_payment_extra .submit, #form_payment_extra .submit_once")},
+    "merchantConfig": {if !empty($hpPayment.merchantConfig)}{$hpPayment.merchantConfig}{else}null{/if}
 }'>
     {* Save New Payment Data *}
     {if $hpPayment.allowSave && !empty($hpPayment.savedInfo)}
@@ -32,7 +33,7 @@
         </div>
     {/if}
 
-    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}">
+    <unzer-payment publicKey="{$hpPayment.publicKey}" locale="{$hpPayment.locale}" {if !empty($hpPayment.merchantConfig)}skipFetchingMerchantConfig{/if}>
         <unzer-sepa-direct-debit credentialsOnFile="{if $hpPayment.allowSave}true{else}false{/if}" />
         <unzer-credentials-on-file />
     </unzer-payment>

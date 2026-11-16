@@ -5,19 +5,6 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\src\Payments;
 
 use Exception;
-use UnzerSDK\Resources\PaymentTypes\Applepay;
-use UnzerSDK\Unzer;
-use UnzerSDK\Resources\Payment;
-use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
-use UnzerSDK\Resources\PaymentTypes\Googlepay;
-use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
-use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
-use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
-use UnzerSDK\Resources\PaymentTypes\PaylaterDirectDebit;
-use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
-use UnzerSDK\Resources\PaymentTypes\Klarna;
-use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
-use UnzerSDK\Resources\TransactionTypes\Authorization;
 use JTL\Cart\Cart;
 use JTL\Checkout\Bestellung;
 use JTL\Helpers\Request;
@@ -28,10 +15,27 @@ use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairService;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLinkHelper;
 use Plugin\s360_unzer_shop5\src\Utils\JtlLoggerTrait;
 use Plugin\s360_unzer_shop5\src\Utils\SessionHelper;
+use RuntimeException;
+use stdClass;
+use UnzerSDK\Exceptions\UnzerApiException;
+use UnzerSDK\Resources\Keypair;
+use UnzerSDK\Resources\Payment;
+use UnzerSDK\Resources\PaymentTypes\Applepay;
+use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
 use UnzerSDK\Resources\PaymentTypes\Card;
 use UnzerSDK\Resources\PaymentTypes\Clicktopay;
+use UnzerSDK\Resources\PaymentTypes\Googlepay;
+use UnzerSDK\Resources\PaymentTypes\InstallmentSecured;
+use UnzerSDK\Resources\PaymentTypes\InvoiceSecured;
+use UnzerSDK\Resources\PaymentTypes\Klarna;
+use UnzerSDK\Resources\PaymentTypes\PaylaterDirectDebit;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInstallment;
+use UnzerSDK\Resources\PaymentTypes\PaylaterInvoice;
 use UnzerSDK\Resources\PaymentTypes\Paypal;
 use UnzerSDK\Resources\PaymentTypes\Wero;
+use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
+use UnzerSDK\Resources\TransactionTypes\Authorization;
+use UnzerSDK\Unzer;
 
 /**
  * Heidelpay API Adapter for JTL Shop.
@@ -89,63 +93,14 @@ class HeidelpayApiAdapter
         return $this->keypairService;
     }
 
-    /**
-     * Create a new API Client Instance
-     *
-     * @return Unzer
-     */
-    public function setCurrentConnection(?bool $isB2B = null, ?int $currency = null, ?int $paymentMethod = null): Unzer
-    {
-        // TODO: Try to load defaults from session?
-        if ($isB2B === null || $currency === null || $paymentMethod === null) {
-            $this->currentConnection = $this->getDefaultConnection();
-            return $this->currentConnection;
-        }
-
-        // If no private key exists for the combination use the default connection as the current connection
-        $privateKey = $this->keypairService->getPrivateKey($isB2B, $currency, $paymentMethod);
-        if (empty($privateKey)) {
-            $this->currentConnection = $this->getDefaultConnection();
-            return $this->currentConnection;
-        }
-
-        // Setup connection
-        $key = (int) $isB2B . ":{$currency}:{$paymentMethod}";
-        $this->connections[$key] = new Unzer(
-            $privateKey,
-            $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
-        );
-
-        $this->connections[$key]->setClientIp(Request::getRealIP());
-        $this->currentConnection = $this->connections[$key];
-
-        return $this->currentConnection;
-    }
-
-    public function getCurrentConnection(): Unzer
-    {
-        return $this->currentConnection ?? $this->getDefaultConnection();
-    }
-
-    public function getDefaultConnection(): Unzer
-    {
-        if (empty($this->defaultConnection)) {
-            $this->defaultConnection = new Unzer(
-                $this->keypairService->getDefaultPrivateKey(),
-                $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
-            );
-        }
-
-        $this->defaultConnection->setClientIp(Request::getRealIP());
-        return $this->defaultConnection;
-    }
-
     public function getConnectionForOrder(Bestellung $order): Unzer
     {
         return $this->setCurrentConnection(
-            (isset($order->oKunde->cFirma) && strlen(trim($order->oKunde->cFirma)) > 0) || (isset($order->oRechnungsadresse->cFirma) && strlen(trim($order->oRechnungsadresse->cFirma))),
-            (int) $order->kWaehrung,
-            (int) $order->kZahlungsart
+            (isset($order->oKunde->cFirma) && strlen(
+                    trim($order->oKunde->cFirma)
+                ) > 0) || (isset($order->oRechnungsadresse->cFirma) && strlen(trim($order->oRechnungsadresse->cFirma))),
+            (int)$order->kWaehrung,
+            (int)$order->kZahlungsart
         );
     }
 
@@ -153,8 +108,8 @@ class HeidelpayApiAdapter
     {
         return $this->setCurrentConnection(
             isset(Frontend::getCustomer()->cFirma) && strlen(trim(Frontend::getCustomer()->cFirma)) > 0,
-            (int) Frontend::getCurrency()->getID(),
-            (int) Frontend::get('AktiveZahlungsart')
+            (int)Frontend::getCurrency()->getID(),
+            (int)Frontend::get('AktiveZahlungsart')
         );
     }
 
@@ -175,10 +130,49 @@ class HeidelpayApiAdapter
         return $this->currentConnection;
     }
 
+    public function getDefaultConnection(): Unzer
+    {
+        if (empty($this->defaultConnection)) {
+            $this->defaultConnection = new Unzer(
+                $this->keypairService->getDefaultPrivateKey(),
+                $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
+            );
+        }
+
+        $this->defaultConnection->setClientIp(Request::getRealIP());
+        return $this->defaultConnection;
+    }
+
+    /**
+     * Map JTL ISO to iso used bei heidelpay
+     *
+     * @see https://docs.heidelpay.com/docs/web-integration#section-localization-and-languages
+     * @param string $iso
+     * @return string
+     */
+    public function mapToLocale(string $iso): string
+    {
+        $mapping = [
+            'ger' => 'de-DE',
+            'dut' => 'nl-NL',
+            'fin' => 'fi',
+            'dan' => 'da',
+            'fre' => 'fr-FR',
+            'ita' => 'it-IT',
+            'spa' => 'es-ES',
+            'por' => 'pt-PT',
+            'slo' => 'sk-SK',
+            'cze' => 'cs-CZ',
+            'pol' => 'pl-PL',
+        ];
+
+        return $mapping[$iso] ?? 'en-GB';
+    }
+
     /**
      * Get Api instance.
-     * @deprecated
      * @return Unzer
+     * @deprecated
      */
     public function getApi(): Unzer
     {
@@ -201,7 +195,7 @@ class HeidelpayApiAdapter
             // Try to fetch the heidelpay customer by its shop id (kKunde).
             try {
                 $customer = $this->getCurrentConnection()->fetchCustomerByExtCustomerId(
-                    (string) $this->session->getFrontendSession()->getCustomer()->getID()
+                    (string)$this->session->getFrontendSession()->getCustomer()->getID()
                 );
 
                 $this->session->set(SessionHelper::KEY_CUSTOMER_ID, $customer->getId());
@@ -214,13 +208,51 @@ class HeidelpayApiAdapter
         return $this->session->get(SessionHelper::KEY_CUSTOMER_ID);
     }
 
+    public function getCurrentConnection(): Unzer
+    {
+        return $this->currentConnection ?? $this->getDefaultConnection();
+    }
+
+    /**
+     * Create a new API Client Instance
+     *
+     * @return Unzer
+     */
+    public function setCurrentConnection(?bool $isB2B = null, ?int $currency = null, ?int $paymentMethod = null): Unzer
+    {
+        // TODO: Try to load defaults from session?
+        if ($isB2B === null || $currency === null || $paymentMethod === null) {
+            $this->currentConnection = $this->getDefaultConnection();
+            return $this->currentConnection;
+        }
+
+        // If no private key exists for the combination use the default connection as the current connection
+        $privateKey = $this->keypairService->getPrivateKey($isB2B, $currency, $paymentMethod);
+        if (empty($privateKey)) {
+            $this->currentConnection = $this->getDefaultConnection();
+            return $this->currentConnection;
+        }
+
+        // Setup connection
+        $key = (int)$isB2B . ":{$currency}:{$paymentMethod}";
+        $this->connections[$key] = new Unzer(
+            $privateKey,
+            $this->mapToLocale(Shop::getLanguageCode() ?? 'eng')
+        );
+
+        $this->connections[$key]->setClientIp(Request::getRealIP());
+        $this->currentConnection = $this->connections[$key];
+
+        return $this->currentConnection;
+    }
+
     /**
      * Fetch a payment from the api.
      *
-     * @throws UnzerApiException if there is an error returned on API-request.
-     * @throws RuntimeException if there is an error while using the SDK
      * @param string|null $paymentId
      * @return Payment
+     * @throws UnzerApiException if there is an error returned on API-request.
+     * @throws RuntimeException if there is an error while using the SDK
      */
     public function fetchPayment(?string $paymentId = null): Payment
     {
@@ -250,10 +282,10 @@ class HeidelpayApiAdapter
     /**
      * Fetch a payment type from the api.
      *
-     * @throws UnzerApiException if there is an error returned on API-request.
-     * @throws RuntimeException if there is an error while using the SDK
      * @param string|null $paymentTypeId
      * @return BasePaymentType
+     * @throws UnzerApiException if there is an error returned on API-request.
+     * @throws RuntimeException if there is an error while using the SDK
      */
     public function fetchPaymentType(?string $paymentTypeId = null): BasePaymentType
     {
@@ -299,10 +331,12 @@ class HeidelpayApiAdapter
     public function getChannelIdForPaymentType(string $paymentType): ?string
     {
         $keypair = $this->getCurrentConnection()->fetchKeypair(true);
-        $payment = current(array_filter(
-            $keypair->getPaymentTypes(),
-            static fn(\stdClass $type) => $type->type === $paymentType
-        ));
+        $payment = current(
+            array_filter(
+                $keypair->getPaymentTypes(),
+                static fn(stdClass $type) => $type->type === $paymentType
+            )
+        );
 
         if (empty($payment)) {
             return null;
@@ -319,6 +353,44 @@ class HeidelpayApiAdapter
         }
 
         return current(array_unique($channelIds));
+    }
+
+    /**
+     * @throws UnzerApiException
+     */
+    public function fetchKeypairConfig(bool $public = false): Keypair
+    {
+        $api = $this->getCurrentConnection();
+
+        if ($public) {
+            $key = $this->keypairService->getPublicFromPrivate($this->getCurrentConnection()->getKey()) ?? $this->keypairService->getDefaultPublicKey();
+            $api = new Unzer($key, $this->mapToLocale(Shop::getLanguageCode() ?? 'eng'));
+            $api->setClientIp(Request::getRealIP());
+        }
+
+        return $api->fetchKeypair(true);
+    }
+
+    public function getMerchantConfig(): ?string
+    {
+        try {
+            $key = $this->keypairService->getPublicFromPrivate($this->getCurrentConnection()->getKey()) ?? $this->keypairService->getDefaultPublicKey();
+            $keypairConfig = Shop::Container()->getCache()->get(__METHOD__ . '::' . $key);
+
+            if ($keypairConfig === false || $keypairConfig === '{}') {
+                $keypairConfig = $this->fetchKeypairConfig(true)->jsonSerialize();
+                Shop::Container()->getCache()->set(
+                    __METHOD__ . '::' . $key,
+                    $keypairConfig,
+                    [CACHING_GROUP_PLUGIN],
+                    60 * 60 * 12
+                );
+            }
+
+            return $keypairConfig;
+        } catch(\Throwable $err) {
+            return null;
+        }
     }
 
     /**
@@ -346,31 +418,5 @@ class HeidelpayApiAdapter
 
         header('Location: ' . $transaction->getRedirectUrl());
         exit();
-    }
-
-    /**
-     * Map JTL ISO to iso used bei heidelpay
-     *
-     * @see https://docs.heidelpay.com/docs/web-integration#section-localization-and-languages
-     * @param string $iso
-     * @return string
-     */
-    public function mapToLocale(string $iso): string
-    {
-        $mapping = [
-            'ger' => 'de-DE',
-            'dut' => 'nl-NL',
-            'fin' => 'fi',
-            'dan' => 'da',
-            'fre' => 'fr-FR',
-            'ita' => 'it-IT',
-            'spa' => 'es-ES',
-            'por' => 'pt-PT',
-            'slo' => 'sk-SK',
-            'cze' => 'cs-CZ',
-            'pol' => 'pl-PL',
-        ];
-
-        return $mapping[$iso] ?? 'en-GB';
     }
 }

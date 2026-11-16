@@ -6,7 +6,7 @@ namespace Plugin\s360_unzer_shop5\src\KeyPairs;
 
 use Plugin\s360_unzer_shop5\src\Utils\Config;
 
-class KeyPairService
+final class KeyPairService
 {
     private KeyPairModel $model;
     private Config $config;
@@ -19,35 +19,23 @@ class KeyPairService
 
     public function getPrivateFromPublic(string $public): ?string
     {
-        $keypair = $this->model->findByPublic($public);
+        return $this->model->findByPublic($public)?->getPrivateKey();
+    }
 
-        if (empty($keypair)) {
-            return null;
-        }
 
-        return $keypair->getPrivateKey();
+    public function getPublicFromPrivate(string $private): ?string
+    {
+        return $this->model->findByPrivate($private)?->getPublicKey();
     }
 
     public function getPrivateKey(bool $isB2B, int $currency, int $paymentMethod): ?string
     {
-        $keypair = $this->model->findKeyPair($isB2B, $currency, $paymentMethod);
-
-        if (empty($keypair)) {
-            return null;
-        }
-
-        return $keypair->getPrivateKey();
+        return $this->model->findKeyPair($isB2B, $currency, $paymentMethod)?->getPrivateKey();
     }
 
     public function getPublicKey(bool $isB2B, int $currency, int $paymentMethod): ?string
     {
-        $keypair = $this->model->findKeyPair($isB2B, $currency, $paymentMethod);
-
-        if (empty($keypair)) {
-            return null;
-        }
-
-        return $keypair->getPublicKey();
+        return $this->model->findKeyPair($isB2B, $currency, $paymentMethod)?->getPublicKey();
     }
 
     public function getDefaultPrivateKey(): ?string

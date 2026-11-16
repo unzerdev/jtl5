@@ -20,9 +20,11 @@
             {/if}
         </td>
         <td>
-            {if isset($unzerKeypairs.paymentMethods[$item->getPaymentMethodId()])}
-                {__($unzerKeypairs.paymentMethods[$item->getPaymentMethodId()]->getName())}
-            {/if}
+            {foreach $item->getPaymentMethodIds() as $paymentMethodId}
+                {if isset($unzerKeypairs.paymentMethods[$paymentMethodId])}
+                    {__($unzerKeypairs.paymentMethods[$paymentMethodId]->getName())}{if !$paymentMethodId@last}, {/if}
+                {/if}
+            {/foreach}
         </td>
         <td>
             <form method="POST" class="keypair-action-form">

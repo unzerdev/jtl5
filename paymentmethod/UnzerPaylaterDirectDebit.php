@@ -35,12 +35,12 @@ class UnzerPaylaterDirectDebit extends HeidelpayPaymentMethod implements
     use SupportsB2B;
     use CancelPaymentTransaction;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['AT', 'DE'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR'];
     }

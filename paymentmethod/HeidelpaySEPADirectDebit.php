@@ -46,12 +46,12 @@ class HeidelpaySEPADirectDebit extends HeidelpayPaymentMethod implements
     use TranslatorTrait;
     use SupportsB2B;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['AT', 'BE', 'CY', 'FI', 'FR', 'DE', 'GR', 'IE', 'IT', 'LI', 'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SI', 'SK', 'ES'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR'];
     }

@@ -38,12 +38,12 @@ class HeidelpayiDEAL extends HeidelpayPaymentMethod implements RedirectPaymentIn
     use HasCustomer;
     use SupportsB2B;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['NL'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR'];
     }

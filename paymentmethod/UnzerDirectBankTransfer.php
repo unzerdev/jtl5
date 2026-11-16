@@ -5,15 +5,15 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\paymentmethod;
 
 use JTL\Checkout\Bestellung;
-use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
-use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
-use UnzerSDK\Resources\TransactionTypes\Charge;
 use Plugin\s360_unzer_shop5\src\Payments\HeidelpayPaymentMethod;
 use Plugin\s360_unzer_shop5\src\Payments\Interfaces\RedirectPaymentInterface;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasBasket;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasCustomer;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\HasMetadata;
 use Plugin\s360_unzer_shop5\src\Payments\Traits\SupportsB2B;
+use UnzerSDK\Resources\PaymentTypes\BasePaymentType;
+use UnzerSDK\Resources\TransactionTypes\AbstractTransactionType;
+use UnzerSDK\Resources\TransactionTypes\Charge;
 
 class UnzerDirectBankTransfer extends HeidelpayPaymentMethod implements RedirectPaymentInterface
 {
@@ -22,12 +22,12 @@ class UnzerDirectBankTransfer extends HeidelpayPaymentMethod implements Redirect
     use HasCustomer;
     use SupportsB2B;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['DE'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR'];
     }

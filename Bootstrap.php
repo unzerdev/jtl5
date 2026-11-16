@@ -25,6 +25,7 @@ use Plugin\s360_unzer_shop5\paymentmethod\UnzerApplePay;
 use Plugin\s360_unzer_shop5\Seeders\Shop4PluginMigrationSeeder;
 use Plugin\s360_unzer_shop5\src\ApplePay\CertificationService;
 use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminApplePayController;
+use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminDashboardController;
 use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminKeyPairsController;
 use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminOrdersController;
 use Plugin\s360_unzer_shop5\src\Controllers\Admin\AdminSettingsController;
@@ -282,6 +283,23 @@ class Bootstrap extends Bootstrapper implements BootstrapperInterface
             $this->registerSmartyPhpFunctions($smarty);
 
             switch ($tabName) {
+                case JtlLinkHelper::ADMIN_TAB_DASHBOARD:
+                    $controller = new AdminDashboardController($this->getPlugin(), $smarty);
+
+                    // Handle Ajax Requests
+                    if (Request::isAjaxRequest() && Request::getVar('controller') == 'dashboard') {
+                        try {
+                            $controller->handleAjax();
+                        } catch (Throwable $th) {
+                            echo json_encode([
+                                'status'   => 'error',
+                                'messages' => [$th->getMessage()]
+                            ]);
+                            die;
+                        }
+                    }
+
+                    return $controller->handle();
                 case JtlLinkHelper::ADMIN_TAB_ORDERS:
                     $model = new OrderMappingModel(Shop::Container()->getDB());
 

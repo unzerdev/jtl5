@@ -13,20 +13,22 @@ class KeyPairEntity extends Entity
     protected string $publicKey;
     protected bool $isB2B;
     protected int $currencyId;
-    protected int $paymentMethodId;
+
+    /** @var int[]|string[] */
+    protected array $paymentMethodIds;
 
     public function __construct(
         string $privateKey,
         string $publicKey,
         bool $isB2B,
         int $currencyId,
-        int $paymentMethodId
+        array $paymentMethodIds
     ) {
         $this->privateKey = $privateKey;
         $this->publicKey = $publicKey;
         $this->isB2B = $isB2B;
         $this->currencyId = $currencyId;
-        $this->paymentMethodId = $paymentMethodId;
+        $this->paymentMethodIds = $paymentMethodIds;
     }
 
     public function toObject(): stdClass
@@ -38,19 +40,22 @@ class KeyPairEntity extends Entity
         $data->public_key = $this->getPublicKey();
         $data->is_b2b = $this->isB2B();
         $data->currency_id = $this->getCurrencyId();
-        $data->payment_method_id = $this->getPaymentMethodId();
+        $data->payment_method_ids = json_encode($this->getPaymentMethodIds(), JSON_THROW_ON_ERROR);
 
         return $data;
     }
 
     public static function create(stdClass $data): Entity
     {
+        // Fallback to payment_method_id
+        $paymentMethodId = \json_decode($data->payment_method_ids ?? $data->payment_method_id, true, 512, JSON_THROW_ON_ERROR);
+
         $entity = new self(
             trim($data->private_key),
             trim($data->public_key),
             (bool) $data->is_b2b,
             (int) $data->currency_id,
-            (int) $data->payment_method_id
+            is_array($paymentMethodId) ? $paymentMethodId : [$paymentMethodId]
         );
 
         if (!empty($data->id)) {
@@ -104,14 +109,17 @@ class KeyPairEntity extends Entity
         return $this;
     }
 
-    public function getPaymentMethodId(): int
+    /**
+     * @return int[]|string[]
+     */
+    public function getPaymentMethodIds(): array
     {
-        return $this->paymentMethodId;
+        return $this->paymentMethodIds;
     }
 
-    public function setPaymentMethodId(int $paymentMethodId): self
+    public function setPaymentMethodId(int|array $paymentMethodId): self
     {
-        $this->paymentMethodId = $paymentMethodId;
+        $this->paymentMethodIds = is_array($paymentMethodId) ? $paymentMethodId : [$paymentMethodId];
         return $this;
     }
 }

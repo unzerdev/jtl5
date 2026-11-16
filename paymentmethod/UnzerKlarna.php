@@ -31,7 +31,7 @@ class UnzerKlarna extends HeidelpayPaymentMethod implements
     use SupportsB2B;
     use CancelPaymentTransaction;
 
-    protected function getAllowedCountryCurrencyCombination()
+    public static function getAllowedCountryCurrencyCombination()
     {
         return [
             'AU' => 'AUD',
@@ -63,14 +63,14 @@ class UnzerKlarna extends HeidelpayPaymentMethod implements
         ];
     }
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
-        return array_keys($this->getAllowedCountryCurrencyCombination());
+        return array_keys(self::getAllowedCountryCurrencyCombination());
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
-        return array_values($this->getAllowedCountryCurrencyCombination());
+        return array_values(self::getAllowedCountryCurrencyCombination());
     }
 
     /**

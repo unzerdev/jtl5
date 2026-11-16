@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] (November 2026)
+### Added
+- dashboard with overview of configured payment methods
+- option to save an additional keypair for multiple payment methods at once
+
+### Fix
+- always regenerate a new order number instead of relying on a possible stale order number from the session
+
 ## [2.0.5] (October 2026)
 ### Added
 - support for **JTL 5.8**

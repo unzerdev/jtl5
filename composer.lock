@@ -127,16 +127,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.53",
+            "version": "3.0.56",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "511ddc8e352d5d1f1e33bea468b6f4ef48438cf9"
+                "reference": "7adbbe38cde25e2df2116dbf2673c407e24fa305"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/511ddc8e352d5d1f1e33bea468b6f4ef48438cf9",
-                "reference": "511ddc8e352d5d1f1e33bea468b6f4ef48438cf9",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/7adbbe38cde25e2df2116dbf2673c407e24fa305",
+                "reference": "7adbbe38cde25e2df2116dbf2673c407e24fa305",
                 "shasum": ""
             },
             "require": {
@@ -217,7 +217,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.53"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.56"
             },
             "funding": [
                 {
@@ -233,20 +233,20 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-06-09T18:08:26+00:00"
+            "time": "2026-08-03T04:36:50+00:00"
         },
         {
             "name": "unzerdev/php-sdk",
-            "version": "4.0.1",
+            "version": "4.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/unzerdev/php-sdk.git",
-                "reference": "a9344b823fbf5374cd49e07ab6352d385578299e"
+                "reference": "65ddfebbeca12e256759c9b35113b4cb8cf0275d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/unzerdev/php-sdk/zipball/a9344b823fbf5374cd49e07ab6352d385578299e",
-                "reference": "a9344b823fbf5374cd49e07ab6352d385578299e",
+                "url": "https://api.github.com/repos/unzerdev/php-sdk/zipball/65ddfebbeca12e256759c9b35113b4cb8cf0275d",
+                "reference": "65ddfebbeca12e256759c9b35113b4cb8cf0275d",
                 "shasum": ""
             },
             "require": {
@@ -274,9 +274,9 @@
             "description": "This is the php sdk to connect to the Unzer rest API.",
             "support": {
                 "email": "support@unzer.com",
-                "source": "https://github.com/unzerdev/php-sdk/tree/4.0.1"
+                "source": "https://github.com/unzerdev/php-sdk/tree/4.0.2"
             },
-            "time": "2026-05-15T13:48:06+00:00"
+            "time": "2026-08-17T09:39:03+00:00"
         }
     ],
     "packages-dev": [],

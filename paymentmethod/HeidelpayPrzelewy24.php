@@ -33,12 +33,12 @@ class HeidelpayPrzelewy24 extends HeidelpayPaymentMethod implements RedirectPaym
     use HasCustomer;
     use SupportsB2B;
 
-    protected function getAllowedCountries(): array
+    public static function getAllowedCountries(): array
     {
         return ['PL'];
     }
 
-    protected function getAllowedCurrencies(): array
+    public static function getAllowedCurrencies(): array
     {
         return ['EUR', 'PLN'];
     }

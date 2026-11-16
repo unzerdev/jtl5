@@ -5,14 +5,10 @@ declare(strict_types=1);
 namespace Plugin\s360_unzer_shop5\src\Controllers\Admin;
 
 use JTL\Helpers\Form;
+use JTL\Plugin\Data\PaymentMethod;
 use UnzerSDK\Validators\PrivateKeyValidator;
 use UnzerSDK\Validators\PublicKeyValidator;
 use JTL\Helpers\Request;
-use Plugin\s360_unzer_shop5\paymentmethod\HeidelpaySEPADirectDebit;
-use Plugin\s360_unzer_shop5\paymentmethod\UnzerDirectBankTransfer;
-use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterDirectDebit;
-use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInstallment;
-use Plugin\s360_unzer_shop5\paymentmethod\UnzerPaylaterInvoice;
 use Plugin\s360_unzer_shop5\src\Controllers\AjaxResponse;
 use Plugin\s360_unzer_shop5\src\Controllers\HasAjaxResponse;
 use Plugin\s360_unzer_shop5\src\KeyPairs\KeyPairEntity;
@@ -25,6 +21,8 @@ class AdminKeyPairsController extends AdminController implements AjaxResponse
 
     protected KeyPairModel $model;
     protected JtlLinkHelper $linkHelper;
+
+    /** @var PaymentMethod[] */
     protected array $paymentMethods = [];
 
     /**
@@ -47,8 +45,11 @@ class AdminKeyPairsController extends AdminController implements AjaxResponse
         // Get Unzer Payment Methods
         $methods = $this->plugin->getPaymentMethods()->getMethods();
         foreach ($methods as $method) {
-            $this->paymentMethods[$method->getMethodID()] = $method;
+            if ($method->getActive() && $method->getUsable()) {
+                $this->paymentMethods[$method->getMethodID()] = $method;
+            }
         }
+
         uasort(
             $this->paymentMethods,
             static fn($foo, $bar) => strnatcmp(strtolower(__($foo->getName())), strtolower(__($bar->getName())))
@@ -87,27 +88,27 @@ class AdminKeyPairsController extends AdminController implements AjaxResponse
         }
 
         // Filter payment methods
-        $availablePaymentMethods = [];
-        $methodIds = [
-            UnzerPaylaterInvoice::class,
-            UnzerPaylaterDirectDebit::class,
-            UnzerPaylaterInstallment::class,
-            HeidelpaySEPADirectDebit::class
-            // UnzerDirectBankTransfer::class
-        ];
-
-        foreach ($this->paymentMethods as $method) {
-            if ($method->getActive() && \in_array($method->getClassName(), $methodIds)) {
-                $availablePaymentMethods[$method->getMethodID()] = $method;
-            }
-        }
+//        $availablePaymentMethods = [];
+//        $methodIds = [
+//            UnzerPaylaterInvoice::class,
+//            UnzerPaylaterDirectDebit::class,
+//            UnzerPaylaterInstallment::class,
+//            HeidelpaySEPADirectDebit::class
+//            // UnzerDirectBankTransfer::class
+//        ];
+//
+//        foreach ($this->paymentMethods as $method) {
+//            if (\in_array($method->getClassName(), $methodIds)) {
+//                $availablePaymentMethods[$method->getMethodID()] = $method;
+//            }
+//        }
 
         // Response
         $data =  [
             'item' => $item,
             'items' => $this->model->all(),
             'currencies' => $this->model->getCurrencies(),
-            'paymentMethods' => $availablePaymentMethods,
+            'paymentMethods' => $this->paymentMethods,
             'url' => $this->linkHelper->getFullAdminTabUrl(JtlLinkHelper::ADMIN_TAB_ORDERS)
         ];
 
@@ -163,7 +164,7 @@ class AdminKeyPairsController extends AdminController implements AjaxResponse
             Request::postVar('publicKey', ''),
             Request::postVar('isB2B') === 'on' || Request::postVar('isB2B') === 'true',
             Request::postInt('currency'),
-            Request::postInt('paymentMethod'),
+            Request::postVar('paymentMethod'),
         );
 
         if (Request::postInt('id')) {
